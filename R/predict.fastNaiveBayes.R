@@ -110,6 +110,8 @@ predict.fastNaiveBayes <- function(object, newdata, type=c("class","raw"), spars
   }
 
   names <- object$names
+  distribution <- object$distribution
+
   other_names <- setdiff(names,colnames(newdata))
   if(length(other_names)>0){
     if(sparse){
@@ -120,35 +122,37 @@ predict.fastNaiveBayes <- function(object, newdata, type=c("class","raw"), spars
     colnames(other_mat) <- other_names
 
     newdata <- cbind(newdata,other_mat)
-    newdata <- newdata[,names]
-  }else{
-    newdata <- newdata[,names]
   }
-  alt_data <- newdata-1
-  alt_data <- -1*alt_data
+  newdata <- newdata[,names]
+  data <- object$probability_table
 
-  train <- object$probability_table
-  probs <- lapply(train, function(data){
+  if(distribution=="bernoulli"){
+    alt_data <- 1-newdata
 
     present <- log(data$present)
     nonpresent <- log(data$non_present)
 
-    presence_prob <- newdata %*% present
-    nonpresence_prob <- alt_data %*% nonpresent
-
-    presence_prob <- as.vector(presence_prob)
-    nonpresence_prob <- as.vector(nonpresence_prob)
+    presence_prob <- newdata %*% t(present)
+    nonpresence_prob <- alt_data %*% t(nonpresent)
 
     prob <- exp((presence_prob + nonpresence_prob))
-    prob <- prob * data$level_prob
-    return(prob)
-  })
-  probs <- matrix(unlist(probs), ncol = length(probs), byrow = FALSE,
-                  dimnames = list(rows = NULL,cols=names(probs)))
-  denom <- rowSums(probs)
-  for(i in 1:ncol(probs)){
-    probs[,i] <- probs[,i]/denom
   }
+  if(distribution=="multinomial"){
+    present <- log(data$present)
+    presence_prob <- newdata %*% t(present)
+
+    prob <- exp(presence_prob)
+  }
+  priors <- as.vector(object$priors)
+  probs <- prob
+
+  for(i in 1:length(priors)){
+    probs[,i] <- probs[,i]*priors[i]
+  }
+
+  denom <- rowSums(probs)
+  probs <- probs/denom
+
   if(type=='class'){
     if(any(max.col(probs, ties.method = "last") != max.col(probs, ties.method = "first"))){
       warning("Exact same estimated probabilities occured. First encountered class used as classification")

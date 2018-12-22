@@ -8,7 +8,7 @@
 fastNaiveBayes(x, y, laplace = 0, sparse = FALSE, ...)
 
 \method{fastNaiveBayes}{default}(x, y, laplace = 0, sparse = FALSE,
-  ...)
+  distribution = c("bernoulli", "multinomial"), ...)
 }
 \arguments{
 \item{x}{a numeric matrix with 1's and 0's to indicate the presence or absence of features. A sparse dgcMatrix is also accepted}
