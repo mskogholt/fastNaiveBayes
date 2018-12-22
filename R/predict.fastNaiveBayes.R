@@ -68,7 +68,7 @@
 #'     # Example, running model 100 times with sparse matrix directly. This will be faster when
 #'     # large and sparse matrices are used
 #'     start <- Sys.time()
-#'     for(i in 1:100){
+#'     for(i in 1:10){
 #'       train_idx <- sample(1:nrow(sparse_data), size = nrow(sparse_data), replace = TRUE)
 #'
 #'       model <- fastNaiveBayes(sparse_data[train_idx,], y[train_idx], laplace=1)
@@ -79,7 +79,7 @@
 #'     # Example, data is a matrix and sparse set to true, which means at each function call, data
 #'     # will converted to a sparse matrix
 #'     start <- Sys.time()
-#'     for(i in 1:100){
+#'     for(i in 1:10){
 #'       train_idx <- sample(1:nrow(data_mat), size = nrow(data_mat), replace = TRUE)
 #'
 #'       model <- fastNaiveBayes(data_mat[train_idx,], y[train_idx], laplace=1, sparse = TRUE)
@@ -89,7 +89,7 @@
 #'
 #'     # Last but not least, not using sparse matrix at all.
 #'     start <- Sys.time()
-#'     for(i in 1:100){
+#'     for(i in 1:10){
 #'       train_idx <- sample(1:nrow(data_mat), size = nrow(data_mat), replace = TRUE)
 #'
 #'       model <- fastNaiveBayes(data_mat[train_idx,], y[train_idx], laplace=1)
@@ -157,7 +157,7 @@ predict.fastNaiveBayes <- function(object, newdata, type=c("class","raw"), spars
     if(any(max.col(probs, ties.method = "last") != max.col(probs, ties.method = "first"))){
       warning("Exact same estimated probabilities occured. First encountered class used as classification")
     }
-    class <- colnames(probs)[max.col(probs, ties.method = "first")]
+    class <- names(object$priors)[max.col(probs, ties.method = "first")]
     return(as.factor(class))
   }
   return(probs)

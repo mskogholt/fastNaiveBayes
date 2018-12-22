@@ -5,7 +5,8 @@
 \alias{fastNaiveBayes.default}
 \title{Fast Naive Bayes Classifier}
 \usage{
-fastNaiveBayes(x, y, laplace = 0, sparse = FALSE, ...)
+fastNaiveBayes(x, y, laplace = 0, sparse = FALSE,
+  distribution = c("bernoulli", "multinomial"), ...)
 
 \method{fastNaiveBayes}{default}(x, y, laplace = 0, sparse = FALSE,
   distribution = c("bernoulli", "multinomial"), ...)
@@ -20,33 +21,35 @@ fastNaiveBayes(x, y, laplace = 0, sparse = FALSE, ...)
 \item{sparse}{Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
 It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE}
 
+\item{distribution}{the type of distribution used to model the probabilites. Either bernoulli or multinomial.}
+
 \item{...}{Not used.}
 }
 \value{
-A fitted object of class "fastNaiveBayes". It has two components:
+A fitted object of class "fastNaiveBayes". It has four components:
 
     \describe{
-        \item{probability_table}{A list where each element is a list of probability vectors belonging to each class. That is each element
-        of this list belongs to a certain class and each element is a list of it's own containing probability vectors. A probability vector
-        is a vector where each element is the probability of a certain feature being absent/present
-        }
+        \item{probability_table}{The calculated conditional probabilities}
+        \item{priors}{calculated prior probabilities for each class}
         \item{names}{names of features used to train this fastNaiveBayes}
+        \item{distribution}{the distribution assumed for probability calculations and predictions}
     }
 }
 \description{
-Extremely fast and highly scalable implementation of a Naive Bayes Classifier. Computes the frequency
-    tables of present and non present features corresponding to each class.
+Extremely fast and highly scalable implementation of a Naive Bayes Classifier.
 }
 \details{
-A standard Naive Bayes classifier that assumes independence between feature variables. Currently only numerical predictors
-    That indicate the presence/absence of the feature is allowed. NA's are simply treated as 0, i.e. absent in all calculations.
+A Naive Bayes classifier that assumes independence between the feature variables. Currently, either a Bernoulli
+    or a multinomial distribution can be used. The bernoulli distribution should be used when the features are 0 or 1 to
+    indicate the presence or absence of the feature in each document. The multinomial distribution should be used when the
+    features are the frequency that the feature occurs in each document. NA's are simply treated as 0.
 
-    By setting sparse = TRUE the numeric matrix x will be converted to a sparse dgcMatrix. This is considerably fast in case only
-    very few features are present,i.e. 1, and a lot of features are absent, i.e. 0. That is if there are a lot of 0's present in x
-    using a sparse matrix will be faster.
+    By setting sparse = TRUE the numeric matrix x will be converted to a sparse dgcMatrix. This can be considerably faster
+    in case few observations have a value different than 0.
 
-    It's also possible to directly supply a sparse dgcMatrix, which is a lot faster in case
-    a fastNaiveBayes model is trained multiple times on the same matrix or a subset of this. See examples for more details.
+    It's also possible to directly supply a sparse dgcMatrix, which can be a lot faster in case a fastNaiveBayes model
+    is trained multiple times on the same matrix or a subset of this. See examples for more details. Bear in mind that
+    converting to a sparse matrix can actually be slower depending on the data.
 }
 \examples{
     rm(list=ls())
@@ -93,7 +96,7 @@ A standard Naive Bayes classifier that assumes independence between feature vari
     # Example, running model 100 times with sparse matrix directly. This will be faster when
     # large and sparse matrices are used
     start <- Sys.time()
-    for(i in 1:100){
+    for(i in 1:10){
       train_idx <- sample(1:nrow(sparse_data), size = nrow(sparse_data), replace = TRUE)
 
       model <- fastNaiveBayes(sparse_data[train_idx,], y[train_idx], laplace=1)
@@ -104,7 +107,7 @@ A standard Naive Bayes classifier that assumes independence between feature vari
     # Example, data is a matrix and sparse set to true, which means at each function call, data
     # will converted to a sparse matrix
     start <- Sys.time()
-    for(i in 1:100){
+    for(i in 1:10){
       train_idx <- sample(1:nrow(data_mat), size = nrow(data_mat), replace = TRUE)
 
       model <- fastNaiveBayes(data_mat[train_idx,], y[train_idx], laplace=1, sparse = TRUE)
@@ -114,7 +117,7 @@ A standard Naive Bayes classifier that assumes independence between feature vari
 
     # Last but not least, not using sparse matrix at all.
     start <- Sys.time()
-    for(i in 1:100){
+    for(i in 1:10){
       train_idx <- sample(1:nrow(data_mat), size = nrow(data_mat), replace = TRUE)
 
       model <- fastNaiveBayes(data_mat[train_idx,], y[train_idx], laplace=1)

@@ -83,7 +83,7 @@ In the extremely unlikely case that two classes have the exact same estimated pr
     # Example, running model 100 times with sparse matrix directly. This will be faster when
     # large and sparse matrices are used
     start <- Sys.time()
-    for(i in 1:100){
+    for(i in 1:10){
       train_idx <- sample(1:nrow(sparse_data), size = nrow(sparse_data), replace = TRUE)
 
       model <- fastNaiveBayes(sparse_data[train_idx,], y[train_idx], laplace=1)
@@ -94,7 +94,7 @@ In the extremely unlikely case that two classes have the exact same estimated pr
     # Example, data is a matrix and sparse set to true, which means at each function call, data
     # will converted to a sparse matrix
     start <- Sys.time()
-    for(i in 1:100){
+    for(i in 1:10){
       train_idx <- sample(1:nrow(data_mat), size = nrow(data_mat), replace = TRUE)
 
       model <- fastNaiveBayes(data_mat[train_idx,], y[train_idx], laplace=1, sparse = TRUE)
@@ -104,7 +104,7 @@ In the extremely unlikely case that two classes have the exact same estimated pr
 
     # Last but not least, not using sparse matrix at all.
     start <- Sys.time()
-    for(i in 1:100){
+    for(i in 1:10){
       train_idx <- sample(1:nrow(data_mat), size = nrow(data_mat), replace = TRUE)
 
       model <- fastNaiveBayes(data_mat[train_idx,], y[train_idx], laplace=1)
