@@ -1,0 +1,93 @@
+---
+title: "Fast Naive Bayes"
+author: "Martin Skogholt"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Fast Naive Bayes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+Text classification is the task of classifying documents by their content: that is, by the words of which they are comprised. The documents are often represented as a bag of words. This means that only the occurrence and frequency of the words in the document are taken into account, any information about the syntactic structure of these words is discarded \ref{4}. In many research efforts regarding document classification, Naive Bayes has been successfully applied \ref{5}. 
+
+This package is a very fast implementation of the Naive Bayes classifier with the option to use two feature modelling distributions, as will be explained later on. 
+
+# Naive Bayes 
+Naive Bayes is a probabilistic classification method based on the Bayes theorem with a strong and naive independence assumption. Naive Bayes assumes independence between all attributes. Despite this so-called “Naive Bayes assumption”, this technique has been proven to be very effective for text classification \ref{6}. In the context of text classification, Naive Bayes estimates the posterior probability that a document, consisting out of several words, belongs to a certain class and classifies the document as the class which has the highest posterior probability:
+$$P(C=k|D) = \frac{P(D|C=k)*P(C=k)}{P(D)}$$
+Where $P(C=k|D)$ is the posterior probability that the class equals $k$ given document, $D$. The Bayes theorem is applied to rewrite this probability to three components:
+
+1. $P(D|C=k)$, the conditional probability of document, $D$, given class, $k$
+2. $P(C=k)$, the prior probability of class, $k$
+3. $P(D)$, the prior probability of document, $D$
+
+To classify a document, $D$, the class, $k$, with the highest probability is chosen as the classification. This means that we can simplify the equation a bit, since $P(D)$ is the same for all classes. By removing the denominator, the focus is now solely on calculating the nominator.
+
+## The prior
+The prior probability of class, $k$, i.e. $P(C=k)$, is simply the proportion of documents in the training dataset that have class, $k$. For example, if our training dataset consists of 100 emails that have been labeled as either $Ham$ or $Spam$ and there were 63 emails that were labeled $Ham$ and 37 emails labeled as $Spam$. In this case, $P(C=Spam)$ is the proportion of emails that were labeled as $Spam$, i.e. $\frac{37}{100}=0.37$. This prior probability estimation is the same regardless of which distribution is used within the Naive Bayes Classifier.
+
+## Distributions
+Naive Bayes is a popular classification method, however, within the classification community there is some confusion about this classifier: There are two different generative models in common use, the multinomial Naive Bayes and Bernoulli Naive Bayes. Both are called Naive Bayes by their practitioners and both make use of the Naive Bayes assumption. However, they have different assumptions on the distributions of the features that are used. This means that these assumptions lead to two distinct models, which are very often confused \ref{7}
+
+#### Bernoulli Distribution
+The most commonly used Naive Bayes classifier uses a Bernoulli model. This is applicable for binary features that indicate the presence or absence of a feature(1 and 0, respectively). Each document, $D$, consists of a set of words, $w$. Let $V$ be the vocabulary, i.e. the collection of unique words in the complete dataset. Using the Bernoulli distribution, $P(D_i|C=k)$ becomes:
+$$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}$$
+Where $b_{i,t}=1$ if the document, $D_i$, contains the word, $w_t$, and $0$ otherwise. Furthermore, $|V|$ is the number of unique words in the dataset and $P(w_{t}|C=k)$ is the posterior probability of word, $w_t$ occuring in a document with class, $k$. This is simply calculated as the proportion of documents of class, $k$, in which word, $t$, occurs compared the total number of documents of class, $k$. In other words:
+$$P(w_{t}|C=k)=\frac{\sum_{i=1}^{N}{x_{i,t}*z_{i,k}}}{\sum_{i=1}^{N}{z_{i,k}}}$$
+Where $x_{i,t}$ equals $1$ if word, $t$, occurs in document, $i$, and $0$ otherwise. Furthermore, $z_{i,k}$ equals $1$ if document, $i$, is labeled as class, $k$, and $0$ otherwise.
+
+#### Multinomial Distribution
+The multionomial distribution is used to model features, which represent the frequency of which the events occured, or in other words it uses word counts in the documents instead of the binary representation. This means that the distribution used to calculate $P(D_i|C=k)$ changes. This now becomes:
+$$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{P(w_t|C=k)^{x_{i,t}}}$$
+Where $x_{i,t}$ is the frequency of word, $t$, in document, $i$. Here:
+$$P(w_t|C=k)=\frac{\sum_{i=1}^{N}{x_{i,t}*z_{i,k}}}{\sum_{s=1}^{|V|}{\sum_{i=1}^{N}{x_{i,s}z_{i,k}}}}$$
+Where $x_{i,t}$ is the frequency of word, $t$, in document, $i$ and $z_{i,k}$ equals $1$ if document, $i$, is labeled as class, $k$, and $0$ otherwise. Furthermore, $|V|$ is the length of the vocabulary, i.e. the total number of unique words in the dataset.
+
+## Laplace Smoothing
+Another important aspect of Naive Bayes classifiers is the so-called Laplace smoothing. Consider again the probability calculation: 
+$$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}$$
+If at any point $P(w_t|C=k)=0$, then $P(D_i|C=k)$ will also equal $0$, since it's a product of the individual probabilities. The same holds for the Multinomial distribution. In order to overcome this, Laplace smoothing is used, which simply adds a small non-zero count to all the word counts, so as to not encounter zero probabilities. There is a very important distinction to be made. A commonly made mistake is to assume that this is also applied to any features in the test set that were not encountered in the training set. This however, is not correct. The Laplace smoothing is applied, such that words that do not occur at all together wit a specific class do not yield zero probabilties. Features in the test set that were not encountered in the training set are simply ignored from the equation. This also makes sense, if a word was never encountered in the training set then $P(w_t|C=k)$ should be the same for every class, $k$.
+
+# Why is it so fast?
+As previously explained, when classifying a new document, one needs to calculate $P(C=k|D_i) = \frac{P(D_i|C=k)*P(C=k)}{P(D_i)}$ for each class, $k$. However, since the class with the highest posterior probability is used as the classification and $P(D_i)$ is constant for all classes, the denominator can be ignored. This means that for prediction, only $P(D_i|C=k)*P(C=k)$ needs to be calculated. As has been shown above this probability in the Bernoulli case can be rewritten to:
+$$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}$$
+By taking the log transformation this becomes:
+$$log(\prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}) = \sum_{t=1}^{|V|}{log(b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k)))}$$
+By rearranging some terms this becomes:
+$$\sum_{t=1}^{|V|}{b_{i,t}*log(P(w_{t}|C=k))} + \sum_{t=1}^{|V|}{(1-b_{i,t})*log((1-P(w_{t}|C=k)))} $$
+If we zoom in on the first part and keep in mind that our matrix, $x$, with observations is a matrix where each column is a word, from $1$ to $|V|$, with a $1$ if the word was observed and $0$ otherwise. This means that the matrix 
+of observations has $b_{i,t}$ as the values. The probabilities, $P(w_t|C=k)$, is a vector of length $|V|$. We can now use matrix multiplication to derive the sum as follows: $x * P(w_t|C=k)$ for the first part and $(1-x) * (1-P(w_t|C=k))$ for the second part. After these two parts have been added up, one can simply raise $e$ to the power of the outcomes to transform it back to the original probabilities. This trick that allows one to use matrix multiplication is what makes this specific implementation so efficient.
+
+# Improvement compared to 'e1071'
+The go-to package for Naive Bayes classification in the R community is 'e1071'. The main contribution of the fastNaiveBayes package is by improving on the work already done in 'e1071' on two points:
+
+1. Speed of execution: by using the matrix multiplication trick this package is magnitudes faster
+2. Also allows multinomial distribution modelling using the word frequencies. 
+
+There is one caveat to this package compared to 'e1071', which is that a Gaussian distribution for numerical variables is not implemented (yet). This is because the matrix multiplication trick does not hold for a Gaussian distribution of numerical variables.
+
+In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to 'e1071'. The comparison was made on a dataset consisting of 14640 tweets, where 10980 were used to train the Naive Bayes classifier and 3660 tweets were used to test. After processing a total of 1881 features, i.e. words, were used. In the table below the comparison between execution times is shown
+
+| Bernoulli                           | min        | lq         | mean       | median     | uq         | max        |
+|-------------------------------------|------------|------------|------------|------------|------------|------------|
+| fastNaiveBayes                      | 377 ms.    | 387 ms.    | 429 ms.    | 394 ms.    | 441 ms.    | 611 ms.    |
+| fastNaiveBayes sparse               | 637 ms.    | 652 ms.    | 817 ms.    | 809 ms.    | 918 ms.    | 1105   ms. |
+| e1071                               | 128488 ms. | 128778 ms. | 133180 ms. | 131442 ms. | 133776 ms. | 147038 ms. |
+As can be seen from this table, the fastNaiveBayes algorithm using a normal R matrix was the fastest. Compared to the 'e1071' package the execution time is 331 times faster. It's interesting to note that using a sparse dgcMatrix did not result in faster execution times for the Bernoulli distribution.
+
+In the table below, the results are shown when using a Multinomial distribution and the word counts instead of binary features.
+
+| Multinomial                         | min     | lq      | mean    | median  | uq      | max     |
+|-------------------------------------|---------|---------|---------|---------|---------|---------|
+| fastNaiveBayes                      | 235 ms. | 249 ms. | 298 ms. | 252 ms. | 387 ms. | 431 ms. |
+| fastNaiveBayes Sparse               | 7 ms.   | 7 ms.   | 8 ms.   | 7 ms.   | 8 ms.   | 9 ms.   |
+The comparison can not be made with the implementation in the 'e1071' package, since this does not implement a Multinomial distribution. The interesting thing to note here is that using a sparse dgcMatrix now gives a huge increase in performance. Comparing the median execution times using a sparse dgcMatrix is 36 times faster than the normal R matrix. 

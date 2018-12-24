@@ -59,17 +59,10 @@ In the extremely unlikely case that two classes have the exact same estimated pr
       }
     }
 
-    # Expand matrix to 10.000 rows
-    data_mat <- data_mat[sample(1:nrow(data_mat), size = 10000, replace = TRUE),]
-
     # Construct y and sparse matrix
     y <- data_mat[,"Class"]
     data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class","Cl.thickness",
     "Cell.size","Cell.shape"))]
-
-    # Expand matrix to 1000 columns
-    data_mat <- data_mat[,sample(1:ncol(data_mat),size=1000,replace = TRUE)]
-    colnames(data_mat) <- paste0("var_",1:ncol(data_mat))
 
     sparse_data <- Matrix(as.matrix(data_mat), sparse = TRUE)
     data_mat <- as.matrix(data_mat)
@@ -80,35 +73,4 @@ In the extremely unlikely case that two classes have the exact same estimated pr
 
     mean(preds!=y[401:length(y)])
 
-    # Example, running model 100 times with sparse matrix directly. This will be faster when
-    # large and sparse matrices are used
-    start <- Sys.time()
-    for(i in 1:10){
-      train_idx <- sample(1:nrow(sparse_data), size = nrow(sparse_data), replace = TRUE)
-
-      model <- fastNaiveBayes(sparse_data[train_idx,], y[train_idx], laplace=1)
-      preds <- predict(model, sparse_data[-train_idx,], type = "class")
-    }
-    print(Sys.time()-start)
-
-    # Example, data is a matrix and sparse set to true, which means at each function call, data
-    # will converted to a sparse matrix
-    start <- Sys.time()
-    for(i in 1:10){
-      train_idx <- sample(1:nrow(data_mat), size = nrow(data_mat), replace = TRUE)
-
-      model <- fastNaiveBayes(data_mat[train_idx,], y[train_idx], laplace=1, sparse = TRUE)
-      preds <- predict(model, data_mat[-train_idx,], type = "class", sparse = TRUE)
-    }
-    print(Sys.time()-start)
-
-    # Last but not least, not using sparse matrix at all.
-    start <- Sys.time()
-    for(i in 1:10){
-      train_idx <- sample(1:nrow(data_mat), size = nrow(data_mat), replace = TRUE)
-
-      model <- fastNaiveBayes(data_mat[train_idx,], y[train_idx], laplace=1)
-      preds <- predict(model, data_mat[-train_idx,], type = "class")
-    }
-    print(Sys.time()-start)
 }
