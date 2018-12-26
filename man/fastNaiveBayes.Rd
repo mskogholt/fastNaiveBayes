@@ -24,7 +24,7 @@ fastNaiveBayes(x, y, laplace = 0, sparse = FALSE,
 \item{sparse}{Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
 It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE}
 
-\item{distribution}{the type of distribution used to model the probabilites. Either bernoulli or multinomial.}
+\item{distribution}{the type of distribution used to model the probabilities. Either bernoulli or multinomial.}
 
 \item{...}{Not used.}
 }

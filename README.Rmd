@@ -1,24 +1,30 @@
-Overview
---------
+---
+title: "README"
+author: "Martin Skogholt"
+date: "26 december 2018"
+output:
+  md_document:
+    variant: markdown_github
+---
 
-This is a very fast implementation of the Naive Bayes classifier in R. It has the fastest execution time of any other Naive Bayes implementation in R. It's also the only implementation that makes it possible to use either a Bernoulli distribution or a multinomial distribution for the features.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-Installation
-------------
+## Overview
+This is a very fast implementation of the Naive Bayes classifier in R. It has the fastest execution time of any other Naive Bayes implementation in R. It's also the only implementation that makes it possible to use either a Bernoulli distribution or a multinomial distribution for the features. 
 
-Development Version
--------------------
+## Installation
 
+
+## Development Version
 To get the development version, you can install this package directly from Github
-
-``` r
+```{r eval=FALSE}
 devtools::install_github("mskogholt/fastNaiveBayes")
 ```
 
-Usage
------
-
-``` r
+## Usage
+```{r eval=FALSE}
 rm(list=ls())
 library(fastNaiveBayes)
 
@@ -68,3 +74,4 @@ preds <- predict(model, data_mat[,2:ncol(data_mat)])
 # Mean error of prediction
 mean(data_mat[[1]]!=preds)
 ```
+

@@ -1,7 +1,8 @@
-Meta
 doc
-inst/doc
+Meta
 .Rproj.user
+*.Rproj
 .Rhistory
 .RData
 .Ruserdata
+.gitignore

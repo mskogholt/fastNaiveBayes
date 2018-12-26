@@ -7,7 +7,7 @@
 #' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
 #' @param ... Not used.
-#' @param distribution the type of distribution used to model the probabilites. Either bernoulli or multinomial.
+#' @param distribution the type of distribution used to model the probabilities. Either bernoulli or multinomial.
 #'
 #' @details A Naive Bayes classifier that assumes independence between the feature variables. Currently, either a Bernoulli
 #'     or a multinomial distribution can be used. The bernoulli distribution should be used when the features are 0 or 1 to

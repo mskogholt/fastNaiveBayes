@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Skogholt" />
 
-<meta name="date" content="2018-12-24" />
+<meta name="date" content="2018-12-26" />
 
 <title>Fast Naive Bayes</title>
 
@@ -32,18 +32,18 @@
 
 <h1 class="title toc-ignore">Fast Naive Bayes</h1>
 <h4 class="author"><em>Martin Skogholt</em></h4>
-<h4 class="date"><em>2018-12-24</em></h4>
+<h4 class="date"><em>2018-12-26</em></h4>
 
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>Text classification is the task of classifying documents by their content: that is, by the words of which they are comprised. The documents are often represented as a bag of words. This means that only the occurrence and frequency of the words in the document are taken into account, any information about the syntactic structure of these words is discarded . In many research efforts regarding document classification, Naive Bayes has been successfully applied .</p>
-<p>This package is a very fast implementation of the Naive Bayes classifier with the option to use two feature modelling distributions, as will be explained later on.</p>
+<p>Text classification is the task of classifying documents by their content: that is, by the words of which they are comprised. The documents are often represented as a bag of words. This means that only the occurrence and frequency of the words in the document are taken into account, any information about the syntactic structure of these words is discarded (Hu &amp; Liu, 2012). In many research efforts regarding document classification, Naive Bayes has been successfully applied (McCallum &amp; Nigam, 1998).</p>
+<p>This package is a very fast implementation of the Naive Bayes classifier with the option to use two feature modeling distributions, as will be explained later on.</p>
 </div>
 <div id="naive-bayes" class="section level1">
 <h1>Naive Bayes</h1>
-<p>Naive Bayes is a probabilistic classification method based on the Bayes theorem with a strong and naive independence assumption. Naive Bayes assumes independence between all attributes. Despite this so-called “Naive Bayes assumption”, this technique has been proven to be very effective for text classification . In the context of text classification, Naive Bayes estimates the posterior probability that a document, consisting out of several words, belongs to a certain class and classifies the document as the class which has the highest posterior probability: <span class="math display">\[P(C=k|D) = \frac{P(D|C=k)*P(C=k)}{P(D)}\]</span> Where <span class="math inline">\(P(C=k|D)\)</span> is the posterior probability that the class equals <span class="math inline">\(k\)</span> given document, <span class="math inline">\(D\)</span>. The Bayes theorem is applied to rewrite this probability to three components:</p>
+<p>Naive Bayes is a probabilistic classification method based on the Bayes theorem with a strong and naive independence assumption. Naive Bayes assumes independence between all attributes. Despite this so-called “Naive Bayes assumption”, this technique has been proven to be very effective for text classification (McCallum &amp; Nigam, 1998). In the context of text classification, Naive Bayes estimates the posterior probability that a document, consisting out of several words, belongs to a certain class and classifies the document as the class which has the highest posterior probability: <span class="math display">\[P(C=k|D) = \frac{P(D|C=k)*P(C=k)}{P(D)}\]</span> Where <span class="math inline">\(P(C=k|D)\)</span> is the posterior probability that the class equals <span class="math inline">\(k\)</span> given document, <span class="math inline">\(D\)</span>. The Bayes theorem is applied to rewrite this probability to three components:</p>
 <ol style="list-style-type: decimal">
 <li><span class="math inline">\(P(D|C=k)\)</span>, the conditional probability of document, <span class="math inline">\(D\)</span>, given class, <span class="math inline">\(k\)</span></li>
 <li><span class="math inline">\(P(C=k)\)</span>, the prior probability of class, <span class="math inline">\(k\)</span></li>
@@ -56,7 +56,7 @@
 </div>
 <div id="distributions" class="section level2">
 <h2>Distributions</h2>
-<p>Naive Bayes is a popular classification method, however, within the classification community there is some confusion about this classifier: There are two different generative models in common use, the multinomial Naive Bayes and Bernoulli Naive Bayes. Both are called Naive Bayes by their practitioners and both make use of the Naive Bayes assumption. However, they have different assumptions on the distributions of the features that are used. This means that these assumptions lead to two distinct models, which are very often confused </p>
+<p>Naive Bayes is a popular classification method, however, within the classification community there is some confusion about this classifier: There are two different generative models in common use, the multinomial Naive Bayes and Bernoulli Naive Bayes. Both are called Naive Bayes by their practitioners and both make use of the Naive Bayes assumption. However, they have different assumptions on the distributions of the features that are used. This means that these assumptions lead to two distinct models, which are very often confused (McCallum &amp; Nigam, 1998).</p>
 <div id="bernoulli-distribution" class="section level4">
 <h4>Bernoulli Distribution</h4>
 <p>The most commonly used Naive Bayes classifier uses a Bernoulli model. This is applicable for binary features that indicate the presence or absence of a feature(1 and 0, respectively). Each document, <span class="math inline">\(D\)</span>, consists of a set of words, <span class="math inline">\(w\)</span>. Let <span class="math inline">\(V\)</span> be the vocabulary, i.e. the collection of unique words in the complete dataset. Using the Bernoulli distribution, <span class="math inline">\(P(D_i|C=k)\)</span> becomes: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}\]</span> Where <span class="math inline">\(b_{i,t}=1\)</span> if the document, <span class="math inline">\(D_i\)</span>, contains the word, <span class="math inline">\(w_t\)</span>, and <span class="math inline">\(0\)</span> otherwise. Furthermore, <span class="math inline">\(|V|\)</span> is the number of unique words in the dataset and <span class="math inline">\(P(w_{t}|C=k)\)</span> is the posterior probability of word, <span class="math inline">\(w_t\)</span> occuring in a document with class, <span class="math inline">\(k\)</span>. This is simply calculated as the proportion of documents of class, <span class="math inline">\(k\)</span>, in which word, <span class="math inline">\(t\)</span>, occurs compared the total number of documents of class, <span class="math inline">\(k\)</span>. In other words: <span class="math display">\[P(w_{t}|C=k)=\frac{\sum_{i=1}^{N}{x_{i,t}*z_{i,k}}}{\sum_{i=1}^{N}{z_{i,k}}}\]</span> Where <span class="math inline">\(x_{i,t}\)</span> equals <span class="math inline">\(1\)</span> if word, <span class="math inline">\(t\)</span>, occurs in document, <span class="math inline">\(i\)</span>, and <span class="math inline">\(0\)</span> otherwise. Furthermore, <span class="math inline">\(z_{i,k}\)</span> equals <span class="math inline">\(1\)</span> if document, <span class="math inline">\(i\)</span>, is labeled as class, <span class="math inline">\(k\)</span>, and <span class="math inline">\(0\)</span> otherwise.</p>
@@ -68,7 +68,7 @@
 </div>
 <div id="laplace-smoothing" class="section level2">
 <h2>Laplace Smoothing</h2>
-<p>Another important aspect of Naive Bayes classifiers is the so-called Laplace smoothing. Consider again the probability calculation: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}\]</span> If at any point <span class="math inline">\(P(w_t|C=k)=0\)</span>, then <span class="math inline">\(P(D_i|C=k)\)</span> will also equal <span class="math inline">\(0\)</span>, since it’s a product of the individual probabilities. The same holds for the Multinomial distribution. In order to overcome this, Laplace smoothing is used, which simply adds a small non-zero count to all the word counts, so as to not encounter zero probabilities. There is a very important distinction to be made. A commonly made mistake is to assume that this is also applied to any features in the test set that were not encountered in the training set. This however, is not correct. The Laplace smoothing is applied, such that words that do not occur at all together wit a specific class do not yield zero probabilties. Features in the test set that were not encountered in the training set are simply ignored from the equation. This also makes sense, if a word was never encountered in the training set then <span class="math inline">\(P(w_t|C=k)\)</span> should be the same for every class, <span class="math inline">\(k\)</span>.</p>
+<p>Another important aspect of Naive Bayes classifiers is the so-called Laplace smoothing. Consider again the probability calculation: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}\]</span> If at any point <span class="math inline">\(P(w_t|C=k)=0\)</span>, then <span class="math inline">\(P(D_i|C=k)\)</span> will also equal <span class="math inline">\(0\)</span>, since it’s a product of the individual probabilities. The same holds for the Multinomial distribution. In order to overcome this, Laplace smoothing is used, which simply adds a small non-zero count to all the word counts, so as to not encounter zero probabilities. There is a very important distinction to be made. A commonly made mistake is to assume that this is also applied to any features in the test set that were not encountered in the training set. This however, is not correct. The Laplace smoothing is applied, such that words that do not occur at all together wit a specific class do not yield zero probabilities. Features in the test set that were not encountered in the training set are simply ignored from the equation. This also makes sense, if a word was never encountered in the training set then <span class="math inline">\(P(w_t|C=k)\)</span> should be the same for every class, <span class="math inline">\(k\)</span>.</p>
 </div>
 </div>
 <div id="why-is-it-so-fast" class="section level1">
@@ -162,6 +162,11 @@
 </tbody>
 </table>
 <p>The comparison can not be made with the implementation in the ‘e1071’ package, since this does not implement a Multinomial distribution. The interesting thing to note here is that using a sparse dgcMatrix now gives a huge increase in performance. Comparing the median execution times using a sparse dgcMatrix is 36 times faster than the normal R matrix.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>Hu, X., &amp; Liu, H. (2012). Text analytics in social media. In Mining text data (pp. 385-414). Springer, Boston, MA.</p>
+<p>McCallum, A., &amp; Nigam, K. (1998, July). A comparison of event models for naive bayes text classification. In AAAI-98 workshop on learning for text categorization (Vol. 752, No. 1, pp. 41-48).</p>
 </div>
 
 
