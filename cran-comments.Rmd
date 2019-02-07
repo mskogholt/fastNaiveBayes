@@ -12,7 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Test environments
 
 ## R CMD check results
-There were no ERRORs, WARNINGs, or NOTEs
+There were no ERRORs, WARNINGs or NOTEs
+
 
 ## Downstream dependencies
 Matrix: https://r-forge.r-project.org/R/?group_id=61&log=check_x86_64_windows&pkg=Matrix&flavor=patched

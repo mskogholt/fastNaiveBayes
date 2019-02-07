@@ -40,21 +40,27 @@ Naive Bayes is a popular classification method, however, within the classificati
 #### Bernoulli Distribution
 The most commonly used Naive Bayes classifier uses a Bernoulli model. This is applicable for binary features that indicate the presence or absence of a feature(1 and 0, respectively). Each document, $D$, consists of a set of words, $w$. Let $V$ be the vocabulary, i.e. the collection of unique words in the complete dataset. Using the Bernoulli distribution, $P(D_i|C=k)$ becomes:
 $$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}$$
-Where $b_{i,t}=1$ if the document, $D_i$, contains the word, $w_t$, and $0$ otherwise. Furthermore, $|V|$ is the number of unique words in the dataset and $P(w_{t}|C=k)$ is the posterior probability of word, $w_t$ occuring in a document with class, $k$. This is simply calculated as the proportion of documents of class, $k$, in which word, $t$, occurs compared the total number of documents of class, $k$. In other words:
+Where $b_{i,t}=1$ if the document, $D_i$, contains the word, $w_t$, and $0$ otherwise. Furthermore, $|V|$ is the number of unique words in the dataset and $P(w_{t}|C=k)$ is the posterior probability of word, $w_t$ occurring in a document with class, $k$. This is simply calculated as the proportion of documents of class, $k$, in which word, $t$, occurs compared the total number of documents of class, $k$. In other words:
 $$P(w_{t}|C=k)=\frac{\sum_{i=1}^{N}{x_{i,t}*z_{i,k}}}{\sum_{i=1}^{N}{z_{i,k}}}$$
 Where $x_{i,t}$ equals $1$ if word, $t$, occurs in document, $i$, and $0$ otherwise. Furthermore, $z_{i,k}$ equals $1$ if document, $i$, is labeled as class, $k$, and $0$ otherwise.
 
 #### Multinomial Distribution
-The multionomial distribution is used to model features, which represent the frequency of which the events occured, or in other words it uses word counts in the documents instead of the binary representation. This means that the distribution used to calculate $P(D_i|C=k)$ changes. This now becomes:
+The multinomial distribution is used to model features, which represent the frequency of which the events occurred, or in other words it uses word counts in the documents instead of the binary representation. This means that the distribution used to calculate $P(D_i|C=k)$ changes. This now becomes:
 $$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{P(w_t|C=k)^{x_{i,t}}}$$
 Where $x_{i,t}$ is the frequency of word, $t$, in document, $i$. Here:
 $$P(w_t|C=k)=\frac{\sum_{i=1}^{N}{x_{i,t}*z_{i,k}}}{\sum_{s=1}^{|V|}{\sum_{i=1}^{N}{x_{i,s}z_{i,k}}}}$$
 Where $x_{i,t}$ is the frequency of word, $t$, in document, $i$ and $z_{i,k}$ equals $1$ if document, $i$, is labeled as class, $k$, and $0$ otherwise. Furthermore, $|V|$ is the length of the vocabulary, i.e. the total number of unique words in the dataset.
 
+#### Gaussian Distribution
+A Gaussian distribution can also be used to model numerical features. Quite simply the conditional probabilities are now assumed to follow a normal distribution, where the mean and standard deviation are estimated from the training data. In this case, $P(D_i|C=k)$ becomes:
+$$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{P(w_t|C=k)}$$
+where $$P(w_t|C=k)=\frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$
+where $\mu$ and $\sigma$ are estimated by their sample estimators from the training data.
+
 ## Laplace Smoothing
 Another important aspect of Naive Bayes classifiers is the so-called Laplace smoothing. Consider again the probability calculation: 
 $$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}$$
-If at any point $P(w_t|C=k)=0$, then $P(D_i|C=k)$ will also equal $0$, since it's a product of the individual probabilities. The same holds for the Multinomial distribution. In order to overcome this, Laplace smoothing is used, which simply adds a small non-zero count to all the word counts, so as to not encounter zero probabilities. There is a very important distinction to be made. A commonly made mistake is to assume that this is also applied to any features in the test set that were not encountered in the training set. This however, is not correct. The Laplace smoothing is applied, such that words that do not occur at all together wit a specific class do not yield zero probabilities. Features in the test set that were not encountered in the training set are simply ignored from the equation. This also makes sense, if a word was never encountered in the training set then $P(w_t|C=k)$ should be the same for every class, $k$.
+If at any point $P(w_t|C=k)=0$, then $P(D_i|C=k)$ will also equal $0$, since it's a product of the individual probabilities. The same holds for the Multinomial distribution. In order to overcome this, Laplace smoothing is used, which simply adds a small non-zero count to all the word counts, so as to not encounter zero probabilities. There is a very important distinction to be made. A commonly made mistake is to assume that this is also applied to any features in the test set that were not encountered in the training set. This however, is not correct. The Laplace smoothing is applied, such that words that do not occur at all together with a specific class do not yield zero probabilities. Features in the test set that were not encountered in the training set are simply ignored from the equation. This also makes sense, if a word was never encountered in the training set then $P(w_t|C=k)$ should be the same for every class, $k$.
 
 # Why is it so fast?
 As previously explained, when classifying a new document, one needs to calculate $P(C=k|D_i) = \frac{P(D_i|C=k)*P(C=k)}{P(D_i)}$ for each class, $k$. However, since the class with the highest posterior probability is used as the classification and $P(D_i)$ is constant for all classes, the denominator can be ignored. This means that for prediction, only $P(D_i|C=k)*P(C=k)$ needs to be calculated. As has been shown above this probability in the Bernoulli case can be rewritten to:
