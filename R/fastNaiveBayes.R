@@ -1,6 +1,6 @@
 #' fastNaiveBayes
 #'
-#' Extremely fast implementation of a Naive Bayes Classifier. The package currently supports
+#' Extremely fast implementation of a Naive Bayes classifier. The package currently supports
 #' a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for
 #' both binary features, frequency counts, and numerical features.
 #' Only numerical variables are allowed, however, categorical variables can be transformed into dummies
