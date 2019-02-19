@@ -26,13 +26,7 @@ with no space after 'doi:', 'arXiv:' and angle brackets for auto-linking.
 Should all be fixed now. 
 
 ## R CMD check results
-There were no ERRORs, WARNINGs
-
-There was 1 NOTE:
-  Malformed Description field: should contain one or more complete sentences.
-
-I really do not understand where this is coming from. Online I could not find any solution and the description text is clearly one or more complete sentences.
-
+There were no ERRORs, WARNINGs, or NOTEs.
 
 ## Downstream dependencies
 Matrix: https://r-forge.r-project.org/R/?group_id=61&log=check_x86_64_windows&pkg=Matrix&flavor=patched

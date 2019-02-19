@@ -4,7 +4,7 @@
 \name{fastNaiveBayes.bernoulli}
 \alias{fastNaiveBayes.bernoulli}
 \alias{fastNaiveBayes.bernoulli.default}
-\title{Fast Naive Bayes Classifier with a Benroulli event model}
+\title{Fast Naive Bayes Classifier with a Bernoulli event model}
 \usage{
 fastNaiveBayes.bernoulli(x, y, laplace = 0, sparse = FALSE, ...)
 

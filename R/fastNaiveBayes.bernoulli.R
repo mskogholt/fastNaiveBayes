@@ -1,4 +1,4 @@
-#' @title Fast Naive Bayes Classifier with a Benroulli event model
+#' @title Fast Naive Bayes Classifier with a Bernoulli event model
 #' @description Extremely fast implementation of a Naive Bayes Classifier. This instance only uses the
 #' Bernoulli event model for all columns.
 #'
