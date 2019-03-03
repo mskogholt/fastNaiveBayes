@@ -1,17 +1,30 @@
+fastNaiveBayes
+==============
+
+\[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/fastNaiveBayes)\]\[![Travis build status](https://travis-ci.org/mskogholt/fastNaiveBayes.svg?branch=master)\](<https://travis-ci.org/mskogholt/fastNaiveBayes>)
+
 Overview
 --------
 
 This is a very fast implementation of the Naive Bayes classifier in R. It has the fastest execution time of any other Naive Bayes implementation in R. It's also the only implementation that makes it possible to use either a Bernoulli distribution or a multinomial distribution for the features.
 
+This is an extremely fast implementation of a Naive Bayes classifier. The package currently supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution. The implementation is based on the paper "A comparison of event models for Naive Bayes anti-spam e-mail filtering" written by K.M. Schneider (2003) <doi:10.3115/1067807>. This implementation offers a huge performance gain compared to the 'e1071' implementation in R. The execution times were compared on a data set of tweets and was found to be 331 times faster. See the vignette for more details. This performance gain is only realized using a Bernoulli event model. Furthermore, the Multinomial event model is equally fast and available in contrast to 'e1071'.
+
+Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/issues>
+
 Installation
 ------------
 
-Development Version
--------------------
-
-To get the development version, you can install this package directly from Github
+Install the package with:
 
 ``` r
+install.packages("fastNaiveBayes")
+```
+
+Or install the development version using [devtools](https://github.com/hadley/devtools) with:
+
+``` r
+library(devtools)
 devtools::install_github("mskogholt/fastNaiveBayes")
 ```
 

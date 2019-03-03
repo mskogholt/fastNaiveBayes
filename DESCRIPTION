@@ -17,6 +17,7 @@ Description: This is an extremely fast implementation of a Naive Bayes classifie
     for more details. This performance gain is only realized using a Bernoulli 
     event model. Furthermore, the Multinomial event model is equally fast and 
     available in contrast to 'e1071'.
+    Any issues can be submitted to: https://github.com/mskogholt/fastNaiveBayes/issues.
 License: GPL-3
 Encoding: UTF-8
 LazyData: FALSE
