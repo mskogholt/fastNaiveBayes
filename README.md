@@ -1,7 +1,7 @@
 fastNaiveBayes
 ==============
 
-\[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/fastNaiveBayes)\]\[![Travis build status](https://travis-ci.org/mskogholt/fastNaiveBayes.svg?branch=master)\](<https://travis-ci.org/mskogholt/fastNaiveBayes>)
+[![CRAN status](https://www.r-pkg.org/badges/version/fastNaiveBayes)](https://cran.r-project.org/package=fastNaiveBayes) [![Travis build status](https://travis-ci.org/mskogholt/fastNaiveBayes.svg?branch=master)](https://travis-ci.org/mskogholt/fastNaiveBayes)
 
 Overview
 --------
