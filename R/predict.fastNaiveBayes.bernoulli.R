@@ -53,7 +53,7 @@
 #'
 #'     mean(preds!=y[401:length(y)])
 #'
-predict.fastNaiveBayes.bernoulli <- function(object, newdata, type=c("class","raw", "rawprob"), sparse = FALSE, ...){
+predict.fastNaiveBayes.bernoulli <- function(object, newdata, type=c("class", "raw", "rawprob"), sparse = FALSE, ...){
   type <- match.arg(type)
   if(class(newdata)[1]!='dgCMatrix'){
     if(!is.matrix(newdata)){

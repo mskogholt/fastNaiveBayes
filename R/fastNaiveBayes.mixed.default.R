@@ -23,9 +23,9 @@ fastNaiveBayes.mixed.default <- function(x, y, laplace = 0, sparse = FALSE, dist
 
   models <- lapply(names(distribution), function(dist){
     switch(dist,
-           bernoulli = fastNaiveBayes.bernoulli(x[,distribution[[dist]]],y,laplace, sparse),
-           multinomial = fastNaiveBayes.multinomial(x[,distribution[[dist]]],y,laplace, sparse),
-           gaussian = fastNaiveBayes.gaussian(x[,distribution[[dist]]],y,laplace, sparse)
+           bernoulli   = fastNaiveBayes.bernoulli   (x[,distribution[[dist]]], y, laplace, sparse),
+           multinomial = fastNaiveBayes.multinomial (x[,distribution[[dist]]], y, laplace, sparse),
+           gaussian    = fastNaiveBayes.gaussian    (x[,distribution[[dist]]], y, laplace, sparse)
     )
   })
 
