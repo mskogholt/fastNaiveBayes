@@ -15,11 +15,11 @@ Description: This is an extremely fast implementation of a Naive Bayes classifie
     on a data set of tweets and was found to be around 330 times faster. See the vignette 
     for more details. This performance gain is only realized using a Bernoulli 
     event model. Furthermore, the Multinomial event model implementation is even slightly faster, 
-    but uncomparable since it was not implemented in 'e1071'
+    but incomparable since it was not implemented in 'e1071'
    The implementation is largely based on the paper
     "A comparison of event models for Naive Bayes anti-spam e-mail filtering" written by 
     K.M. Schneider (2003) <doi:10.3115/1067807>.
-    Any issues can be submitted to: https://github.com/mskogholt/fastNaiveBayes/issues.
+    Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/issues>.
 License: GPL-3
 Encoding: UTF-8
 LazyData: FALSE
