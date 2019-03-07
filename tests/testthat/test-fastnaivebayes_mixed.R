@@ -100,6 +100,38 @@ test_that("Mixed event models estimation gives expected results with Gaussian mo
   expect_equal(mod$probability_table[[2]]$level, bern_mod$probability_table[[2]]$level)
   expect_equal(mod$probability_table[[2]]$means, bern_mod$probability_table[[2]]$means)
   expect_equal(mod$probability_table[[2]]$stddev, bern_mod$probability_table[[2]]$stddev)
+
+
+
+  y <- as.factor(c('Ham','Ham','Spam','Spam','Spam'))
+
+  x1 <- matrix(c(2,3,0,1,0,5,3,0,2,0,0,1,3,1,0,1,0,4,3,5),
+               nrow = 5, ncol = 4)
+  colnames(x1) <- c('wo','mo','bo','so')
+
+  x2 <- matrix(c(1,0,0,0,0,1,1,0,1,0,0,1,1,1,0,0,0,1,1,1),
+               nrow = 5, ncol = 4)
+  colnames(x2) <- c('no','ko','po','lo')
+
+  x <- cbind(x1,x2)
+  col_names <- c('wo','mo','bo','so','no','ko','po','lo')
+  colnames(x) <- col_names
+
+  # Standard Multinomial model test with laplace = 0
+  mixed_mod <- fastNaiveBayes.mixed(x, y, laplace = 1, sparse = FALSE,
+                                    distribution = list(multinomial = colnames(x1),
+                                                        bernoulli = colnames(x2)))
+
+  preds <- predict(mixed_mod, newdata = x, type = "raw")
+
+  bern <- fastNaiveBayes.bernoulli(x2, y, laplace = 1, sparse = FALSE)
+  mult <- fastNaiveBayes.multinomial(x1, y, laplace = 1, sparse = FALSE)
+
+  temp_probs <- exp(predict(bern, newdata = x2, type = "rawprob") +
+    predict(mult, newdata = x1, type = "rawprob"))
+  temp_probs[,1] <- temp_probs[,1]*0.4
+  temp_probs[,2] <- temp_probs[,2]*0.6
+  expect_equal(sum(abs(temp_probs/rowSums(temp_probs)-preds)),0)
 })
 
 test_that("Mixed event models estimation gives expected results with Multinomial model", {

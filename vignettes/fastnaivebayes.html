@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Skogholt" />
 
-<meta name="date" content="2019-02-07" />
+<meta name="date" content="2019-03-07" />
 
 <title>Fast Naive Bayes</title>
 
@@ -32,31 +32,36 @@
 
 <h1 class="title toc-ignore">Fast Naive Bayes</h1>
 <h4 class="author"><em>Martin Skogholt</em></h4>
-<h4 class="date"><em>2019-02-07</em></h4>
+<h4 class="date"><em>2019-03-07</em></h4>
 
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>Text classification is the task of classifying documents by their content: that is, by the words of which they are comprised. The documents are often represented as a bag of words. This means that only the occurrence and frequency of the words in the document are taken into account, any information about the syntactic structure of these words is discarded (Hu &amp; Liu, 2012). In many research efforts regarding document classification, Naive Bayes has been successfully applied (McCallum &amp; Nigam, 1998).</p>
-<p>This package is a very fast implementation of the Naive Bayes classifier with the option to use two feature modeling distributions, as will be explained later on.</p>
+<p>This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another unique feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution. This implementation offers a huge performance gain compared to the ‘e1071’ implementation in R. The execution times were compared on a data set of tweets and was found to be around 330 times faster. See the vignette for more details. This performance gain is only realized using a Bernoulli event model. Furthermore, the Multinomial event model implementation is even slightly faster, but uncomparable since it was not implemented in ‘e1071’. The implementation is largely based on the paper “A comparison of event models for Naive Bayes anti-spam e-mail filtering” written by K.M. Schneider (2003) <a href="doi:10.3115/1067807" class="uri">doi:10.3115/1067807</a>.</p>
+<p>Any issues can be submitted to: <a href="https://github.com/mskogholt/fastNaiveBayes/issues" class="uri">https://github.com/mskogholt/fastNaiveBayes/issues</a></p>
+<p>The purpose of this vignette is to explain some key aspects of this implementation in detail. Firstly, a short introduction to text classification is given as the context for further explanations about the Naive Bayes classifier. It should be noted that the Naive Bayes classifier is not restricted to text classification. The Naive Bayes classifier is a general classification algorithm, but most commonly applied to text classification. Secondly, the general framework of a Naive Bayes classifier is outlined in order to subsequently delve deeper into the different event models. Thirdly, a mathematical explanation is given as to why this particular implementation has such an excellent performance. In the fourth section a description is given about the unique features that sets this implementation of a Naive Bayes classifier apart from other implementations within the R community.</p>
+</div>
+<div id="text-classification" class="section level1">
+<h1>Text Classification</h1>
+<p>Text classification is the task of classifying documents by their content: that is, by the words of which they are comprised. The documents are often represented as a bag of words. This means that only the occurrence or frequency of the words in the document are taken into account, any information about the syntactic structure of these words is discarded (Hu &amp; Liu, 2012). In many research efforts regarding document classification, Naive Bayes has been successfully applied (McCallum &amp; Nigam, 1998). Furthermore, text classification will serve as the basis for further elaboration on the inner workings of the Naive Bayes classifier and the different event models.</p>
 </div>
 <div id="naive-bayes" class="section level1">
 <h1>Naive Bayes</h1>
 <p>Naive Bayes is a probabilistic classification method based on the Bayes theorem with a strong and naive independence assumption. Naive Bayes assumes independence between all attributes. Despite this so-called “Naive Bayes assumption”, this technique has been proven to be very effective for text classification (McCallum &amp; Nigam, 1998). In the context of text classification, Naive Bayes estimates the posterior probability that a document, consisting out of several words, belongs to a certain class and classifies the document as the class which has the highest posterior probability: <span class="math display">\[P(C=k|D) = \frac{P(D|C=k)*P(C=k)}{P(D)}\]</span> Where <span class="math inline">\(P(C=k|D)\)</span> is the posterior probability that the class equals <span class="math inline">\(k\)</span> given document, <span class="math inline">\(D\)</span>. The Bayes theorem is applied to rewrite this probability to three components:</p>
 <ol style="list-style-type: decimal">
-<li><span class="math inline">\(P(D|C=k)\)</span>, the conditional probability of document, <span class="math inline">\(D\)</span>, given class, <span class="math inline">\(k\)</span></li>
-<li><span class="math inline">\(P(C=k)\)</span>, the prior probability of class, <span class="math inline">\(k\)</span></li>
 <li><span class="math inline">\(P(D)\)</span>, the prior probability of document, <span class="math inline">\(D\)</span></li>
+<li><span class="math inline">\(P(C=k)\)</span>, the prior probability of class, <span class="math inline">\(k\)</span></li>
+<li><span class="math inline">\(P(D|C=k)\)</span>, the conditional probability of document, <span class="math inline">\(D\)</span>, given class, <span class="math inline">\(k\)</span></li>
 </ol>
-<p>To classify a document, <span class="math inline">\(D\)</span>, the class, <span class="math inline">\(k\)</span>, with the highest probability is chosen as the classification. This means that we can simplify the equation a bit, since <span class="math inline">\(P(D)\)</span> is the same for all classes. By removing the denominator, the focus is now solely on calculating the nominator.</p>
+<p>To classify a document, <span class="math inline">\(D\)</span>, the class, <span class="math inline">\(k\)</span>, with the highest probability is chosen as the classification. This means that we can simplify the equation a bit, since <span class="math inline">\(P(D)\)</span> is the same for all classes. By removing the denominator, the focus is now solely on calculating the nominator, i.e. the first 2 components.</p>
 <div id="the-prior" class="section level2">
 <h2>The prior</h2>
 <p>The prior probability of class, <span class="math inline">\(k\)</span>, i.e. <span class="math inline">\(P(C=k)\)</span>, is simply the proportion of documents in the training dataset that have class, <span class="math inline">\(k\)</span>. For example, if our training dataset consists of 100 emails that have been labeled as either <span class="math inline">\(Ham\)</span> or <span class="math inline">\(Spam\)</span> and there were 63 emails that were labeled <span class="math inline">\(Ham\)</span> and 37 emails labeled as <span class="math inline">\(Spam\)</span>. In this case, <span class="math inline">\(P(C=Spam)\)</span> is the proportion of emails that were labeled as <span class="math inline">\(Spam\)</span>, i.e. <span class="math inline">\(\frac{37}{100}=0.37\)</span>. This prior probability estimation is the same regardless of which distribution is used within the Naive Bayes Classifier.</p>
 </div>
-<div id="distributions" class="section level2">
-<h2>Distributions</h2>
-<p>Naive Bayes is a popular classification method, however, within the classification community there is some confusion about this classifier: There are two different generative models in common use, the multinomial Naive Bayes and Bernoulli Naive Bayes. Both are called Naive Bayes by their practitioners and both make use of the Naive Bayes assumption. However, they have different assumptions on the distributions of the features that are used. This means that these assumptions lead to two distinct models, which are very often confused (McCallum &amp; Nigam, 1998).</p>
+<div id="event-models" class="section level2">
+<h2>Event models</h2>
+<p>Naive Bayes is a popular classification method, however, within the classification community there is some confusion about this classifier: There are three different generative models in common use, the Multinomial Naive Bayes, Bernoulli Naive Bayes, and finally the Gaussian Naive Bayes. Most confusion is surrounding the Multinomial and Bernoulli event models. Both are called Naive Bayes by their practitioners and both make use of the Naive Bayes assumption. However, they have different assumptions on the distributions of the features that are used. This means that these assumptions lead to two distinct models, which are very often confused (McCallum &amp; Nigam, 1998).</p>
 <div id="bernoulli-distribution" class="section level4">
 <h4>Bernoulli Distribution</h4>
 <p>The most commonly used Naive Bayes classifier uses a Bernoulli model. This is applicable for binary features that indicate the presence or absence of a feature(1 and 0, respectively). Each document, <span class="math inline">\(D\)</span>, consists of a set of words, <span class="math inline">\(w\)</span>. Let <span class="math inline">\(V\)</span> be the vocabulary, i.e. the collection of unique words in the complete dataset. Using the Bernoulli distribution, <span class="math inline">\(P(D_i|C=k)\)</span> becomes: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}\]</span> Where <span class="math inline">\(b_{i,t}=1\)</span> if the document, <span class="math inline">\(D_i\)</span>, contains the word, <span class="math inline">\(w_t\)</span>, and <span class="math inline">\(0\)</span> otherwise. Furthermore, <span class="math inline">\(|V|\)</span> is the number of unique words in the dataset and <span class="math inline">\(P(w_{t}|C=k)\)</span> is the posterior probability of word, <span class="math inline">\(w_t\)</span> occurring in a document with class, <span class="math inline">\(k\)</span>. This is simply calculated as the proportion of documents of class, <span class="math inline">\(k\)</span>, in which word, <span class="math inline">\(t\)</span>, occurs compared the total number of documents of class, <span class="math inline">\(k\)</span>. In other words: <span class="math display">\[P(w_{t}|C=k)=\frac{\sum_{i=1}^{N}{x_{i,t}*z_{i,k}}}{\sum_{i=1}^{N}{z_{i,k}}}\]</span> Where <span class="math inline">\(x_{i,t}\)</span> equals <span class="math inline">\(1\)</span> if word, <span class="math inline">\(t\)</span>, occurs in document, <span class="math inline">\(i\)</span>, and <span class="math inline">\(0\)</span> otherwise. Furthermore, <span class="math inline">\(z_{i,k}\)</span> equals <span class="math inline">\(1\)</span> if document, <span class="math inline">\(i\)</span>, is labeled as class, <span class="math inline">\(k\)</span>, and <span class="math inline">\(0\)</span> otherwise.</p>
@@ -69,6 +74,10 @@
 <h4>Gaussian Distribution</h4>
 <p>A Gaussian distribution can also be used to model numerical features. Quite simply the conditional probabilities are now assumed to follow a normal distribution, where the mean and standard deviation are estimated from the training data. In this case, <span class="math inline">\(P(D_i|C=k)\)</span> becomes: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{P(w_t|C=k)}\]</span> where <span class="math display">\[P(w_t|C=k)=\frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\]</span> where <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> are estimated by their sample estimators from the training data.</p>
 </div>
+<div id="mixed-distributions" class="section level4">
+<h4>Mixed Distributions</h4>
+<p>As was explained, all three event models are part of a general Naive Bayes framework and all three prescribe different ways to estimate <span class="math display">\[P(D_i|C=k)\]</span>. Furthermore, all three use the general Naive Bayes approach, which is to assume independence between the features and simply use the product of each individual probability, as follows: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{P(w_t|C=k)}\]</span> A big benefit of this independence assumption is that different event models can be mixed simply by using the individual event models for different features.</p>
+</div>
 </div>
 <div id="laplace-smoothing" class="section level2">
 <h2>Laplace Smoothing</h2>
@@ -77,16 +86,15 @@
 </div>
 <div id="why-is-it-so-fast" class="section level1">
 <h1>Why is it so fast?</h1>
-<p>As previously explained, when classifying a new document, one needs to calculate <span class="math inline">\(P(C=k|D_i) = \frac{P(D_i|C=k)*P(C=k)}{P(D_i)}\)</span> for each class, <span class="math inline">\(k\)</span>. However, since the class with the highest posterior probability is used as the classification and <span class="math inline">\(P(D_i)\)</span> is constant for all classes, the denominator can be ignored. This means that for prediction, only <span class="math inline">\(P(D_i|C=k)*P(C=k)\)</span> needs to be calculated. As has been shown above this probability in the Bernoulli case can be rewritten to: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}\]</span> By taking the log transformation this becomes: <span class="math display">\[log(\prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}) = \sum_{t=1}^{|V|}{log(b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k)))}\]</span> By rearranging some terms this becomes: <span class="math display">\[\sum_{t=1}^{|V|}{b_{i,t}*log(P(w_{t}|C=k))} + \sum_{t=1}^{|V|}{(1-b_{i,t})*log((1-P(w_{t}|C=k)))} \]</span> If we zoom in on the first part and keep in mind that our matrix, <span class="math inline">\(x\)</span>, with observations is a matrix where each column is a word, from <span class="math inline">\(1\)</span> to <span class="math inline">\(|V|\)</span>, with a <span class="math inline">\(1\)</span> if the word was observed and <span class="math inline">\(0\)</span> otherwise. This means that the matrix of observations has <span class="math inline">\(b_{i,t}\)</span> as the values. The probabilities, <span class="math inline">\(P(w_t|C=k)\)</span>, is a vector of length <span class="math inline">\(|V|\)</span>. We can now use matrix multiplication to derive the sum as follows: <span class="math inline">\(x * P(w_t|C=k)\)</span> for the first part and <span class="math inline">\((1-x) * (1-P(w_t|C=k))\)</span> for the second part. After these two parts have been added up, one can simply raise <span class="math inline">\(e\)</span> to the power of the outcomes to transform it back to the original probabilities. This trick that allows one to use matrix multiplication is what makes this specific implementation so efficient.</p>
+<p>As previously explained, when classifying a new document, one needs to calculate <span class="math inline">\(P(C=k|D_i) = \frac{P(D_i|C=k)*P(C=k)}{P(D_i)}\)</span> for each class, <span class="math inline">\(k\)</span>. However, since the class with the highest posterior probability is used as the classification and <span class="math inline">\(P(D_i)\)</span> is constant for all classes, the denominator can be ignored. This means that for prediction, only <span class="math inline">\(P(D_i|C=k)*P(C=k)\)</span> needs to be calculated. As has been shown above this probability in the Bernoulli case can be rewritten to: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}\]</span> By taking the log transformation this becomes: <span class="math display">\[log(\prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}) = \sum_{t=1}^{|V|}{log(b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k)))}\]</span> Furthermore, by rearranging some terms this becomes: <span class="math display">\[\sum_{t=1}^{|V|}{b_{i,t}*log(P(w_{t}|C=k))} + \sum_{t=1}^{|V|}{(1-b_{i,t})*log((1-P(w_{t}|C=k)))} \]</span> If we zoom in on the first part and keep in mind that our matrix, <span class="math inline">\(x\)</span>, with observations is a matrix where each column represents a word, from <span class="math inline">\(1\)</span> to <span class="math inline">\(|V|\)</span>, with a <span class="math inline">\(1\)</span> if the word was observed and <span class="math inline">\(0\)</span> otherwise. This means that the matrix of observations has <span class="math inline">\(b_{i,t}\)</span> as the values. The probabilities, <span class="math inline">\(P(w_t|C=k)\)</span>, is a vector of length <span class="math inline">\(|V|\)</span>. We can now use matrix multiplication to derive the sum as follows: <span class="math inline">\(x * P(w_t|C=k)\)</span> for the first part and <span class="math inline">\((1-x) * (1-P(w_t|C=k))\)</span> for the second part. After these two parts have been added up, one can simply raise <span class="math inline">\(e\)</span> to the power of the outcomes to transform it back to the original probabilities. This mathematical trick is what allows one to use matrix multiplication, which in turn is what makes this specific implementation so efficient.</p>
 </div>
-<div id="improvement-compared-to-e1071" class="section level1">
-<h1>Improvement compared to ‘e1071’</h1>
-<p>The go-to package for Naive Bayes classification in the R community is ‘e1071’. The main contribution of the fastNaiveBayes package is by improving on the work already done in ‘e1071’ on two points:</p>
+<div id="unique-features" class="section level1">
+<h1>Unique Features</h1>
+<p>In this section, a brief overview is given of the unique features of this package. The go-to package for Naive Bayes classification in the R community is ‘e1071’. The main contribution of the fastNaiveBayes package is by improving on the work already done in ‘e1071’ on two points:</p>
 <ol style="list-style-type: decimal">
 <li>Speed of execution: by using the matrix multiplication trick this package is magnitudes faster</li>
-<li>Also allows multinomial distribution modelling using the word frequencies.</li>
+<li>Also allows multinomial distribution modeling using the word frequencies.</li>
 </ol>
-<p>There is one caveat to this package compared to ‘e1071’, which is that a Gaussian distribution for numerical variables is not implemented (yet). This is because the matrix multiplication trick does not hold for a Gaussian distribution of numerical variables.</p>
 <p>In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to ‘e1071’. The comparison was made on a dataset consisting of 14640 tweets, where 10980 were used to train the Naive Bayes classifier and 3660 tweets were used to test. After processing a total of 1881 features, i.e. words, were used. In the table below the comparison between execution times is shown</p>
 <table>
 <thead>
@@ -111,7 +119,7 @@
 <td>611 ms.</td>
 </tr>
 <tr class="even">
-<td>fastNaiveBayes sparse</td>
+<td>fastNaiveBayes Sparse</td>
 <td>637 ms.</td>
 <td>652 ms.</td>
 <td>817 ms.</td>
@@ -171,6 +179,7 @@
 <h1>References</h1>
 <p>Hu, X., &amp; Liu, H. (2012). Text analytics in social media. In Mining text data (pp. 385-414). Springer, Boston, MA.</p>
 <p>McCallum, A., &amp; Nigam, K. (1998, July). A comparison of event models for naive bayes text classification. In AAAI-98 workshop on learning for text categorization (Vol. 752, No. 1, pp. 41-48).</p>
+<p>Schneider, K. M. (2003, April). A comparison of event models for Naive Bayes anti-spam e-mail filtering. In Proceedings of the tenth conference on European chapter of the Association for Computational Linguistics-Volume 1 (pp. 307-314). Association for Computational Linguistics.</p>
 </div>
 
 

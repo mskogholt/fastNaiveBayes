@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## comments
 small update to documentation and description
+fixed small bug in gaussian predict function
+added unit tests with testthat and travis-ci
 
 ## R CMD check results
 There were no ERRORs, WARNINGs, or NOTEs.

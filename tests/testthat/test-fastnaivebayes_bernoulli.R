@@ -59,7 +59,6 @@ test_that("Bernoulli estimation gives expected results", {
   expect_equal(sum(abs(mod$probability_table$non_present-sparse_mod$probability_table$non_present))
                ,0)
 
-
   # Test Prediction
   y <- as.factor(c('Ham','Ham','Spam','Spam','Spam'))
   x <- matrix(c(1,0,0,0,0,1,1,0,1,0,0,1,1,1,0,0,0,1,1,1),
@@ -69,6 +68,11 @@ test_that("Bernoulli estimation gives expected results", {
 
   # Standard bernoulli model test with laplace = 0
   mod <- fastNaiveBayes.bernoulli(x, y, laplace = 1, sparse = FALSE)
-  predict(mod, newdata = x, type = "raw")
+  probs <- predict(mod, newdata = x, type = "raw")
 
+  real_probs <- matrix( c(0.93609586,0.70942111,0.04325559,0.16905599,0.06350981,0.06390414,
+                          0.29057889,0.95674441,0.83094401,0.93649019),
+                        nrow = 5, ncol = 2)
+
+  expect_equal(sum(abs(round(probs-real_probs, digits = 8))),0)
 })

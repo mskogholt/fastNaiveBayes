@@ -105,8 +105,6 @@ predict.fastNaiveBayes.gaussian <- function(object, newdata, type=c("class","raw
   }
 
   priors <- as.vector(object$priors)
-  probs <- probs + log(priors)
-
   probs <- exp(probs)
   for(i in 1:length(priors)){
     probs[,i] <- probs[,i]*priors[i]

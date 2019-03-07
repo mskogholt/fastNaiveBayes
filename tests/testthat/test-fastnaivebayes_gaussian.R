@@ -75,4 +75,31 @@ test_that("Gaussian estimation gives expected results", {
 
   expect_equal(mod$probability_table[[2]]$stddev,
                sparse_mod$probability_table[[2]]$stddev)
+
+  y <- as.factor(c('Ham','Ham','Spam','Spam','Spam'))
+  x <- matrix(c(2,3,2,1,2,5,3,4,2,4,0,1,3,1,0,3,4,4,3,5),
+              nrow = 5, ncol = 4)
+  col_names <- c('wo','mo','bo','so')
+  colnames(x) <- col_names
+
+  # Standard Multinomial model test with laplace = 0
+  mod <- fastNaiveBayes.gaussian(x, y, laplace = 0, sparse = FALSE)
+  preds <- predict(mod, newdata = x, type = "raw")
+
+  real_preds <- matrix(
+    c(0.8014134,
+      0.8847304,
+      0.004007538,
+      0.1698076,
+      0.226208,
+      0.1985866,
+      0.1152696,
+      0.9959925,
+      0.8301924,
+      0.773792),
+    nrow = 5, ncol = 2
+  )
+
+  expect_equal(sum(round(abs(preds-real_preds), digits = 7)),0)
+
 })
