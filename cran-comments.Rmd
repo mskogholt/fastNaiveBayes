@@ -10,6 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## comments
+Okay, so my first submit just 10 minutes ago, I screwed it up somehow. Anyway compared to this one, I only removed some doi's from readme and vignette.
+
 small update to documentation and description
 fixed small bug in gaussian predict function
 added unit tests with testthat and travis-ci
