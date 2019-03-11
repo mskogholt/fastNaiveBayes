@@ -1,3 +1,16 @@
+## fastNaiveBayes 1.1.1
+
+### New Features
+- Detect distribution. Automatically determine the distributions of a matrix for use with 
+  mixed Naive Bayes model
+- A threshold for the standard deviation for the Gaussian event model. This way one can ensure 
+  that probabilities are real numbers and not NaN's due to standard deviation being 0.
+  
+### Bug Fixes
+
+### Other Changes
+- Expanded unit tests.
+
 ## fastNaiveBayes 1.0.1
 
 ### New Features

@@ -30,35 +30,34 @@
 #' @export
 #' @import Matrix
 #' @examples
-#'     rm(list=ls())
-#'     require(mlbench)
-#'     require(Matrix)
-#'
-#'     # Load BreastCancer data
-#'     data(BreastCancer)
-#'     dim(BreastCancer)
-#'     levels(BreastCancer$Class)
-#'     head(BreastCancer)
-#'
-#'     # Select couple of columns
-#'     data_mat <- BreastCancer[,c("Class","Cl.thickness","Cell.size","Cell.shape","Marg.adhesion")]
-#'
-#'     y <- data_mat[,"Class"]
-#'     data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class"))]
-#'     for(i in 1:ncol(data_mat)){
-#'       data_mat[[i]] <- as.numeric(data_mat[[i]])
-#'     }
-#'
-#'
-#'     model <- fastNaiveBayes.multinomial(data_mat[1:400,], y[1:400], laplace = 1, sparse = FALSE)
-#'     preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
-#'
-#'     mean(preds!=y[401:length(y)])
-#'
+#' rm(list = ls())
+#' require(mlbench)
+#' require(Matrix)
+#' 
+#' # Load BreastCancer data
+#' data(BreastCancer)
+#' dim(BreastCancer)
+#' levels(BreastCancer$Class)
+#' head(BreastCancer)
+#' 
+#' # Select couple of columns
+#' data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+#' 
+#' y <- data_mat[, "Class"]
+#' data_mat <- data_mat[, setdiff(colnames(data_mat), c("Class"))]
+#' for (i in 1:ncol(data_mat)) {
+#'   data_mat[[i]] <- as.numeric(data_mat[[i]])
+#' }
+#' 
+#' 
+#' model <- fastNaiveBayes.multinomial(data_mat[1:400, ], y[1:400], laplace = 1, sparse = FALSE)
+#' preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
+#' 
+#' mean(preds != y[401:length(y)])
 #' @seealso \code{\link{predict.fastNaiveBayes.multinomial}} for the predict function for the fastNaiveBayes.multinomial class,
 #' \code{\link{fastNaiveBayes.mixed}} for the general fastNaiveBayes model, \code{\link{fastNaiveBayes.bernoulli}} for a Bernoulli
 #' distribution only model, and finally, \code{\link{fastNaiveBayes.gaussian}} for a Gaussian only distribution model.
 #' @rdname fastNaiveBayes.multinomial
-fastNaiveBayes.multinomial <- function(x, y, laplace = 0, sparse = FALSE, ...){
+fastNaiveBayes.multinomial <- function(x, y, laplace = 0, sparse = FALSE, ...) {
   UseMethod("fastNaiveBayes.multinomial")
 }

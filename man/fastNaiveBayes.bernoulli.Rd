@@ -48,36 +48,37 @@ A Naive Bayes classifier that assumes independence between the feature variables
     converting to a sparse matrix can actually be slower depending on the data.
 }
 \examples{
-    rm(list=ls())
-    require(mlbench)
-    require(Matrix)
+rm(list = ls())
+require(mlbench)
+require(Matrix)
 
-    # Load BreastCancer data
-    data(BreastCancer)
-    dim(BreastCancer)
-    levels(BreastCancer$Class)
-    head(BreastCancer)
+# Load BreastCancer data
+data(BreastCancer)
+dim(BreastCancer)
+levels(BreastCancer$Class)
+head(BreastCancer)
 
-    # Bernoulli dummy example
-    data_mat <- BreastCancer[,c("Class","Cl.thickness","Cell.size","Cell.shape","Marg.adhesion")]
-    col_counter <- ncol(data_mat)+1
-    for(i in 2:ncol(data_mat)){
-      for(val in unique(data_mat[,i])){
-        data_mat[,col_counter] <- ifelse(data_mat[,i]==val,1,0)
-        col_counter <- col_counter+1
-      }
-    }
+# Bernoulli dummy example
+data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+col_counter <- ncol(data_mat) + 1
+for (i in 2:ncol(data_mat)) {
+  for (val in unique(data_mat[, i])) {
+    data_mat[, col_counter] <- ifelse(data_mat[, i] == val, 1, 0)
+    col_counter <- col_counter + 1
+  }
+}
 
-    y <- data_mat[,"Class"]
-    data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class","Cl.thickness", "Cell.size",
-                                                       "Cell.shape","Marg.adhesion"))]
-    data_mat <- as.matrix(data_mat)
+y <- data_mat[, "Class"]
+data_mat <- data_mat[, setdiff(colnames(data_mat), c(
+  "Class", "Cl.thickness", "Cell.size",
+  "Cell.shape", "Marg.adhesion"
+))]
+data_mat <- as.matrix(data_mat)
 
-    model <- fastNaiveBayes.bernoulli(data_mat[1:400,], y[1:400], laplace = 1, sparse = TRUE)
-    preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
+model <- fastNaiveBayes.bernoulli(data_mat[1:400, ], y[1:400], laplace = 1, sparse = TRUE)
+preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
 
-    mean(preds!=y[401:length(y)])
-
+mean(preds != y[401:length(y)])
 }
 \seealso{
 \code{\link{predict.fastNaiveBayes.bernoulli}} for the predict function for the fastNaiveBayes.bernoulli class,

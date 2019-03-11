@@ -23,65 +23,67 @@
 #'     Using a sparse matrix directly can be especially useful if it's necessary to use predict multiple times on the same matrix or
 #'     on different subselections of the same initial matrix, see examples for further details.
 #' @examples
-#'     rm(list=ls())
-#'     require(mlbench)
-#'     require(Matrix)
-#'
-#'     # Load BreastCancer data
-#'     data(BreastCancer)
-#'     dim(BreastCancer)
-#'     levels(BreastCancer$Class)
-#'     head(BreastCancer)
-#'
-#'     # Bernoulli dummy example
-#'     data_mat <- BreastCancer[,c("Class","Cl.thickness","Cell.size","Cell.shape","Marg.adhesion")]
-#'     col_counter <- ncol(data_mat)+1
-#'     for(i in 2:ncol(data_mat)){
-#'       for(val in unique(data_mat[,i])){
-#'         data_mat[,col_counter] <- ifelse(data_mat[,i]==val,1,0)
-#'         col_counter <- col_counter+1
-#'       }
-#'     }
-#'
-#'     y <- data_mat[,"Class"]
-#'     data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class","Cl.thickness", "Cell.size",
-#'                                                        "Cell.shape","Marg.adhesion"))]
-#'     data_mat <- as.matrix(data_mat)
-#'
-#'     model <- fastNaiveBayes.bernoulli(data_mat[1:400,], y[1:400], laplace = 1, sparse = TRUE)
-#'     preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
-#'
-#'     mean(preds!=y[401:length(y)])
-#'
-predict.fastNaiveBayes.bernoulli <- function(object, newdata, type=c("class", "raw", "rawprob"), sparse = FALSE, ...){
+#' rm(list = ls())
+#' require(mlbench)
+#' require(Matrix)
+#' 
+#' # Load BreastCancer data
+#' data(BreastCancer)
+#' dim(BreastCancer)
+#' levels(BreastCancer$Class)
+#' head(BreastCancer)
+#' 
+#' # Bernoulli dummy example
+#' data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+#' col_counter <- ncol(data_mat) + 1
+#' for (i in 2:ncol(data_mat)) {
+#'   for (val in unique(data_mat[, i])) {
+#'     data_mat[, col_counter] <- ifelse(data_mat[, i] == val, 1, 0)
+#'     col_counter <- col_counter + 1
+#'   }
+#' }
+#' 
+#' y <- data_mat[, "Class"]
+#' data_mat <- data_mat[, setdiff(colnames(data_mat), c(
+#'   "Class", "Cl.thickness", "Cell.size",
+#'   "Cell.shape", "Marg.adhesion"
+#' ))]
+#' data_mat <- as.matrix(data_mat)
+#' 
+#' model <- fastNaiveBayes.bernoulli(data_mat[1:400, ], y[1:400], laplace = 1, sparse = TRUE)
+#' preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
+#' 
+#' mean(preds != y[401:length(y)])
+predict.fastNaiveBayes.bernoulli <- function(object, newdata, type = c("class", "raw", "rawprob"), sparse = FALSE, ...) {
   type <- match.arg(type)
-  if(class(newdata)[1]!='dgCMatrix'){
-    if(!is.matrix(newdata)){
+  if (class(newdata)[1] != "dgCMatrix") {
+    if (!is.matrix(newdata)) {
       newdata <- as.matrix(newdata)
     }
-    if(sparse){
+    if (sparse) {
       newdata <- Matrix(newdata, sparse = TRUE)
     }
-  }else{
+  } else {
     sparse <- TRUE
   }
+
   names <- object$names
 
-  other_names <- setdiff(names,colnames(newdata))
-  if(length(other_names)>0){
-    if(sparse){
+  other_names <- setdiff(names, colnames(newdata))
+  if (length(other_names) > 0) {
+    if (sparse) {
       other_mat <- Matrix(0L, nrow = nrow(newdata), ncol = length(other_names), sparse = TRUE)
     } else {
       other_mat <- matrix(0L, nrow = nrow(newdata), ncol = length(other_names))
     }
     colnames(other_mat) <- other_names
 
-    newdata <- cbind(newdata,other_mat)
+    newdata <- cbind(newdata, other_mat)
   }
-  newdata <- newdata[,names]
+  newdata <- newdata[, names]
   data <- object$probability_table
 
-  alt_data <- 1-newdata
+  alt_data <- 1 - newdata
 
   present <- log(data$present)
   nonpresent <- log(data$non_present)
@@ -90,20 +92,20 @@ predict.fastNaiveBayes.bernoulli <- function(object, newdata, type=c("class", "r
   nonpresence_prob <- alt_data %*% t(nonpresent)
 
   priors <- as.vector(object$priors)
-  if(type=='rawprob'){
-    return(presence_prob+nonpresence_prob)
+  if (type == "rawprob") {
+    return(presence_prob + nonpresence_prob)
   }
 
   probs <- exp((presence_prob + nonpresence_prob))
-  for(i in 1:length(priors)){
-    probs[,i] <- probs[,i]*priors[i]
+  for (i in 1:length(priors)) {
+    probs[, i] <- probs[, i] * priors[i]
   }
 
   denom <- rowSums(probs)
-  probs <- probs/denom
+  probs <- probs / denom
 
-  if(type=='class'){
-    if(any(max.col(probs, ties.method = "last") != max.col(probs, ties.method = "first"))){
+  if (type == "class") {
+    if (any(max.col(probs, ties.method = "last") != max.col(probs, ties.method = "first"))) {
       warning("Exact same estimated probabilities occured. First encountered class used as classification")
     }
     class <- names(object$priors)[max.col(probs, ties.method = "first")]

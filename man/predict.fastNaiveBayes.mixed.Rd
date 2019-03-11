@@ -38,75 +38,82 @@ In the extremely unlikely case that two classes have the exact same estimated pr
     on different subselections of the same initial matrix, see examples for further details.
 }
 \examples{
-    rm(list=ls())
-    require(mlbench)
-    require(Matrix)
+rm(list = ls())
+require(mlbench)
+require(Matrix)
 
-    # Load BreastCancer data
-    data(BreastCancer)
-    dim(BreastCancer)
-    levels(BreastCancer$Class)
-    head(BreastCancer)
+# Load BreastCancer data
+data(BreastCancer)
+dim(BreastCancer)
+levels(BreastCancer$Class)
+head(BreastCancer)
 
-    # Select couple of columns
-    data_mat <- BreastCancer[,c("Class","Cl.thickness","Cell.size","Cell.shape","Marg.adhesion")]
+# Select couple of columns
+data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
 
-    y <- data_mat[,"Class"]
-    data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class"))]
-    for(i in 1:ncol(data_mat)){
-      data_mat[[i]] <- as.numeric(data_mat[[i]])
-    }
+y <- data_mat[, "Class"]
+data_mat <- data_mat[, setdiff(colnames(data_mat), c("Class"))]
+for (i in 1:ncol(data_mat)) {
+  data_mat[[i]] <- as.numeric(data_mat[[i]])
+}
 
-    # Example using only Gaussian distribution
-    model <- fastNaiveBayes.mixed(data_mat[1:400,], y[1:400], laplace = 1, sparse = TRUE,
-                                  distribution = list(
-                                    gaussian = colnames(data_mat)
-                                  ))
-    preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
+# Example using only Gaussian distribution
+model <- fastNaiveBayes.mixed(data_mat[1:400, ], y[1:400],
+  laplace = 1, sparse = TRUE,
+  distribution = list(
+    gaussian = colnames(data_mat)
+  )
+)
+preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
 
-    mean(preds!=y[401:length(y)])
+mean(preds != y[401:length(y)])
 
-    # Example mixing distributions
-    model <- fastNaiveBayes.mixed(data_mat[1:400,], y[1:400], laplace = 1, sparse = TRUE,
-                                  distribution = list(
-                                    multinomial = c("Cl.thickness","Cell.size"),
-                                    gaussian = c("Cell.shape","Marg.adhesion")
-                                  ))
-    preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
+# Example mixing distributions
+model <- fastNaiveBayes.mixed(data_mat[1:400, ], y[1:400],
+  laplace = 1, sparse = TRUE,
+  distribution = list(
+    multinomial = c("Cl.thickness", "Cell.size"),
+    gaussian = c("Cell.shape", "Marg.adhesion")
+  )
+)
+preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
 
-    mean(preds!=y[401:length(y)])
+mean(preds != y[401:length(y)])
 
-    # Construct y and sparse matrix
-    # Bernoulli dummy example
-    data_mat <- BreastCancer[,c("Class","Cl.thickness","Cell.size","Cell.shape","Marg.adhesion")]
-    col_counter <- ncol(data_mat)+1
-    for(i in 2:ncol(data_mat)){
-      for(val in unique(data_mat[,i])){
-        data_mat[,col_counter] <- ifelse(data_mat[,i]==val,1,0)
-        col_counter <- col_counter+1
-      }
-    }
+# Construct y and sparse matrix
+# Bernoulli dummy example
+data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+col_counter <- ncol(data_mat) + 1
+for (i in 2:ncol(data_mat)) {
+  for (val in unique(data_mat[, i])) {
+    data_mat[, col_counter] <- ifelse(data_mat[, i] == val, 1, 0)
+    col_counter <- col_counter + 1
+  }
+}
 
-    y <- data_mat[,"Class"]
-    data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class","Cl.thickness", "Cell.size",
-                                                       "Cell.shape","Marg.adhesion"))]
+y <- data_mat[, "Class"]
+data_mat <- data_mat[, setdiff(colnames(data_mat), c(
+  "Class", "Cl.thickness", "Cell.size",
+  "Cell.shape", "Marg.adhesion"
+))]
 
-    sparse_data <- Matrix(as.matrix(data_mat), sparse = TRUE)
-    data_mat <- as.matrix(data_mat)
+sparse_data <- Matrix(as.matrix(data_mat), sparse = TRUE)
+data_mat <- as.matrix(data_mat)
 
-    # Example to estimate and predict once with Bernoulli distribution
-    model <- fastNaiveBayes.mixed(data_mat[1:400,], y[1:400], laplace = 1, sparse = TRUE,
-                                  distribution = list(
-                                    bernoulli = colnames(data_mat)
-                                  ))
-    preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
+# Example to estimate and predict once with Bernoulli distribution
+model <- fastNaiveBayes.mixed(data_mat[1:400, ], y[1:400],
+  laplace = 1, sparse = TRUE,
+  distribution = list(
+    bernoulli = colnames(data_mat)
+  )
+)
+preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
 
-    mean(preds!=y[401:length(y)])
+mean(preds != y[401:length(y)])
 
-    # Example using the direct model. This is much faster if all columns should have
-    # The same event model. It saves a lot of overhead
-    direct_model <- fastNaiveBayes.bernoulli(data_mat[1:400,], y[1:400], laplace = 1, sparse = TRUE)
-    direct_preds <- predict(direct_model, newdata = data_mat[401:nrow(data_mat),], type = "class")
-    mean(direct_preds!=y[401:length(y)])
-
+# Example using the direct model. This is much faster if all columns should have
+# The same event model. It saves a lot of overhead
+direct_model <- fastNaiveBayes.bernoulli(data_mat[1:400, ], y[1:400], laplace = 1, sparse = TRUE)
+direct_preds <- predict(direct_model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
+mean(direct_preds != y[401:length(y)])
 }

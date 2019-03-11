@@ -23,63 +23,62 @@
 #'     Using a sparse matrix directly can be especially useful if it's necessary to use predict multiple times on the same matrix or
 #'     on different subselections of the same initial matrix, see examples for further details.
 #' @examples
-#'     rm(list=ls())
-#'     require(mlbench)
-#'     require(Matrix)
-#'
-#'     # Load BreastCancer data
-#'     data(BreastCancer)
-#'     dim(BreastCancer)
-#'     levels(BreastCancer$Class)
-#'     head(BreastCancer)
-#'
-#'     # Select couple of columns
-#'     data_mat <- BreastCancer[,c("Class","Cl.thickness","Cell.size","Cell.shape","Marg.adhesion")]
-#'
-#'     y <- data_mat[,"Class"]
-#'     data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class"))]
-#'     for(i in 1:ncol(data_mat)){
-#'       data_mat[[i]] <- as.numeric(data_mat[[i]])
-#'     }
-#'
-#'
-#'     model <- fastNaiveBayes.multinomial(data_mat[1:400,], y[1:400], laplace = 1, sparse = FALSE)
-#'     preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
-#'
-#'     mean(preds!=y[401:length(y)])
-#'
-predict.fastNaiveBayes.multinomial <- function(object, newdata, type=c("class","raw", "rawprob"), sparse = FALSE, ...){
+#' rm(list = ls())
+#' require(mlbench)
+#' require(Matrix)
+#' 
+#' # Load BreastCancer data
+#' data(BreastCancer)
+#' dim(BreastCancer)
+#' levels(BreastCancer$Class)
+#' head(BreastCancer)
+#' 
+#' # Select couple of columns
+#' data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+#' 
+#' y <- data_mat[, "Class"]
+#' data_mat <- data_mat[, setdiff(colnames(data_mat), c("Class"))]
+#' for (i in 1:ncol(data_mat)) {
+#'   data_mat[[i]] <- as.numeric(data_mat[[i]])
+#' }
+#' 
+#' 
+#' model <- fastNaiveBayes.multinomial(data_mat[1:400, ], y[1:400], laplace = 1, sparse = FALSE)
+#' preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
+#' 
+#' mean(preds != y[401:length(y)])
+predict.fastNaiveBayes.multinomial <- function(object, newdata, type = c("class", "raw", "rawprob"), sparse = FALSE, ...) {
   type <- match.arg(type)
-  if(class(newdata)[1]!='dgCMatrix'){
-    if(!is.matrix(newdata)){
+  if (class(newdata)[1] != "dgCMatrix") {
+    if (!is.matrix(newdata)) {
       newdata <- as.matrix(newdata)
     }
-    if(sparse){
+    if (sparse) {
       newdata <- Matrix(newdata, sparse = TRUE)
     }
-  }else{
+  } else {
     sparse <- TRUE
   }
   names <- object$names
-  other_names <- setdiff(names,colnames(newdata))
+  other_names <- setdiff(names, colnames(newdata))
 
-  if(length(other_names)>0){
-    if(sparse){
+  if (length(other_names) > 0) {
+    if (sparse) {
       other_mat <- Matrix(0L, nrow = nrow(newdata), ncol = length(other_names), sparse = TRUE)
     } else {
       other_mat <- matrix(0L, nrow = nrow(newdata), ncol = length(other_names))
     }
     colnames(other_mat) <- other_names
 
-    newdata <- cbind(newdata,other_mat)
+    newdata <- cbind(newdata, other_mat)
   }
-  newdata <- newdata[,names]
+  newdata <- newdata[, names]
   data <- object$probability_table
 
   present <- log(data$present)
   presence_prob <- newdata %*% t(present)
 
-  if(type=='rawprob'){
+  if (type == "rawprob") {
     return(presence_prob)
   }
   prob <- exp(presence_prob)
@@ -87,15 +86,15 @@ predict.fastNaiveBayes.multinomial <- function(object, newdata, type=c("class","
   priors <- as.vector(object$priors)
   probs <- prob
 
-  for(i in 1:length(priors)){
-    probs[,i] <- probs[,i]*priors[i]
+  for (i in 1:length(priors)) {
+    probs[, i] <- probs[, i] * priors[i]
   }
 
   denom <- rowSums(probs)
-  probs <- probs/denom
+  probs <- probs / denom
 
-  if(type=='class'){
-    if(any(max.col(probs, ties.method = "last") != max.col(probs, ties.method = "first"))){
+  if (type == "class") {
+    if (any(max.col(probs, ties.method = "last") != max.col(probs, ties.method = "first"))) {
       warning("Exact same estimated probabilities occured. First encountered class used as classification")
     }
     class <- names(object$priors)[max.col(probs, ties.method = "first")]

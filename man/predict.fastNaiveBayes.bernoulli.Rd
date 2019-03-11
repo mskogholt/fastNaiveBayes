@@ -38,34 +38,35 @@ In the extremely unlikely case that two classes have the exact same estimated pr
     on different subselections of the same initial matrix, see examples for further details.
 }
 \examples{
-    rm(list=ls())
-    require(mlbench)
-    require(Matrix)
+rm(list = ls())
+require(mlbench)
+require(Matrix)
 
-    # Load BreastCancer data
-    data(BreastCancer)
-    dim(BreastCancer)
-    levels(BreastCancer$Class)
-    head(BreastCancer)
+# Load BreastCancer data
+data(BreastCancer)
+dim(BreastCancer)
+levels(BreastCancer$Class)
+head(BreastCancer)
 
-    # Bernoulli dummy example
-    data_mat <- BreastCancer[,c("Class","Cl.thickness","Cell.size","Cell.shape","Marg.adhesion")]
-    col_counter <- ncol(data_mat)+1
-    for(i in 2:ncol(data_mat)){
-      for(val in unique(data_mat[,i])){
-        data_mat[,col_counter] <- ifelse(data_mat[,i]==val,1,0)
-        col_counter <- col_counter+1
-      }
-    }
+# Bernoulli dummy example
+data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+col_counter <- ncol(data_mat) + 1
+for (i in 2:ncol(data_mat)) {
+  for (val in unique(data_mat[, i])) {
+    data_mat[, col_counter] <- ifelse(data_mat[, i] == val, 1, 0)
+    col_counter <- col_counter + 1
+  }
+}
 
-    y <- data_mat[,"Class"]
-    data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class","Cl.thickness", "Cell.size",
-                                                       "Cell.shape","Marg.adhesion"))]
-    data_mat <- as.matrix(data_mat)
+y <- data_mat[, "Class"]
+data_mat <- data_mat[, setdiff(colnames(data_mat), c(
+  "Class", "Cl.thickness", "Cell.size",
+  "Cell.shape", "Marg.adhesion"
+))]
+data_mat <- as.matrix(data_mat)
 
-    model <- fastNaiveBayes.bernoulli(data_mat[1:400,], y[1:400], laplace = 1, sparse = TRUE)
-    preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
+model <- fastNaiveBayes.bernoulli(data_mat[1:400, ], y[1:400], laplace = 1, sparse = TRUE)
+preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
 
-    mean(preds!=y[401:length(y)])
-
+mean(preds != y[401:length(y)])
 }

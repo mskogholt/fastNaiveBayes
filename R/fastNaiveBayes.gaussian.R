@@ -4,7 +4,9 @@
 #'
 #' @param x a numeric matrix. A sparse dgcMatrix is also accepted
 #' @param y a factor of classes
-#' @param laplace A number used for Laplace smoothing. Default is 0
+#' @param std_threshold Default is 0.01. This sets a threshold for the standard deviation.
+#' Now any features with 0 standard deviation are primed to have
+#' std_threshold standard deviation instead to ensure proper probabilities.
 #' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
 #' @param ... Not used.
@@ -30,34 +32,33 @@
 #' @export
 #' @import Matrix
 #' @examples
-#'     rm(list=ls())
-#'     require(mlbench)
-#'     require(Matrix)
-#'
-#'     # Load BreastCancer data
-#'     data(BreastCancer)
-#'     dim(BreastCancer)
-#'     levels(BreastCancer$Class)
-#'     head(BreastCancer)
-#'
-#'     # Gaussian distribution example
-#'     data_mat <- BreastCancer[,c("Class","Cl.thickness","Cell.size","Cell.shape","Marg.adhesion")]
-#'
-#'     y <- data_mat[,"Class"]
-#'     data_mat <- data_mat[,setdiff(colnames(data_mat),c("Class"))]
-#'     for(i in 1:ncol(data_mat)){
-#'       data_mat[[i]] <- as.numeric(data_mat[[i]])
-#'     }
-#'
-#'     model <- fastNaiveBayes.gaussian(data_mat[1:400,], y[1:400], laplace = 1, sparse = FALSE)
-#'     preds <- predict(model, newdata = data_mat[401:nrow(data_mat),], type = "class")
-#'
-#'     mean(preds!=y[401:length(y)])
-#'
+#' rm(list = ls())
+#' require(mlbench)
+#' require(Matrix)
+#' 
+#' # Load BreastCancer data
+#' data(BreastCancer)
+#' dim(BreastCancer)
+#' levels(BreastCancer$Class)
+#' head(BreastCancer)
+#' 
+#' # Gaussian distribution example
+#' data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+#' 
+#' y <- data_mat[, "Class"]
+#' data_mat <- data_mat[, setdiff(colnames(data_mat), c("Class"))]
+#' for (i in 1:ncol(data_mat)) {
+#'   data_mat[[i]] <- as.numeric(data_mat[[i]])
+#' }
+#' 
+#' model <- fastNaiveBayes.gaussian(data_mat[1:400, ], y[1:400], laplace = 1, sparse = FALSE)
+#' preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
+#' 
+#' mean(preds != y[401:length(y)])
 #' @seealso \code{\link{predict.fastNaiveBayes.gaussian}} for the predict function for the fastNaiveBayes.gaussian class,
 #' \code{\link{fastNaiveBayes.mixed}} for the general fastNaiveBayes model, \code{\link{fastNaiveBayes.bernoulli}} for a Bernoulli
 #' distribution only model, and finally, \code{\link{fastNaiveBayes.multinomial}} for a multinomial only distribution model.
 #' @rdname fastNaiveBayes.gaussian
-fastNaiveBayes.gaussian <- function(x, y, laplace = 0, sparse = FALSE, ...){
+fastNaiveBayes.gaussian <- function(x, y, std_threshold = 0.01, sparse = FALSE, ...) {
   UseMethod("fastNaiveBayes.gaussian")
 }
