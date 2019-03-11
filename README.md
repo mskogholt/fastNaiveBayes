@@ -1,7 +1,7 @@
 fastNaiveBayes
 ==============
 
-[![CRAN status](https://www.r-pkg.org/badges/version/fastNaiveBayes)](https://cran.r-project.org/package=fastNaiveBayes) [![Travis build status](https://travis-ci.org/mskogholt/fastNaiveBayes.svg?branch=master)](https://travis-ci.org/mskogholt/fastNaiveBayes)
+[![CRAN status](https://www.r-pkg.org/badges/version/fastNaiveBayes)](https://cran.r-project.org/package=fastNaiveBayes) [![Travis build status](https://travis-ci.org/mskogholt/fastNaiveBayes.svg?branch=master)](https://travis-ci.org/mskogholt/fastNaiveBayes) [![Codecov test coverage](https://codecov.io/gh/mskogholt/fastNaiveBayes/branch/master/graph/badge.svg)](https://codecov.io/gh/mskogholt/fastNaiveBayes?branch=master)
 
 Overview
 --------
