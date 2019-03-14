@@ -50,4 +50,16 @@ test_that("Gaussian estimation gives expected results", {
 
   expect_equal(sum(round(abs(preds - real_preds), digits = 7)), 0)
   expect_error(fastNaiveBayes.gaussian(x[1:3,], y))
+
+  y <- as.factor(c("Ham", "Ham", "Ham", "Spam", "Spam", "Spam"))
+  x <- matrix(c(2, 3, 2, 1, 2, 5),
+              nrow = 6, ncol = 1
+  )
+  x[,1] <- 1
+  x <- x[,1]
+  x <- as.matrix(x)
+  colnames(x) <- c("ja")
+  mod <- fastNaiveBayes.bernoulli(x,y, laplace = 0.00001, sparse = TRUE)
+  expect_warning(predict(mod, newdata=x, type = "class"))
+
 })
