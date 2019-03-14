@@ -74,4 +74,5 @@ test_that("Mixed event models estimation gives expected results when mixed", {
 
   expect_equal(sum(abs(new_preds-other_preds)), 0)
   expect_warning(predict(mod, newdata=x, type = "class"))
+  expect_error(fastNaiveBayes.mixed(x[1:3, ], y))
 })
