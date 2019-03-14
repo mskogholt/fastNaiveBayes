@@ -9,7 +9,6 @@ test_that("Gaussian estimation gives expected results", {
   colnames(x) <- col_names
   x <- as.data.frame(x)
 
-
   # Standard Multinomial model test with laplace = 0
   mod <- fastNaiveBayes.gaussian(x, y, std_threshold = 0, sparse = FALSE)
   sparse_cast_mod <- fastNaiveBayes.gaussian(x, y, std_threshold = 0, sparse = TRUE)
@@ -52,14 +51,14 @@ test_that("Gaussian estimation gives expected results", {
   expect_error(fastNaiveBayes.gaussian(x[1:3,], y))
 
   y <- as.factor(c("Ham", "Ham", "Ham", "Spam", "Spam", "Spam"))
-  x <- matrix(c(2, 3, 2, 1, 2, 5),
+  x <- matrix(c(2, 3, 2, 2, 3, 2),
               nrow = 6, ncol = 1
   )
-  x[,1] <- 1
+
   x <- x[,1]
   x <- as.matrix(x)
   colnames(x) <- c("ja")
-  mod <- fastNaiveBayes.bernoulli(x,y, laplace = 0.00001, sparse = TRUE)
+  mod <- fastNaiveBayes.gaussian(x,y, laplace = 0.00001, sparse = TRUE)
   expect_warning(predict(mod, newdata=x, type = "class"))
 
 })
