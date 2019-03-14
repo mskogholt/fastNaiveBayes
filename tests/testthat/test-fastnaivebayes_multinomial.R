@@ -47,8 +47,6 @@ test_that("Multinomial estimation gives expected results", {
   expect_equal(sum(abs(newframe_preds-frame_preds)),0)
   expect_error(fastNaiveBayes.multinomial(x[1:3,], y))
 
-
-
   x <- as.matrix(x[,1])
   colnames(x) <- col_names[1]
   real_probs <- matrix(c(

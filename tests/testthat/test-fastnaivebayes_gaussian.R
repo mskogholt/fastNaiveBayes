@@ -59,6 +59,6 @@ test_that("Gaussian estimation gives expected results", {
   x <- as.matrix(x)
   colnames(x) <- c("ja")
   mod <- fastNaiveBayes.gaussian(x,y, laplace = 0.00001, sparse = TRUE)
-  expect_warning(predict(mod, newdata=x, type = "class"))
+  expect_warning(predict(mod, newdata=x, type = "class", sparse = TRUE))
 
 })
