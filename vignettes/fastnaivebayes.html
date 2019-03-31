@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Skogholt" />
 
-<meta name="date" content="2019-03-07" />
+<meta name="date" content="2019-03-31" />
 
 <title>Fast Naive Bayes</title>
 
@@ -32,13 +32,13 @@
 
 <h1 class="title toc-ignore">Fast Naive Bayes</h1>
 <h4 class="author"><em>Martin Skogholt</em></h4>
-<h4 class="date"><em>2019-03-07</em></h4>
+<h4 class="date"><em>2019-03-31</em></h4>
 
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another unique feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution. This implementation offers a huge performance gain compared to the ‘e1071’ implementation in R. The execution times were compared on a data set of tweets and was found to be around 330 times faster. See the vignette for more details. This performance gain is only realized using a Bernoulli event model. Furthermore, the Multinomial event model implementation is even slightly faster, but incomparable since it was not implemented in ‘e1071’. The implementation is largely based on the paper “A comparison of event models for Naive Bayes anti-spam e-mail filtering” written by K.M. Schneider (2003).</p>
+<p>This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another unique feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution. This implementation offers a huge performance gain compared to the ‘e1071’ implementation in R. The execution times were compared on a data set of tweets and was found to be around 1135 times faster. Compared to other implementations the minimum speed up was found to be 12.5 times faster for the Bernoulli distribution. See the vignette for more details. This performance gain is only realized using a Bernoulli event model. Furthermore, the Multinomial event model implementation is even slightly faster, but incomparable since it was not implemented in ‘e1071’. Compared to other implementations of a Multinomial distribution, this package was found to give a speed up of 12.2 times. The implementation is largely based on the paper “A comparison of event models for Naive Bayes anti-spam e-mail filtering” written by K.M. Schneider (2003).</p>
 <p>Any issues can be submitted to: <a href="https://github.com/mskogholt/fastNaiveBayes/issues" class="uri">https://github.com/mskogholt/fastNaiveBayes/issues</a></p>
 <p>The purpose of this vignette is to explain some key aspects of this implementation in detail. Firstly, a short introduction to text classification is given as the context for further explanations about the Naive Bayes classifier. It should be noted that the Naive Bayes classifier is not restricted to text classification. The Naive Bayes classifier is a general classification algorithm, but most commonly applied to text classification. Secondly, the general framework of a Naive Bayes classifier is outlined in order to subsequently delve deeper into the different event models. Thirdly, a mathematical explanation is given as to why this particular implementation has such an excellent performance. In the fourth section a description is given about the unique features that sets this implementation of a Naive Bayes classifier apart from other implementations within the R community.</p>
 </div>
@@ -90,90 +90,79 @@
 </div>
 <div id="unique-features" class="section level1">
 <h1>Unique Features</h1>
-<p>In this section, a brief overview is given of the unique features of this package. The go-to package for Naive Bayes classification in the R community is ‘e1071’. The main contribution of the fastNaiveBayes package is by improving on the work already done in ‘e1071’ on two points:</p>
+<p>In this section, a brief overview is given of the unique features of this package. This implementation improves upon existing implementations on two points:</p>
 <ol style="list-style-type: decimal">
 <li>Speed of execution: by using the matrix multiplication trick this package is magnitudes faster</li>
-<li>Also allows multinomial distribution modeling using the word frequencies.</li>
+<li>Easily mix event models by using the mixed model.</li>
 </ol>
-<p>In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to ‘e1071’. The comparison was made on a dataset consisting of 14640 tweets, where 10980 were used to train the Naive Bayes classifier and 3660 tweets were used to test. After processing a total of 1881 features, i.e. words, were used. In the table below the comparison between execution times is shown</p>
+<p>In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to different packages. The comparison was made on a dataset consisting of 14640 tweets, where all were used to train the Naive Bayes classifier and all tweets were used to test. After processing a total of 2225 features, i.e. words, were used. In the table below the comparison between execution times is shown</p>
 <table>
 <thead>
 <tr class="header">
 <th>Bernoulli</th>
-<th>min</th>
-<th>lq</th>
-<th>mean</th>
-<th>median</th>
-<th>uq</th>
-<th>max</th>
+<th>Execution Time</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>fastNaiveBayes</td>
-<td>377 ms.</td>
-<td>387 ms.</td>
-<td>429 ms.</td>
-<td>394 ms.</td>
-<td>441 ms.</td>
-<td>611 ms.</td>
+<td>158.5 ms.</td>
 </tr>
 <tr class="even">
 <td>fastNaiveBayes Sparse</td>
-<td>637 ms.</td>
-<td>652 ms.</td>
-<td>817 ms.</td>
-<td>809 ms.</td>
-<td>918 ms.</td>
-<td>1105 ms.</td>
+<td>303.3 ms.</td>
 </tr>
 <tr class="odd">
 <td>e1071</td>
-<td>128488 ms.</td>
-<td>128778 ms.</td>
-<td>133180 ms.</td>
-<td>131442 ms.</td>
-<td>133776 ms.</td>
-<td>147038 ms.</td>
+<td>178476 ms.</td>
+</tr>
+<tr class="even">
+<td>bnlearn</td>
+<td>1980.9</td>
+</tr>
+<tr class="odd">
+<td>klaR</td>
+<td>182046 ms.</td>
+</tr>
+<tr class="even">
+<td>naivebayes</td>
+<td>3655.7 ms.</td>
+</tr>
+<tr class="odd">
+<td>quanteda</td>
+<td>2059.9 ms.</td>
 </tr>
 </tbody>
 </table>
-<p>As can be seen from this table, the fastNaiveBayes algorithm using a normal R matrix was the fastest. Compared to the ‘e1071’ package the execution time is 331 times faster. It’s interesting to note that using a sparse dgcMatrix did not result in faster execution times for the Bernoulli distribution.</p>
+<p>As can be seen from this table, the fastNaiveBayes algorithm using a normal R matrix was the fastest. Compared to the ‘e1071’ package the execution time is 1135 times faster. It’s interesting to note that using a sparse dgcMatrix did not result in faster execution times for the Bernoulli distribution. The fastest implementations besides this package comes from ‘bnlearn’ and ‘quanteda’. Compared to these two, this implementation is around 12.5 times faster.</p>
 <p>In the table below, the results are shown when using a Multinomial distribution and the word counts instead of binary features.</p>
 <table>
 <thead>
 <tr class="header">
 <th>Multinomial</th>
-<th>min</th>
-<th>lq</th>
-<th>mean</th>
-<th>median</th>
-<th>uq</th>
-<th>max</th>
+<th>Execution Time</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>fastNaiveBayes</td>
-<td>235 ms.</td>
-<td>249 ms.</td>
-<td>298 ms.</td>
-<td>252 ms.</td>
-<td>387 ms.</td>
-<td>431 ms.</td>
+<td>44.12 ms.</td>
 </tr>
 <tr class="even">
 <td>fastNaiveBayes Sparse</td>
-<td>7 ms.</td>
-<td>7 ms.</td>
-<td>8 ms.</td>
-<td>7 ms.</td>
-<td>8 ms.</td>
-<td>9 ms.</td>
+<td>5.4 ms.</td>
+</tr>
+<tr class="odd">
+<td>quanteda</td>
+<td>68.66 ms.</td>
+</tr>
+<tr class="even">
+<td>Rfast</td>
+<td>65.80 ms.</td>
 </tr>
 </tbody>
 </table>
-<p>The comparison can not be made with the implementation in the ‘e1071’ package, since this does not implement a Multinomial distribution. The interesting thing to note here is that using a sparse dgcMatrix now gives a huge increase in performance. Comparing the median execution times using a sparse dgcMatrix is 36 times faster than the normal R matrix.</p>
+<p>The comparison can not be made with a number of implementations, that have not implemented a Multinomial distribution yet. The interesting thing to note here is that using a sparse dgcMatrix now gives a huge increase in performance. Comparing the mean execution times using a sparse dgcMatrix is 36 times faster than the normal R matrix. Compared to ‘quanteda’ this implementation is still 12.7 times faster using a sparse matrix and compared to Rfast it is 12.2 times faster.</p>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>

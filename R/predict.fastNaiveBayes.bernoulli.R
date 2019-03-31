@@ -26,13 +26,13 @@
 #' rm(list = ls())
 #' require(mlbench)
 #' require(Matrix)
-#' 
+#'
 #' # Load BreastCancer data
 #' data(BreastCancer)
 #' dim(BreastCancer)
 #' levels(BreastCancer$Class)
 #' head(BreastCancer)
-#' 
+#'
 #' # Bernoulli dummy example
 #' data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
 #' col_counter <- ncol(data_mat) + 1
@@ -42,17 +42,17 @@
 #'     col_counter <- col_counter + 1
 #'   }
 #' }
-#' 
+#'
 #' y <- data_mat[, "Class"]
 #' data_mat <- data_mat[, setdiff(colnames(data_mat), c(
 #'   "Class", "Cl.thickness", "Cell.size",
 #'   "Cell.shape", "Marg.adhesion"
 #' ))]
 #' data_mat <- as.matrix(data_mat)
-#' 
+#'
 #' model <- fastNaiveBayes.bernoulli(data_mat[1:400, ], y[1:400], laplace = 1, sparse = TRUE)
 #' preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
-#' 
+#'
 #' mean(preds != y[401:length(y)])
 predict.fastNaiveBayes.bernoulli <- function(object, newdata, type = c("class", "raw", "rawprob"), sparse = FALSE, ...) {
   type <- match.arg(type)
@@ -83,13 +83,12 @@ predict.fastNaiveBayes.bernoulli <- function(object, newdata, type = c("class", 
   newdata <- newdata[, names]
   data <- object$probability_table
 
-  alt_data <- 1 - newdata
-
   present <- log(data$present)
   nonpresent <- log(data$non_present)
 
   presence_prob <- newdata %*% t(present)
-  nonpresence_prob <- alt_data %*% t(nonpresent)
+  nonpresence_prob <- matrix(base::colSums(t(nonpresent)), nrow = nrow(presence_prob),
+                             ncol = ncol(presence_prob), byrow = TRUE) - newdata %*% t(nonpresent)
 
   priors <- as.vector(object$priors)
   if (type == "rawprob") {
