@@ -1,3 +1,4 @@
+^data-raw$
 ^\.travis\.yml$
 ^CRAN-RELEASE$
 ^Meta$

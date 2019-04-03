@@ -38,27 +38,20 @@ In the extremely unlikely case that two classes have the exact same estimated pr
     on different subselections of the same initial matrix, see examples for further details.
 }
 \examples{
-rm(list = ls())
-require(mlbench)
-require(Matrix)
+rm(list=ls())
+library(fastNaiveBayes)
+cars <- mtcars
+y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
+x <- cars[,2:ncol(cars)]
 
-# Load BreastCancer data
-data(BreastCancer)
-dim(BreastCancer)
-levels(BreastCancer$Class)
-head(BreastCancer)
+dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
 
-# Gaussian distribution example
-data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+# Gaussian only
+vars <- c('hp', dist$gaussian)
+newx <- x[,vars]
 
-y <- data_mat[, "Class"]
-data_mat <- data_mat[, setdiff(colnames(data_mat), c("Class"))]
-for (i in 1:ncol(data_mat)) {
-  data_mat[[i]] <- as.numeric(data_mat[[i]])
-}
+mod <- fastNaiveBayes.gaussian(newx, y)
+pred <- predict(mod, newdata = newx)
+mean(pred!=y)
 
-model <- fastNaiveBayes.gaussian(data_mat[1:400, ], y[1:400], laplace = 1, sparse = FALSE)
-preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
-
-mean(preds != y[401:length(y)])
 }

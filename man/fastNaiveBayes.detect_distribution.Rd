@@ -28,31 +28,18 @@ on a set of rules.
 A simple utility function to detect the distribution to use for each columns
 }
 \examples{
-rm(list = ls())
-require(mlbench)
-require(Matrix)
+rm(list=ls())
+library(fastNaiveBayes)
+cars <- mtcars
+y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
+x <- cars[,2:ncol(cars)]
 
-# Load BreastCancer data
-data(BreastCancer)
-dim(BreastCancer)
-levels(BreastCancer$Class)
-head(BreastCancer)
+# Uses default of top 10 rows to determine distributions
+dist <- fastNaiveBayes.detect_distribution(x)
+print(dist)
 
-# Select couple of columns
-data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+# Uses all rows of x to determine distributions
+dist <- fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
+print(dist)
 
-y <- data_mat[, "Class"]
-data_mat <- data_mat[, setdiff(colnames(data_mat), c("Class"))]
-for (i in 1:ncol(data_mat)) {
-  data_mat[[i]] <- as.numeric(data_mat[[i]])
-}
-
-# Example using only Gaussian distribution
-model <- fastNaiveBayes.mixed(data_mat[1:400, ], y[1:400],
-  laplace = 1, sparse = TRUE,
-  distribution = fastNaiveBayes.detect_distribution(data_mat)
-)
-preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
-
-mean(preds != y[401:length(y)])
 }

@@ -51,29 +51,22 @@ A Naive Bayes classifier that assumes independence between the feature variables
     converting to a sparse matrix can actually be slower depending on the data.
 }
 \examples{
-rm(list = ls())
-require(mlbench)
-require(Matrix)
+rm(list=ls())
+library(fastNaiveBayes)
+cars <- mtcars
+y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
+x <- cars[,2:ncol(cars)]
 
-# Load BreastCancer data
-data(BreastCancer)
-dim(BreastCancer)
-levels(BreastCancer$Class)
-head(BreastCancer)
+dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
 
-# Gaussian distribution example
-data_mat <- BreastCancer[, c("Class", "Cl.thickness", "Cell.size", "Cell.shape", "Marg.adhesion")]
+# Gaussian only
+vars <- c('hp', dist$gaussian)
+newx <- x[,vars]
 
-y <- data_mat[, "Class"]
-data_mat <- data_mat[, setdiff(colnames(data_mat), c("Class"))]
-for (i in 1:ncol(data_mat)) {
-  data_mat[[i]] <- as.numeric(data_mat[[i]])
-}
+mod <- fastNaiveBayes.gaussian(newx, y)
+pred <- predict(mod, newdata = newx)
+mean(pred!=y)
 
-model <- fastNaiveBayes.gaussian(data_mat[1:400, ], y[1:400], laplace = 1, sparse = FALSE)
-preds <- predict(model, newdata = data_mat[401:nrow(data_mat), ], type = "class")
-
-mean(preds != y[401:length(y)])
 }
 \seealso{
 \code{\link{predict.fastNaiveBayes.gaussian}} for the predict function for the fastNaiveBayes.gaussian class,

@@ -1,15 +1,27 @@
 #' fastNaiveBayes
 #'
-#' Extremely fast implementation of a Naive Bayes classifier. The package currently supports
-#' a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for
-#' both binary features, frequency counts, and numerical features.
-#' Only numerical variables are allowed, however, categorical variables can be transformed into dummies
-#' and used with the Bernoulli distribution.
+#' This is an extremely fast implementation of a Naive Bayes classifier.
+#' This package is currently the only package that supports a Bernoulli distribution,
+#' a Multinomial distribution, and a Gaussian distribution, making it suitable for
+#' both binary features, frequency counts, and numerical features. Another unique
+#' feature is the support of a mix of different event models. Only numerical variables are allowed,
+#' however, categorical variables can be transformed into dummies and used with
+#' the Bernoulli distribution.
 #'
-#' This implementation offers a huge performance gain compared to the 'e1071' implementation in R.
-#' The execution times were compared on a data set of tweets and was found to be 331 times faster. See the vignette for more
-#' details. This performance gain is only realized using a Bernoulli event model. Furthermore, the Multinomial event model
-#' is equally fast and available in contrast to 'e1071'
+#' This implementation offers a huge performance
+#' gain compared to the 'e1071' implementation in R. The execution times were compared
+#' on a data set of tweets and was found to be around 1135 times faster. Compared to other implementations
+#' the minimum speed up was found to be 12.5 times faster for the Bernoulli distribution. See the vignette
+#' for more details. This performance gain is only realized using a Bernoulli
+#' event model. Furthermore, the Multinomial event model implementation is even slightly faster,
+#' but incomparable since it was not implemented in 'e1071'. Compared to other implementations of a
+#' Multinomial distribution, this package was found to give a speed up of 12.2 times.
+#'
+#' The implementation is largely based on the paper
+#' "A comparison of event models for Naive Bayes anti-spam e-mail filtering" written by
+#' K.M. Schneider (2003) <doi:10.3115/1067807>.
+#'
+#' Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/issues>.
 #'
 #' For a complete list of functions, use library(help = "fastNaiveBayes").
 #'
