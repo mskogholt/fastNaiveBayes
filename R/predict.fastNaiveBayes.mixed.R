@@ -10,6 +10,8 @@
 #' @param type If "raw", the conditional a-posterior probabilities for each class are returned, and the class with maximal probability else.
 #' @param sparse Use a sparse Matrix? If true a sparse matrix will be constructed from x, which can give up to a 40\% speed up.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
+#' @param threshold A threshold for the minimum probability. For Bernoulli and Multinomial event models Laplace smoothing solves this,
+#' but in the case of Gaussian event models, this ensures numerical probabilities
 #' @param ... Not used.
 #' @return If type = 'class', a factor with classified class levels. If type = 'raw', a matrix with the predicted probabilities of
 #'     each class, where each column in the matrix corresponds to a class level.
@@ -23,21 +25,21 @@
 #'     Using a sparse matrix directly can be especially useful if it's necessary to use predict multiple times on the same matrix or
 #'     on different subselections of the same initial matrix, see examples for further details.
 #' @examples
-#' rm(list=ls())
+#' rm(list = ls())
 #' library(fastNaiveBayes)
 #'
 #' cars <- mtcars
-#' y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
-#' x <- cars[,2:ncol(cars)]
+#' y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
+#' x <- cars[, 2:ncol(cars)]
 #'
 #' # Mixed event models
 #' dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
 #' print(dist)
-#' mod <- fastNaiveBayes.mixed(x,y,laplace = 1)
+#' mod <- fastNaiveBayes.mixed(x, y, laplace = 1)
 #' pred <- predict(mod, newdata = x)
-#' mean(pred!=y)
-#'
-predict.fastNaiveBayes.mixed <- function(object, newdata, type = c("class", "raw"), sparse = FALSE, ...) {
+#' mean(pred != y)
+predict.fastNaiveBayes.mixed <- function(object, newdata, type = c("class", "raw"),
+                                         sparse = FALSE, threshold = .Machine$double.eps, ...) {
   type <- match.arg(type)
   if (class(newdata)[1] != "dgCMatrix") {
     if (!is.matrix(newdata)) {
@@ -76,9 +78,9 @@ predict.fastNaiveBayes.mixed <- function(object, newdata, type = c("class", "raw
       colnames(newx) <- newnames
     }
     if (is.null(probs)) {
-      probs <- stats::predict(model, newx, type = "rawprob", sparse)
+      probs <- stats::predict(model, newx, type = "rawprob", sparse, threshold)
     } else {
-      probs <- probs + stats::predict(model, newx, type = "rawprob", sparse)
+      probs <- probs + stats::predict(model, newx, type = "rawprob", sparse, threshold)
     }
   }
   probs <- exp(probs)
@@ -92,9 +94,6 @@ predict.fastNaiveBayes.mixed <- function(object, newdata, type = c("class", "raw
   probs <- probs / denom
 
   if (type == "class") {
-    if (any(max.col(probs, ties.method = "last") != max.col(probs, ties.method = "first"))) {
-      warning("Exact same estimated probabilities occured. First encountered class used as classification")
-    }
     class <- names(object$priors)[max.col(probs, ties.method = "first")]
     return(as.factor(class))
   }

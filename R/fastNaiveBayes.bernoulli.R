@@ -30,26 +30,25 @@
 #' @export
 #' @import Matrix
 #' @examples
-#' rm(list=ls())
+#' rm(list = ls())
 #' library(fastNaiveBayes)
 #' cars <- mtcars
-#' y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
-#' x <- cars[,2:ncol(cars)]
-#'
+#' y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
+#' x <- cars[, 2:ncol(cars)]
+#' 
 #' dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
-#'
+#' 
 #' # Bernoulli only
 #' vars <- c(dist$bernoulli, dist$multinomial)
-#' newx <- x[,vars]
-#' for(i in 1:ncol(newx)){
+#' newx <- x[, vars]
+#' for (i in 1:ncol(newx)) {
 #'   newx[[i]] <- as.factor(newx[[i]])
 #' }
-#' new_mat <- model.matrix(y ~ . -1, cbind(y,newx))
-#'
+#' new_mat <- model.matrix(y ~ . - 1, cbind(y, newx))
+#' 
 #' mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1)
 #' pred <- predict(mod, newdata = new_mat)
-#' mean(pred!=y)
-#'
+#' mean(pred != y)
 #' @seealso \code{\link{predict.fastNaiveBayes.bernoulli}} for the predict function for the fastNaiveBayes.bernoulli class,
 #' \code{\link{fastNaiveBayes.mixed}} for the general fastNaiveBayes model, \code{\link{fastNaiveBayes.gaussian}} for a Gaussian
 #' distribution only model, and finally, \code{\link{fastNaiveBayes.multinomial}} for a multinomial only distribution model.

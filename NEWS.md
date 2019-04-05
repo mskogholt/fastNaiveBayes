@@ -1,3 +1,16 @@
+## fastNaiveBayes 1.1.2
+
+### New Features
+- threshold in all predict functions to ensure a minimum probability
+- Added tweets and tweetsDTM datasets as example data and for time comparisons
+
+### Bug Fixes
+- With 2x1 matrices error were thrown
+
+### Other Changes
+- Removed std_threshold in Gaussian model, not necessary since the introduction of the above threshold feature
+- Changed comparison to other packages in vignette
+
 ## fastNaiveBayes 1.1.1
 
 ### New Features
@@ -15,8 +28,6 @@
 
 ## fastNaiveBayes 1.0.1
 
-### New Features
--
 ### Bug Fixes
 - Fixed bug in Gaussian predict function.
 

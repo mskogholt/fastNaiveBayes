@@ -6,11 +6,11 @@
 \alias{fastNaiveBayes.mixed.default}
 \title{Fast Naive Bayes Classifier for mixed Distributions}
 \usage{
-fastNaiveBayes.mixed(x, y, laplace = 0, std_threshold = 0.01,
-  sparse = FALSE, distribution = NULL, ...)
+fastNaiveBayes.mixed(x, y, laplace = 0, sparse = FALSE,
+  distribution = NULL, ...)
 
 \method{fastNaiveBayes.mixed}{default}(x, y, laplace = 0,
-  std_threshold = 0.01, sparse = FALSE, distribution = NULL, ...)
+  sparse = FALSE, distribution = NULL, ...)
 }
 \arguments{
 \item{x}{a numeric matrix, or a dgcMatrix}
@@ -18,10 +18,6 @@ fastNaiveBayes.mixed(x, y, laplace = 0, std_threshold = 0.01,
 \item{y}{a factor of classes}
 
 \item{laplace}{A number used for Laplace smoothing. Default is 0}
-
-\item{std_threshold}{Default is 0.01. This sets a threshold for the standard deviation.
-Now any features with 0 standard deviation are primed to have
-std_threshold standard deviation instead to ensure proper probabilities.}
 
 \item{sparse}{Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
 It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE}
@@ -59,19 +55,18 @@ A Naive Bayes classifier that assumes independence between the feature variables
     converting to a sparse matrix can actually be slower depending on the data.
 }
 \examples{
-rm(list=ls())
+rm(list = ls())
 library(fastNaiveBayes)
 cars <- mtcars
-y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
-x <- cars[,2:ncol(cars)]
+y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
+x <- cars[, 2:ncol(cars)]
 
 # Mixed event models
 dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
 print(dist)
-mod <- fastNaiveBayes.mixed(x,y,laplace = 1)
+mod <- fastNaiveBayes.mixed(x, y, laplace = 1)
 pred <- predict(mod, newdata = x)
-mean(pred!=y)
-
+mean(pred != y)
 }
 \seealso{
 \code{\link{predict.fastNaiveBayes.mixed}} for the predict function for a fastNaiveBayes class,

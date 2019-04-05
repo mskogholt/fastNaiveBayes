@@ -4,9 +4,6 @@
 #'
 #' @param x a numeric matrix. A sparse dgcMatrix is also accepted
 #' @param y a factor of classes
-#' @param std_threshold Default is 0.01. This sets a threshold for the standard deviation.
-#' Now any features with 0 standard deviation are primed to have
-#' std_threshold standard deviation instead to ensure proper probabilities.
 #' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
 #' @param ... Not used.
@@ -32,26 +29,25 @@
 #' @export
 #' @import Matrix
 #' @examples
-#' rm(list=ls())
+#' rm(list = ls())
 #' library(fastNaiveBayes)
 #' cars <- mtcars
-#' y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
-#' x <- cars[,2:ncol(cars)]
+#' y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
+#' x <- cars[, 2:ncol(cars)]
 #'
 #' dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
 #'
 #' # Gaussian only
-#' vars <- c('hp', dist$gaussian)
-#' newx <- x[,vars]
+#' vars <- c("hp", dist$gaussian)
+#' newx <- x[, vars]
 #'
 #' mod <- fastNaiveBayes.gaussian(newx, y)
 #' pred <- predict(mod, newdata = newx)
-#' mean(pred!=y)
-#'
+#' mean(pred != y)
 #' @seealso \code{\link{predict.fastNaiveBayes.gaussian}} for the predict function for the fastNaiveBayes.gaussian class,
 #' \code{\link{fastNaiveBayes.mixed}} for the general fastNaiveBayes model, \code{\link{fastNaiveBayes.bernoulli}} for a Bernoulli
 #' distribution only model, and finally, \code{\link{fastNaiveBayes.multinomial}} for a multinomial only distribution model.
 #' @rdname fastNaiveBayes.gaussian
-fastNaiveBayes.gaussian <- function(x, y, std_threshold = 0.01, sparse = FALSE, ...) {
+fastNaiveBayes.gaussian <- function(x, y, sparse = FALSE, ...) {
   UseMethod("fastNaiveBayes.gaussian")
 }

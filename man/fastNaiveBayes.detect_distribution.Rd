@@ -28,11 +28,11 @@ on a set of rules.
 A simple utility function to detect the distribution to use for each columns
 }
 \examples{
-rm(list=ls())
+rm(list = ls())
 library(fastNaiveBayes)
 cars <- mtcars
-y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
-x <- cars[,2:ncol(cars)]
+y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
+x <- cars[, 2:ncol(cars)]
 
 # Uses default of top 10 rows to determine distributions
 dist <- fastNaiveBayes.detect_distribution(x)
@@ -41,5 +41,4 @@ print(dist)
 # Uses all rows of x to determine distributions
 dist <- fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
 print(dist)
-
 }

@@ -1,7 +1,7 @@
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayes.gaussian
-fastNaiveBayes.gaussian.default <- function(x, y, std_threshold = 0.01, sparse = FALSE, ...) {
+fastNaiveBayes.gaussian.default <- function(x, y, sparse = FALSE, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {
       x <- as.matrix(x)
@@ -32,10 +32,6 @@ fastNaiveBayes.gaussian.default <- function(x, y, std_threshold = 0.01, sparse =
       mat_means <- matrix(means, nrow = nrow(x_level), ncol = ncol(x_level), byrow = TRUE)
       stddev <- sqrt(colSums((x_level - mat_means)^2) / (nrow(x_level) - 1))
     }
-
-    # Apply laplace
-    stddev[stddev == 0] <- std_threshold
-
     return(list(level = level, means = means, stddev = stddev))
   })
 

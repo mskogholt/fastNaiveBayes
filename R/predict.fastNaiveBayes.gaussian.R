@@ -10,6 +10,8 @@
 #' @param type If "raw", the conditional a-posterior probabilities for each class are returned, and the class with maximal probability else.
 #' @param sparse Use a sparse Matrix? If true a sparse matrix will be constructed from x, which can give up to a 40\% speed up.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
+#' @param threshold A threshold for the minimum probability. For Bernoulli and Multinomial event models Laplace smoothing solves this,
+#' but in the case of Gaussian event models, this ensures numerical probabilities
 #' @param ... Not used.
 #' @return If type = 'class', a factor with classified class levels. If type = 'raw', a matrix with the predicted probabilities of
 #'     each class, where each column in the matrix corresponds to a class level.
@@ -23,24 +25,23 @@
 #'     Using a sparse matrix directly can be especially useful if it's necessary to use predict multiple times on the same matrix or
 #'     on different subselections of the same initial matrix, see examples for further details.
 #' @examples
-#' rm(list=ls())
+#' rm(list = ls())
 #' library(fastNaiveBayes)
 #' cars <- mtcars
-#' y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
-#' x <- cars[,2:ncol(cars)]
+#' y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
+#' x <- cars[, 2:ncol(cars)]
 #'
 #' dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
 #'
 #' # Gaussian only
-#' vars <- c('hp', dist$gaussian)
-#' newx <- x[,vars]
+#' vars <- c("hp", dist$gaussian)
+#' newx <- x[, vars]
 #'
 #' mod <- fastNaiveBayes.gaussian(newx, y)
 #' pred <- predict(mod, newdata = newx)
-#' mean(pred!=y)
-#'
+#' mean(pred != y)
 predict.fastNaiveBayes.gaussian <- function(object, newdata, type = c("class", "raw", "rawprob"),
-                                            sparse = FALSE, ...) {
+                                            sparse = FALSE, threshold = .Machine$double.eps, ...) {
   type <- match.arg(type)
   if (class(newdata)[1] != "dgCMatrix") {
     if (!is.matrix(newdata)) {
@@ -78,17 +79,19 @@ predict.fastNaiveBayes.gaussian <- function(object, newdata, type = c("class", "
     level_probs <- NULL
     for (i in 1:ncol(newdata)) {
       if (is.null(level_probs)) {
-        inter_probs <- stats::dnorm(newdata[, i],
+        level_probs <- log(stats::dnorm(newdata[, i],
           mean = level$means[[i]],
           sd = level$stddev[[i]]
-        )
-        level_probs <- log(inter_probs)
+        ))
+        level_probs[is.infinite(level_probs)] <- max(-100000, log(threshold))
       } else {
-        inter_probs <- stats::dnorm(newdata[, i],
+
+        inter_probs <- log(stats::dnorm(newdata[, i],
           mean = level$means[[i]],
           sd = level$stddev[[i]]
-        )
-        level_probs <- level_probs + log(inter_probs)
+        ))
+        inter_probs[is.infinite(inter_probs)] <- max(-100000, log(threshold))
+        level_probs <- level_probs + inter_probs
       }
     }
     if (is.null(probs)) {
@@ -114,9 +117,6 @@ predict.fastNaiveBayes.gaussian <- function(object, newdata, type = c("class", "
   probs <- probs / denom
 
   if (type == "class") {
-    if (any(max.col(probs, ties.method = "last") != max.col(probs, ties.method = "first"))) {
-      warning("Exact same estimated probabilities occured. First encountered class used as classification")
-    }
     class <- names(object$priors)[max.col(probs, ties.method = "first")]
     return(as.factor(class))
   }

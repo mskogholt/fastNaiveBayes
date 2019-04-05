@@ -48,26 +48,25 @@ A Naive Bayes classifier that assumes independence between the feature variables
     converting to a sparse matrix can actually be slower depending on the data.
 }
 \examples{
-rm(list=ls())
+rm(list = ls())
 library(fastNaiveBayes)
 cars <- mtcars
-y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
-x <- cars[,2:ncol(cars)]
+y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
+x <- cars[, 2:ncol(cars)]
 
 dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
 
 # Bernoulli only
 vars <- c(dist$bernoulli, dist$multinomial)
-newx <- x[,vars]
-for(i in 1:ncol(newx)){
+newx <- x[, vars]
+for (i in 1:ncol(newx)) {
   newx[[i]] <- as.factor(newx[[i]])
 }
-new_mat <- model.matrix(y ~ . -1, cbind(y,newx))
+new_mat <- model.matrix(y ~ . - 1, cbind(y, newx))
 
 mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1)
 pred <- predict(mod, newdata = new_mat)
-mean(pred!=y)
-
+mean(pred != y)
 }
 \seealso{
 \code{\link{predict.fastNaiveBayes.bernoulli}} for the predict function for the fastNaiveBayes.bernoulli class,

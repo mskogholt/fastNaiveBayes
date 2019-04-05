@@ -24,10 +24,17 @@ fastNaiveBayes.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE
       })
       present <- do.call(rbind, present)
     } else {
-      present <- lapply(levels(y), function(level) {
-        Matrix::colSums(x[y == level, ])
-      })
-      present <- do.call(rbind, present)
+      if (nrow(x) == nlevels(y)) {
+        present <- lapply(levels(y), function(level) {
+          Matrix::colSums(Matrix(t(as.matrix(x[y == level, ])), sparse = TRUE))
+        })
+        present <- do.call(rbind, present)
+      } else {
+        present <- lapply(levels(y), function(level) {
+          Matrix::colSums(x[y == level, ])
+        })
+        present <- do.call(rbind, present)
+      }
     }
   } else {
     present <- rowsum(x, y)
@@ -36,6 +43,7 @@ fastNaiveBayes.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE
   total <- rowSums(present)
 
   present <- present / total
+
   probability_table <- list(present = present)
 
   priors <- table(y) / nrow(x)

@@ -1,6 +1,33 @@
 context("Test fastNaiveBayes Multinomial Training Function")
 
 test_that("Multinomial estimation gives expected results", {
+  y <- as.factor(c("Ham", "Spam"))
+  x <- matrix(c(1, 0, 0, 1),
+    nrow = 2, ncol = 2
+  )
+  col_names <- c("wo", "so")
+  colnames(x) <- col_names
+  x <- as.data.frame(x)
+
+  real_probs <- matrix(c(1, 0, 0, 1),
+    nrow = 2, ncol = 2
+  )
+
+  # Bernoulli model test with laplace = 1
+  mod <- fastNaiveBayes.multinomial(x, y, laplace = 0, sparse = FALSE)
+  sparse_mod <- fastNaiveBayes.multinomial(x, y, laplace = 0, sparse = TRUE)
+  sparse_cast_mod <- fastNaiveBayes.multinomial(Matrix(as.matrix(x), sparse = TRUE),
+    y,
+    laplace = 0
+  )
+
+  mod_preds <- predict(mod, newdata = x, type = "raw")
+  sparse_preds <- predict(sparse_mod, newdata = Matrix(as.matrix(x), sparse = TRUE), type = "raw")
+  sparse_cast_preds <- predict(sparse_cast_mod, newdata = x, type = "raw", sparse = TRUE)
+
+  expect_equal(sum(abs(round(mod_preds - real_probs, digits = 8))), 0)
+  expect_equal(sum(abs(mod_preds - sparse_preds)), 0)
+  expect_equal(sum(abs(mod_preds - sparse_cast_preds)), 0)
 
   # Test Predictions
   y <- as.factor(c("Ham", "Ham", "Spam", "Spam", "Spam"))
@@ -36,18 +63,18 @@ test_that("Multinomial estimation gives expected results", {
   expect_equal(sum(round(abs(real_probs - preds), digits = 7)), 0)
   expect_equal(sum(abs(preds - sparse_preds)), 0)
   expect_equal(sum(abs(preds - sparse_cast_preds)), 0)
-  expect_equal(sum(y!=predict(mod, newdata = x, type = "class")),0)
+  expect_equal(sum(y != predict(mod, newdata = x, type = "class")), 0)
 
-  x <- x[,1:3]
-  frame_preds <- predict(mod, newdata = x, type = 'raw')
+  x <- x[, 1:3]
+  frame_preds <- predict(mod, newdata = x, type = "raw")
 
   x <- Matrix(as.matrix(x), sparse = TRUE)
-  newframe_preds <- predict(mod, newdata = x, type = 'raw')
+  newframe_preds <- predict(mod, newdata = x, type = "raw")
 
-  expect_equal(sum(abs(newframe_preds-frame_preds)),0)
-  expect_error(fastNaiveBayes.multinomial(x[1:3,], y))
+  expect_equal(sum(abs(newframe_preds - frame_preds)), 0)
+  expect_error(fastNaiveBayes.multinomial(x[1:3, ], y))
 
-  x <- as.matrix(x[,1])
+  x <- as.matrix(x[, 1])
   colnames(x) <- col_names[1]
   real_probs <- matrix(c(
     0.4,
@@ -66,16 +93,4 @@ test_that("Multinomial estimation gives expected results", {
   probs <- predict(mod, newdata = x, type = "raw")
 
   expect_equal(sum(round(abs(real_probs - probs), digits = 7)), 0)
-
-  y <- as.factor(c("Ham", "Ham", "Ham", "Spam", "Spam", "Spam"))
-  x <- matrix(c(2, 3, 2, 2, 3, 2),
-              nrow = 6, ncol = 1
-  )
-
-  x <- x[,1]
-  x <- as.matrix(x)
-  colnames(x) <- c("ja")
-  mod <- fastNaiveBayes.multinomial(x, y, laplace = 0.00001, sparse = TRUE)
-  expect_warning(predict(mod, newdata=x, type = "class"))
-
 })
