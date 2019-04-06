@@ -15,17 +15,19 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-# Introduction
-This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another unique feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution. This implementation offers a huge performance gain compared to the 'e1071' implementation in R. The execution times were compared on a data set of tweets and was found to be around 1135 times faster. Compared to other implementations the minimum speed up was found to be 12.5 times faster for the Bernoulli distribution. See the vignette for more details. This performance gain is only realized using a Bernoulli event model. Furthermore, the Multinomial event model implementation is even slightly faster, but incomparable since it was not implemented in 'e1071'. Compared to other implementations of a Multinomial distribution, this package was found to give a speed up of 12.2 times. The implementation is largely based on the paper "A comparison of event models for Naive Bayes anti-spam e-mail filtering" written by K.M. Schneider (2003).
+## Introduction
+This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution. 
 
-Any issues can be submitted to: https://github.com/mskogholt/fastNaiveBayes/issues
+This implementation offers a huge performance gain compared to other implementations in R. The execution times were compared on a data set of tweets and this package was found to be around 8 to 967 times faster for the Bernoulli event models and 14 to 60 times faster for the Multinomial model. See the vignette for more details. The implementation is largely based on the paper "A comparison of event models for Naive Bayes anti-spam e-mail filtering" written by K.M. Schneider (2003) <doi:10.3115/1067807>.
 
-The purpose of this vignette is to explain some key aspects of this implementation in detail. Firstly, a short introduction to text classification is given as the context for further explanations about the Naive Bayes classifier. It should be noted that the Naive Bayes classifier is not restricted to text classification. The Naive Bayes classifier is a general classification algorithm, but most commonly applied to text classification. Secondly, the general framework of a Naive Bayes classifier is outlined in order to subsequently delve deeper into the different event models. Thirdly, a mathematical explanation is given as to why this particular implementation has such an excellent performance. In the fourth section a description is given about the unique features that sets this implementation of a Naive Bayes classifier apart from other implementations within the R community.
+Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/issues>.
 
-# Text Classification
+The purpose of this vignette is to explain some key aspects of this implementation in detail. Firstly, a short introduction to text classification is given as the context for further explanations about the Naive Bayes classifier. It should be noted that the Naive Bayes classifier is not restricted to text classification. The Naive Bayes classifier is a general classification algorithm, but most commonly applied to text classification. Secondly, the general framework of a Naive Bayes classifier is outlined in order to subsequently delve deeper into the different event models. Thirdly, a mathematical explanation is given as to why this particular implementation has such an excellent performance in terms of speed. In the fourth section a description is given about the unique features that sets this implementation of a Naive Bayes classifier apart from other implementations within the R community. Lastly, some code examples are included.
+
+## Text Classification
 Text classification is the task of classifying documents by their content: that is, by the words of which they are comprised. The documents are often represented as a bag of words. This means that only the occurrence or frequency of the words in the document are taken into account, any information about the syntactic structure of these words is discarded (Hu & Liu, 2012). In many research efforts regarding document classification, Naive Bayes has been successfully applied (McCallum & Nigam, 1998). Furthermore, text classification will serve as the basis for further elaboration on the inner workings of the Naive Bayes classifier and the different event models.
 
-# Naive Bayes
+## Naive Bayes
 Naive Bayes is a probabilistic classification method based on the Bayes theorem with a strong and naive independence assumption. Naive Bayes assumes independence between all attributes. Despite this so-called “Naive Bayes assumption”, this technique has been proven to be very effective for text classification (McCallum & Nigam, 1998). In the context of text classification, Naive Bayes estimates the posterior probability that a document, consisting out of several words, belongs to a certain class and classifies the document as the class which has the highest posterior probability:
 $$P(C=k|D) = \frac{P(D|C=k)*P(C=k)}{P(D)}$$
 Where $P(C=k|D)$ is the posterior probability that the class equals $k$ given document, $D$. The Bayes theorem is applied to rewrite this probability to three components:
@@ -36,10 +38,10 @@ Where $P(C=k|D)$ is the posterior probability that the class equals $k$ given do
 
 To classify a document, $D$, the class, $k$, with the highest probability is chosen as the classification. This means that we can simplify the equation a bit, since $P(D)$ is the same for all classes. By removing the denominator, the focus is now solely on calculating the nominator, i.e. the first 2 components.
 
-## The prior
+### The prior
 The prior probability of class, $k$, i.e. $P(C=k)$, is simply the proportion of documents in the training dataset that have class, $k$. For example, if our training dataset consists of 100 emails that have been labeled as either $Ham$ or $Spam$ and there were 63 emails that were labeled $Ham$ and 37 emails labeled as $Spam$. In this case, $P(C=Spam)$ is the proportion of emails that were labeled as $Spam$, i.e. $\frac{37}{100}=0.37$. This prior probability estimation is the same regardless of which distribution is used within the Naive Bayes Classifier.
 
-## Event models
+### Event models
 Naive Bayes is a popular classification method, however, within the classification community there is some confusion about this classifier: There are three different generative models in common use, the Multinomial Naive Bayes, Bernoulli Naive Bayes, and finally the Gaussian Naive Bayes. Most confusion is surrounding the Multinomial and Bernoulli event models. Both are called Naive Bayes by their practitioners and both make use of the Naive Bayes assumption. However, they have different assumptions on the distributions of the features that are used. This means that these assumptions lead to two distinct models, which are very often confused (McCallum & Nigam, 1998).
 
 #### Bernoulli Distribution
@@ -68,12 +70,12 @@ Furthermore, all three use the general Naive Bayes approach, which is to assume 
 $$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{P(w_t|C=k)}$$
 A big benefit of this independence assumption is that different event models can be mixed simply by using the individual event models for different features. 
 
-## Laplace Smoothing
+### Laplace Smoothing
 Another important aspect of Naive Bayes classifiers is the so-called Laplace smoothing. Consider again the probability calculation: 
 $$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}$$
 If at any point $P(w_t|C=k)=0$, then $P(D_i|C=k)$ will also equal $0$, since it's a product of the individual probabilities. The same holds for the Multinomial distribution. In order to overcome this, Laplace smoothing is used, which simply adds a small non-zero count to all the word counts, so as to not encounter zero probabilities. There is a very important distinction to be made. A commonly made mistake is to assume that this is also applied to any features in the test set that were not encountered in the training set. This however, is not correct. The Laplace smoothing is applied, such that words that do not occur at all together with a specific class do not yield zero probabilities. Features in the test set that were not encountered in the training set are simply ignored from the equation. This also makes sense, if a word was never encountered in the training set then $P(w_t|C=k)$ should be the same for every class, $k$.
 
-# Why is it so fast?
+## Why is it so fast?
 As previously explained, when classifying a new document, one needs to calculate $P(C=k|D_i) = \frac{P(D_i|C=k)*P(C=k)}{P(D_i)}$ for each class, $k$. However, since the class with the highest posterior probability is used as the classification and $P(D_i)$ is constant for all classes, the denominator can be ignored. This means that for prediction, only $P(D_i|C=k)*P(C=k)$ needs to be calculated. As has been shown above this probability in the Bernoulli case can be rewritten to:
 $$P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}$$
 By taking the log transformation this becomes:
@@ -82,37 +84,230 @@ Furthermore, by rearranging some terms this becomes:
 $$\sum_{t=1}^{|V|}{b_{i,t}*log(P(w_{t}|C=k))} + \sum_{t=1}^{|V|}{(1-b_{i,t})*log((1-P(w_{t}|C=k)))} $$
 If we zoom in on the first part and keep in mind that our matrix, $x$, with observations is a matrix where each column represents a word, from $1$ to $|V|$, with a $1$ if the word was observed and $0$ otherwise. This means that the matrix of observations has $b_{i,t}$ as the values. The probabilities, $P(w_t|C=k)$, is a vector of length $|V|$. We can now use matrix multiplication to derive the sum as follows: $x * P(w_t|C=k)$ for the first part and $(1-x) * (1-P(w_t|C=k))$ for the second part. After these two parts have been added up, one can simply raise $e$ to the power of the outcomes to transform it back to the original probabilities. This mathematical trick is what allows one to use matrix multiplication, which in turn is what makes this specific implementation so efficient.
 
-# Unique Features
+## Unique Features
 In this section, a brief overview is given of the unique features of this package. This implementation improves upon existing implementations on two points:
 
 1. Speed of execution: by using the matrix multiplication trick this package is magnitudes faster
 2. Easily mix event models by using the mixed model.
+3. The only R package with Bernoulli, Multinomial, and Gaussian event models implemented.
 
-In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to different packages. The comparison was made on a dataset consisting of 14640 tweets, where all were used to train the Naive Bayes classifier and all tweets were used to test. After processing a total of 2225 features, i.e. words, were used. In the table below the comparison between execution times is shown
+In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to different packages. The comparison was made on a dataset consisting of 14640 tweets, where all were used to train the Naive Bayes classifier and all tweets were used to test. After processing a total of 2214 features, i.e. words, were used. In the table below the comparison between execution times is shown. The reported figures are measured in seconds and is the amount of time to train and predict a single time on the tweets data. 
 
-| Bernoulli             | Execution Time |
-|-----------------------|----------------|
-| fastNaiveBayes        | 158.5 ms.      |
-| fastNaiveBayes Sparse | 303.3 ms.      |
-| e1071                 | 178476 ms.     |
-| bnlearn               | 1980.9         |
-| klaR                  | 182046 ms.     |
-| naivebayes            | 3655.7 ms.     |
-| quanteda              | 2059.9 ms.     |
+|                       | Bernoulli | Gaussian | Multinomial |
+|-----------------------|-----------|----------|-------------|
+| fastNaiveBayes        | 0.540     | 0.231       | 0.019    |
+| fastNaiveBayes_sparse | 1.333     | 0.012       | 0.031    |
+| bnlearn               | 5.976     |             |          |
+| e1071                 | 522.618   |             | 1.405    |
+| klar                  | 421.323   |             | 2.318    |
+| naivebayes            | 4.247     |             | 0.021    |
+| quanteda              | 8.075     | 0.174       |          |
+| Rfast                 |           | 0.724       | 0.002    |
 
-As can be seen from this table, the fastNaiveBayes algorithm using a normal R matrix was the fastest. Compared to the 'e1071' package the execution time is 1135 times faster. It's interesting to note that using a sparse dgcMatrix did not result in faster execution times for the Bernoulli distribution. The fastest implementations besides this package comes from 'bnlearn' and 'quanteda'. Compared to these two, this implementation is around 12.5 times faster.
+For a relative comparison, the figures are also given with the shortest execution time is standardized to 1 in the table below:
 
-In the table below, the results are shown when using a Multinomial distribution and the word counts instead of binary features.
+|                       | Bernoulli | Multinomial | Gaussian |
+|-----------------------|-----------|-------------|----------|
+| fastNaiveBayes        | 1.0       | 19.0        | 9.6      |
+| fastNaiveBayes_sparse | 2.5       | 1.0         | 15.6     |
+| bnlearn               | 11.1      |             |          |
+| e1071                 | 967.1     |             | 707.2    |
+| klaR                  | 779.6     |             | 1166.5   |
+| naivebayes            | 7.9       |             | 10.7     |
+| quanteda              | 14.9      | 14.3        |          |
+| Rfast                 |           | 59.5        | 1.0      |
 
-| Multinomial           | Execution Time |
-|-----------------------|----------------|
-| fastNaiveBayes        | 44.12 ms.      |
-| fastNaiveBayes Sparse | 5.4 ms.        |
-| quanteda              | 68.66 ms.      |
-| Rfast                 | 65.80 ms.      |
-The comparison can not be made with a number of implementations, that have not implemented a Multinomial distribution yet. The interesting thing to note here is that using a sparse dgcMatrix now gives a huge increase in performance. Comparing the mean execution times using a sparse dgcMatrix is 36 times faster than the normal R matrix. Compared to 'quanteda' this implementation is still 12.7 times faster using a sparse matrix and compared to Rfast it is 12.2 times faster.
+As can be seen from the results, this package is magnitudes fast for both the Bernoulli and Multinomial event models. Using only a Bernoulli event model, the smallest speed-up was compared to the 'naivebayes' package, where this package was found to be 8 times faster. The largerst speed-up was compared to the 'klaR' and 'e1071' packages, where this package is around 780 and 967 times faster, respectively. 
 
-# References
+For the Multinomial event model, there's only two alternative implementations, from the 'quanteda' and 'Rfast' package. This implementation was found to be 14 times and 60 times faster, respectively. 
+
+Lastly, comparing the Gaussian event model, results are slightly different. As mentioned before, it is not possible to use the matrix multiplication and hence this package should not be noticeably faster compared to others. The fastest implementation is found in the 'Rfast' package, whereas both this package and the 'naivebayes' package were found to be 10 times slower. Compared to 'e1071' and 'klaR', the 'Rfast' implementation was found to be 707 and 1166 times faster, respectively. This means that comparing the execution speed of this package to 'e1071' and 'klaR', this package is still around 74 and 122 times faster, respectively. 
+
+It should be noted, that these results can between data sets and is dependent on both hardware and software. In order to make it easier to compare execution times, the tweets data that was used to establish these results are included in the package as 'tweets', the raw data, and 'tweetsDTM' a clean document-term matrix of the previously mentioned 'tweets' data. The code used to convert the raw 'tweets' data can be found on github in the 'data-raw' folder. Moreover, the code to establish the results can be found below.
+
+### Code to compare Execution Times
+```{r eval=FALSE}
+rm(list=ls())
+###################### LIBRARIES ###########################
+library(tm) #used for text mining 
+library(e1071) #this package includes the naive Bayes algorithm
+library(Matrix)
+library(microbenchmark)
+library(e1071)
+library(fastNaiveBayes)
+library(quanteda)
+library(naivebayes)
+library(bnlearn)
+library(klaR)
+library(data.table)
+
+############################ Timing Script ################
+results <- NULL
+
+# Bernoulli Event Model
+tweets <- fastNaiveBayes::tweetsDTM
+
+
+y_var <- tweets$airline_sentiment
+y_var <- as.factor(ifelse(y_var=='negative','negative','non-negative'))
+tweets <- tweets[,2:ncol(tweets)]
+tweets[tweets>1] <- 1
+
+tweets <- tweets[,which(colSums(tweets)!=0)]
+tweets <- tweets[,which(colSums(tweets)!=nrow(tweets))]
+
+tweet_mat <- as.matrix(tweets)
+sparse_tweets <- Matrix(as.matrix(tweet_mat), sparse = TRUE)
+
+for(i in 1:ncol(tweets)){
+  tweets[[i]] <- as.factor(tweets[[i]])
+}
+
+# BNLearn
+bn_tweets <- cbind(y_var, tweets)
+colnames(bn_tweets)[1] <- 'y_var'
+
+# Quanteda
+dfm <- as.dfm(tweet_mat)
+
+res <- microbenchmark(
+  klar = predict(klaR::NaiveBayes(x=tweets, grouping = y_var, fL=1), tweets),
+  e1071 = predict(e1071::naiveBayes(tweets, y_var, laplace = 1), tweets),
+  fastNaiveBayes = predict(fastNaiveBayes.bernoulli(tweet_mat, y_var, laplace = 1), tweet_mat),
+  fastNaiveBayes_sparse = predict(fastNaiveBayes.bernoulli(sparse_tweets, y_var, laplace = 1), sparse_tweets),
+  bnlearn = predict(bnlearn::naive.bayes(bn_tweets, 'y_var'), bn_tweets),
+  quanteda = predict(quanteda::textmodel_nb(dfm, y_var, prior = "docfreq", distribution = "Bernoulli"),
+                     newdata = dfm),
+  naivebayes = predict(naivebayes::naive_bayes(tweets, y_var, laplace = 1), newdata = tweets),
+  times = 3,
+  unit = "ms"
+)
+
+res <- as.data.table(res)
+res[,nrows:=nrow(tweet_mat)]
+res[,ncols:=ncol(tweet_mat)]
+res[,model:='Bernoulli']
+
+results <- res
+
+# Multinomial Event Model
+tweets <- fastNaiveBayes::tweetsDTM
+
+y_var <- tweets$airline_sentiment
+y_var <- as.factor(ifelse(y_var=='negative','negative','non-negative'))
+tweets <- tweets[,2:ncol(tweets)]
+
+tweets <- tweets[,which(colSums(tweets)!=0)]
+
+tweet_mat <- as.matrix(tweets)
+sparse_tweets <- Matrix(as.matrix(tweet_mat), sparse = TRUE)
+
+# Quanteda
+dfm <- as.dfm(tweet_mat)
+
+res <- microbenchmark(
+  fastNaiveBayes = predict(fastNaiveBayes.multinomial(tweet_mat, y_var, laplace = 1), tweet_mat),
+  fastNaiveBayes_sparse = predict(fastNaiveBayes.multinomial(sparse_tweets, y_var, laplace = 1), sparse_tweets),
+  quanteda = predict(quanteda::textmodel_nb(dfm, y_var, prior = "docfreq", distribution = "multinomial"),
+                     newdata = dfm),
+  Rfast = Rfast::multinom.nb(tweet_mat, tweet_mat, y_var),
+  times = 3,
+  unit = "ms"
+)
+
+res <- as.data.table(res)
+res[,nrows:=nrow(tweet_mat)]
+res[,ncols:=ncol(tweet_mat)]
+res[,model:='Multinomial']
+
+results <- rbind(results, res)
+
+# Gaussian Event Model
+tweets <- mtcars
+
+y_var <- tweets$mpg
+y_var <- as.factor(ifelse(y_var>20,'negative','non-negative'))
+tweets <- tweets[,3:7]
+
+tweet_mat <- as.matrix(tweets)
+sparse_tweets <- Matrix(as.matrix(tweet_mat), sparse = TRUE)
+
+res <- microbenchmark(
+  klar = predict(klaR::NaiveBayes(x=tweet_mat, grouping = y_var, fL=1), tweet_mat),
+  e1071 = predict(e1071::naiveBayes(tweet_mat, y_var, laplace = 1), tweet_mat),
+  naivebayes = predict(naivebayes::naive_bayes(tweet_mat, y_var, laplace = 1), newdata = tweet_mat),
+  fastNaiveBayes = predict(fastNaiveBayes.gaussian(tweet_mat, y_var), tweet_mat),
+  fastNaiveBayes_sparse = predict(fastNaiveBayes.gaussian(sparse_tweets, y_var), sparse_tweets),
+  Rfast = Rfast::gaussian.nb(tweet_mat, tweet_mat, y_var),
+  times = 3,
+  unit = "ms"
+)
+
+res <- as.data.table(res)
+res[,nrows:=nrow(tweet_mat)]
+res[,ncols:=ncol(tweet_mat)]
+res[,model:='Gaussian']
+
+results <- rbind(results, res)
+
+print(results)
+fwrite(results, file = "./package_timings.csv", row.names = FALSE)
+```
+
+## Examples
+```{r eval=FALSE}
+rm(list=ls())
+library(fastNaiveBayes)
+
+cars <- mtcars
+y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
+x <- cars[,2:ncol(cars)]
+
+# Mixed event models
+dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
+print(dist)
+mod <- fastNaiveBayes.mixed(x,y,laplace = 1)
+pred <- predict(mod, newdata = x)
+mean(pred!=y)
+
+# Bernoulli only
+vars <- c(dist$bernoulli, dist$multinomial)
+newx <- x[,vars]
+for(i in 1:ncol(newx)){
+ newx[[i]] <- as.factor(newx[[i]])
+}
+new_mat <- model.matrix(y ~ . -1, cbind(y,newx))
+mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1)
+pred <- predict(mod, newdata = new_mat)
+mean(pred!=y)
+
+# Construction sparse Matrix:
+mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1, sparse = TRUE)
+pred <- predict(mod, newdata = new_mat)
+mean(pred!=y)
+
+# OR:
+new_mat <- Matrix::Matrix(as.matrix(new_mat), sparse = TRUE)
+mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1)
+pred <- predict(mod, newdata = new_mat)
+mean(pred!=y)
+
+# Multinomial only
+vars <- c(dist$bernoulli, dist$multinomial)
+newx <- x[,vars]
+mod <- fastNaiveBayes.multinomial(newx, y, laplace = 1)
+pred <- predict(mod, newdata = newx)
+mean(pred!=y)
+
+# Gaussian only
+vars <- c('hp', dist$gaussian)
+newx <- x[,vars]
+mod <- fastNaiveBayes.gaussian(newx, y)
+pred <- predict(mod, newdata = newx)
+mean(pred!=y)
+```
+
+## References
 Hu, X., & Liu, H. (2012). Text analytics in social media. In Mining text data (pp. 385-414). Springer, Boston, MA.
 
 McCallum, A., & Nigam, K. (1998, July). A comparison of event models for naive bayes text classification. In AAAI-98 workshop on learning for text categorization (Vol. 752, No. 1, pp. 41-48).

@@ -3,6 +3,7 @@
 ### New Features
 - threshold in all predict functions to ensure a minimum probability
 - Added tweets and tweetsDTM datasets as example data and for time comparisons
+- 
 
 ### Bug Fixes
 - With 2x1 matrices error were thrown

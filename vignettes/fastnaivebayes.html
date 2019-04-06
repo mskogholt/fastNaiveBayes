@@ -12,12 +12,72 @@
 
 <meta name="author" content="Martin Skogholt" />
 
-<meta name="date" content="2019-03-31" />
+<meta name="date" content="2019-04-06" />
 
 <title>Fast Naive Bayes</title>
 
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -32,22 +92,23 @@
 
 <h1 class="title toc-ignore">Fast Naive Bayes</h1>
 <h4 class="author"><em>Martin Skogholt</em></h4>
-<h4 class="date"><em>2019-03-31</em></h4>
+<h4 class="date"><em>2019-04-06</em></h4>
 
 
 
-<div id="introduction" class="section level1">
-<h1>Introduction</h1>
-<p>This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another unique feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution. This implementation offers a huge performance gain compared to the ‘e1071’ implementation in R. The execution times were compared on a data set of tweets and was found to be around 1135 times faster. Compared to other implementations the minimum speed up was found to be 12.5 times faster for the Bernoulli distribution. See the vignette for more details. This performance gain is only realized using a Bernoulli event model. Furthermore, the Multinomial event model implementation is even slightly faster, but incomparable since it was not implemented in ‘e1071’. Compared to other implementations of a Multinomial distribution, this package was found to give a speed up of 12.2 times. The implementation is largely based on the paper “A comparison of event models for Naive Bayes anti-spam e-mail filtering” written by K.M. Schneider (2003).</p>
-<p>Any issues can be submitted to: <a href="https://github.com/mskogholt/fastNaiveBayes/issues" class="uri">https://github.com/mskogholt/fastNaiveBayes/issues</a></p>
-<p>The purpose of this vignette is to explain some key aspects of this implementation in detail. Firstly, a short introduction to text classification is given as the context for further explanations about the Naive Bayes classifier. It should be noted that the Naive Bayes classifier is not restricted to text classification. The Naive Bayes classifier is a general classification algorithm, but most commonly applied to text classification. Secondly, the general framework of a Naive Bayes classifier is outlined in order to subsequently delve deeper into the different event models. Thirdly, a mathematical explanation is given as to why this particular implementation has such an excellent performance. In the fourth section a description is given about the unique features that sets this implementation of a Naive Bayes classifier apart from other implementations within the R community.</p>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution.</p>
+<p>This implementation offers a huge performance gain compared to other implementations in R. The execution times were compared on a data set of tweets and this package was found to be around 8 to 967 times faster for the Bernoulli event models and 14 to 60 times faster for the Multinomial model. See the vignette for more details. The implementation is largely based on the paper “A comparison of event models for Naive Bayes anti-spam e-mail filtering” written by K.M. Schneider (2003) <a href="doi:10.3115/1067807" class="uri">doi:10.3115/1067807</a>.</p>
+<p>Any issues can be submitted to: <a href="https://github.com/mskogholt/fastNaiveBayes/issues" class="uri">https://github.com/mskogholt/fastNaiveBayes/issues</a>.</p>
+<p>The purpose of this vignette is to explain some key aspects of this implementation in detail. Firstly, a short introduction to text classification is given as the context for further explanations about the Naive Bayes classifier. It should be noted that the Naive Bayes classifier is not restricted to text classification. The Naive Bayes classifier is a general classification algorithm, but most commonly applied to text classification. Secondly, the general framework of a Naive Bayes classifier is outlined in order to subsequently delve deeper into the different event models. Thirdly, a mathematical explanation is given as to why this particular implementation has such an excellent performance in terms of speed. In the fourth section a description is given about the unique features that sets this implementation of a Naive Bayes classifier apart from other implementations within the R community. Lastly, some code examples are included.</p>
 </div>
-<div id="text-classification" class="section level1">
-<h1>Text Classification</h1>
+<div id="text-classification" class="section level2">
+<h2>Text Classification</h2>
 <p>Text classification is the task of classifying documents by their content: that is, by the words of which they are comprised. The documents are often represented as a bag of words. This means that only the occurrence or frequency of the words in the document are taken into account, any information about the syntactic structure of these words is discarded (Hu &amp; Liu, 2012). In many research efforts regarding document classification, Naive Bayes has been successfully applied (McCallum &amp; Nigam, 1998). Furthermore, text classification will serve as the basis for further elaboration on the inner workings of the Naive Bayes classifier and the different event models.</p>
 </div>
-<div id="naive-bayes" class="section level1">
-<h1>Naive Bayes</h1>
+<div id="naive-bayes" class="section level2">
+<h2>Naive Bayes</h2>
 <p>Naive Bayes is a probabilistic classification method based on the Bayes theorem with a strong and naive independence assumption. Naive Bayes assumes independence between all attributes. Despite this so-called “Naive Bayes assumption”, this technique has been proven to be very effective for text classification (McCallum &amp; Nigam, 1998). In the context of text classification, Naive Bayes estimates the posterior probability that a document, consisting out of several words, belongs to a certain class and classifies the document as the class which has the highest posterior probability: <span class="math display">\[P(C=k|D) = \frac{P(D|C=k)*P(C=k)}{P(D)}\]</span> Where <span class="math inline">\(P(C=k|D)\)</span> is the posterior probability that the class equals <span class="math inline">\(k\)</span> given document, <span class="math inline">\(D\)</span>. The Bayes theorem is applied to rewrite this probability to three components:</p>
 <ol style="list-style-type: decimal">
 <li><span class="math inline">\(P(D)\)</span>, the prior probability of document, <span class="math inline">\(D\)</span></li>
@@ -55,12 +116,12 @@
 <li><span class="math inline">\(P(D|C=k)\)</span>, the conditional probability of document, <span class="math inline">\(D\)</span>, given class, <span class="math inline">\(k\)</span></li>
 </ol>
 <p>To classify a document, <span class="math inline">\(D\)</span>, the class, <span class="math inline">\(k\)</span>, with the highest probability is chosen as the classification. This means that we can simplify the equation a bit, since <span class="math inline">\(P(D)\)</span> is the same for all classes. By removing the denominator, the focus is now solely on calculating the nominator, i.e. the first 2 components.</p>
-<div id="the-prior" class="section level2">
-<h2>The prior</h2>
+<div id="the-prior" class="section level3">
+<h3>The prior</h3>
 <p>The prior probability of class, <span class="math inline">\(k\)</span>, i.e. <span class="math inline">\(P(C=k)\)</span>, is simply the proportion of documents in the training dataset that have class, <span class="math inline">\(k\)</span>. For example, if our training dataset consists of 100 emails that have been labeled as either <span class="math inline">\(Ham\)</span> or <span class="math inline">\(Spam\)</span> and there were 63 emails that were labeled <span class="math inline">\(Ham\)</span> and 37 emails labeled as <span class="math inline">\(Spam\)</span>. In this case, <span class="math inline">\(P(C=Spam)\)</span> is the proportion of emails that were labeled as <span class="math inline">\(Spam\)</span>, i.e. <span class="math inline">\(\frac{37}{100}=0.37\)</span>. This prior probability estimation is the same regardless of which distribution is used within the Naive Bayes Classifier.</p>
 </div>
-<div id="event-models" class="section level2">
-<h2>Event models</h2>
+<div id="event-models" class="section level3">
+<h3>Event models</h3>
 <p>Naive Bayes is a popular classification method, however, within the classification community there is some confusion about this classifier: There are three different generative models in common use, the Multinomial Naive Bayes, Bernoulli Naive Bayes, and finally the Gaussian Naive Bayes. Most confusion is surrounding the Multinomial and Bernoulli event models. Both are called Naive Bayes by their practitioners and both make use of the Naive Bayes assumption. However, they have different assumptions on the distributions of the features that are used. This means that these assumptions lead to two distinct models, which are very often confused (McCallum &amp; Nigam, 1998).</p>
 <div id="bernoulli-distribution" class="section level4">
 <h4>Bernoulli Distribution</h4>
@@ -79,93 +140,332 @@
 <p>As was explained, all three event models are part of a general Naive Bayes framework and all three prescribe different ways to estimate <span class="math display">\[P(D_i|C=k)\]</span>. Furthermore, all three use the general Naive Bayes approach, which is to assume independence between the features and simply use the product of each individual probability, as follows: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{P(w_t|C=k)}\]</span> A big benefit of this independence assumption is that different event models can be mixed simply by using the individual event models for different features.</p>
 </div>
 </div>
-<div id="laplace-smoothing" class="section level2">
-<h2>Laplace Smoothing</h2>
+<div id="laplace-smoothing" class="section level3">
+<h3>Laplace Smoothing</h3>
 <p>Another important aspect of Naive Bayes classifiers is the so-called Laplace smoothing. Consider again the probability calculation: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}\]</span> If at any point <span class="math inline">\(P(w_t|C=k)=0\)</span>, then <span class="math inline">\(P(D_i|C=k)\)</span> will also equal <span class="math inline">\(0\)</span>, since it’s a product of the individual probabilities. The same holds for the Multinomial distribution. In order to overcome this, Laplace smoothing is used, which simply adds a small non-zero count to all the word counts, so as to not encounter zero probabilities. There is a very important distinction to be made. A commonly made mistake is to assume that this is also applied to any features in the test set that were not encountered in the training set. This however, is not correct. The Laplace smoothing is applied, such that words that do not occur at all together with a specific class do not yield zero probabilities. Features in the test set that were not encountered in the training set are simply ignored from the equation. This also makes sense, if a word was never encountered in the training set then <span class="math inline">\(P(w_t|C=k)\)</span> should be the same for every class, <span class="math inline">\(k\)</span>.</p>
 </div>
 </div>
-<div id="why-is-it-so-fast" class="section level1">
-<h1>Why is it so fast?</h1>
+<div id="why-is-it-so-fast" class="section level2">
+<h2>Why is it so fast?</h2>
 <p>As previously explained, when classifying a new document, one needs to calculate <span class="math inline">\(P(C=k|D_i) = \frac{P(D_i|C=k)*P(C=k)}{P(D_i)}\)</span> for each class, <span class="math inline">\(k\)</span>. However, since the class with the highest posterior probability is used as the classification and <span class="math inline">\(P(D_i)\)</span> is constant for all classes, the denominator can be ignored. This means that for prediction, only <span class="math inline">\(P(D_i|C=k)*P(C=k)\)</span> needs to be calculated. As has been shown above this probability in the Bernoulli case can be rewritten to: <span class="math display">\[P(D_i|C=k) = \prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}\]</span> By taking the log transformation this becomes: <span class="math display">\[log(\prod\limits_{t=1}^{|V|}{b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k))}) = \sum_{t=1}^{|V|}{log(b_{i,t}*P(w_{t}|C=k)+(1-b_{i,t})*(1-P(w_{t}|C=k)))}\]</span> Furthermore, by rearranging some terms this becomes: <span class="math display">\[\sum_{t=1}^{|V|}{b_{i,t}*log(P(w_{t}|C=k))} + \sum_{t=1}^{|V|}{(1-b_{i,t})*log((1-P(w_{t}|C=k)))} \]</span> If we zoom in on the first part and keep in mind that our matrix, <span class="math inline">\(x\)</span>, with observations is a matrix where each column represents a word, from <span class="math inline">\(1\)</span> to <span class="math inline">\(|V|\)</span>, with a <span class="math inline">\(1\)</span> if the word was observed and <span class="math inline">\(0\)</span> otherwise. This means that the matrix of observations has <span class="math inline">\(b_{i,t}\)</span> as the values. The probabilities, <span class="math inline">\(P(w_t|C=k)\)</span>, is a vector of length <span class="math inline">\(|V|\)</span>. We can now use matrix multiplication to derive the sum as follows: <span class="math inline">\(x * P(w_t|C=k)\)</span> for the first part and <span class="math inline">\((1-x) * (1-P(w_t|C=k))\)</span> for the second part. After these two parts have been added up, one can simply raise <span class="math inline">\(e\)</span> to the power of the outcomes to transform it back to the original probabilities. This mathematical trick is what allows one to use matrix multiplication, which in turn is what makes this specific implementation so efficient.</p>
 </div>
-<div id="unique-features" class="section level1">
-<h1>Unique Features</h1>
+<div id="unique-features" class="section level2">
+<h2>Unique Features</h2>
 <p>In this section, a brief overview is given of the unique features of this package. This implementation improves upon existing implementations on two points:</p>
 <ol style="list-style-type: decimal">
 <li>Speed of execution: by using the matrix multiplication trick this package is magnitudes faster</li>
 <li>Easily mix event models by using the mixed model.</li>
+<li>The only R package with Bernoulli, Multinomial, and Gaussian event models implemented.</li>
 </ol>
-<p>In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to different packages. The comparison was made on a dataset consisting of 14640 tweets, where all were used to train the Naive Bayes classifier and all tweets were used to test. After processing a total of 2225 features, i.e. words, were used. In the table below the comparison between execution times is shown</p>
+<p>In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to different packages. The comparison was made on a dataset consisting of 14640 tweets, where all were used to train the Naive Bayes classifier and all tweets were used to test. After processing a total of 2214 features, i.e. words, were used. In the table below the comparison between execution times is shown. The reported figures are measured in seconds and is the amount of time to train and predict a single time on the tweets data.</p>
 <table>
 <thead>
 <tr class="header">
+<th></th>
 <th>Bernoulli</th>
-<th>Execution Time</th>
+<th>Gaussian</th>
+<th>Multinomial</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>fastNaiveBayes</td>
-<td>158.5 ms.</td>
+<td>0.540</td>
+<td>0.231</td>
+<td>0.019</td>
 </tr>
 <tr class="even">
-<td>fastNaiveBayes Sparse</td>
-<td>303.3 ms.</td>
+<td>fastNaiveBayes_sparse</td>
+<td>1.333</td>
+<td>0.012</td>
+<td>0.031</td>
 </tr>
 <tr class="odd">
-<td>e1071</td>
-<td>178476 ms.</td>
-</tr>
-<tr class="even">
 <td>bnlearn</td>
-<td>1980.9</td>
+<td>5.976</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>e1071</td>
+<td>522.618</td>
+<td></td>
+<td>1.405</td>
 </tr>
 <tr class="odd">
-<td>klaR</td>
-<td>182046 ms.</td>
+<td>klar</td>
+<td>421.323</td>
+<td></td>
+<td>2.318</td>
 </tr>
 <tr class="even">
 <td>naivebayes</td>
-<td>3655.7 ms.</td>
+<td>4.247</td>
+<td></td>
+<td>0.021</td>
 </tr>
 <tr class="odd">
 <td>quanteda</td>
-<td>2059.9 ms.</td>
+<td>8.075</td>
+<td>0.174</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Rfast</td>
+<td></td>
+<td>0.724</td>
+<td>0.002</td>
 </tr>
 </tbody>
 </table>
-<p>As can be seen from this table, the fastNaiveBayes algorithm using a normal R matrix was the fastest. Compared to the ‘e1071’ package the execution time is 1135 times faster. It’s interesting to note that using a sparse dgcMatrix did not result in faster execution times for the Bernoulli distribution. The fastest implementations besides this package comes from ‘bnlearn’ and ‘quanteda’. Compared to these two, this implementation is around 12.5 times faster.</p>
-<p>In the table below, the results are shown when using a Multinomial distribution and the word counts instead of binary features.</p>
+<p>For a relative comparison, the figures are also given with the shortest execution time is standardized to 1 in the table below:</p>
 <table>
 <thead>
 <tr class="header">
+<th></th>
+<th>Bernoulli</th>
 <th>Multinomial</th>
-<th>Execution Time</th>
+<th>Gaussian</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>fastNaiveBayes</td>
-<td>44.12 ms.</td>
+<td>1.0</td>
+<td>19.0</td>
+<td>9.6</td>
 </tr>
 <tr class="even">
-<td>fastNaiveBayes Sparse</td>
-<td>5.4 ms.</td>
+<td>fastNaiveBayes_sparse</td>
+<td>2.5</td>
+<td>1.0</td>
+<td>15.6</td>
+</tr>
+<tr class="odd">
+<td>bnlearn</td>
+<td>11.1</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>e1071</td>
+<td>967.1</td>
+<td></td>
+<td>707.2</td>
+</tr>
+<tr class="odd">
+<td>klaR</td>
+<td>779.6</td>
+<td></td>
+<td>1166.5</td>
+</tr>
+<tr class="even">
+<td>naivebayes</td>
+<td>7.9</td>
+<td></td>
+<td>10.7</td>
 </tr>
 <tr class="odd">
 <td>quanteda</td>
-<td>68.66 ms.</td>
+<td>14.9</td>
+<td>14.3</td>
+<td></td>
 </tr>
 <tr class="even">
 <td>Rfast</td>
-<td>65.80 ms.</td>
+<td></td>
+<td>59.5</td>
+<td>1.0</td>
 </tr>
 </tbody>
 </table>
-<p>The comparison can not be made with a number of implementations, that have not implemented a Multinomial distribution yet. The interesting thing to note here is that using a sparse dgcMatrix now gives a huge increase in performance. Comparing the mean execution times using a sparse dgcMatrix is 36 times faster than the normal R matrix. Compared to ‘quanteda’ this implementation is still 12.7 times faster using a sparse matrix and compared to Rfast it is 12.2 times faster.</p>
+<p>As can be seen from the results, this package is magnitudes fast for both the Bernoulli and Multinomial event models. Using only a Bernoulli event model, the smallest speed-up was compared to the ‘naivebayes’ package, where this package was found to be 8 times faster. The largerst speed-up was compared to the ‘klaR’ and ‘e1071’ packages, where this package is around 780 and 967 times faster, respectively.</p>
+<p>For the Multinomial event model, there’s only two alternative implementations, from the ‘quanteda’ and ‘Rfast’ package. This implementation was found to be 14 times and 60 times faster, respectively.</p>
+<p>Lastly, comparing the Gaussian event model, results are slightly different. As mentioned before, it is not possible to use the matrix multiplication and hence this package should not be noticeably faster compared to others. The fastest implementation is found in the ‘Rfast’ package, whereas both this package and the ‘naivebayes’ package were found to be 10 times slower. Compared to ‘e1071’ and ‘klaR’, the ‘Rfast’ implementation was found to be 707 and 1166 times faster, respectively. This means that comparing the execution speed of this package to ‘e1071’ and ‘klaR’, this package is still around 74 and 122 times faster, respectively.</p>
+<p>It should be noted, that these results can between data sets and is dependent on both hardware and software. In order to make it easier to compare execution times, the tweets data that was used to establish these results are included in the package as ‘tweets’, the raw data, and ‘tweetsDTM’ a clean document-term matrix of the previously mentioned ‘tweets’ data. The code used to convert the raw ‘tweets’ data can be found on github in the ‘data-raw’ folder. Moreover, the code to establish the results can be found below.</p>
+<div id="code-to-compare-execution-times" class="section level3">
+<h3>Code to compare Execution Times</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">ls</span>())
+###################### LIBRARIES ###########################
+<span class="kw">library</span>(tm) <span class="co">#used for text mining </span>
+<span class="kw">library</span>(e1071) <span class="co">#this package includes the naive Bayes algorithm</span>
+<span class="kw">library</span>(Matrix)
+<span class="kw">library</span>(microbenchmark)
+<span class="kw">library</span>(e1071)
+<span class="kw">library</span>(fastNaiveBayes)
+<span class="kw">library</span>(quanteda)
+<span class="kw">library</span>(naivebayes)
+<span class="kw">library</span>(bnlearn)
+<span class="kw">library</span>(klaR)
+<span class="kw">library</span>(data.table)
+
+############################ Timing Script ################
+results &lt;-<span class="st"> </span><span class="ot">NULL</span>
+
+<span class="co"># Bernoulli Event Model</span>
+tweets &lt;-<span class="st"> </span>fastNaiveBayes<span class="op">::</span>tweetsDTM
+
+
+y_var &lt;-<span class="st"> </span>tweets<span class="op">$</span>airline_sentiment
+y_var &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">ifelse</span>(y_var<span class="op">==</span><span class="st">'negative'</span>,<span class="st">'negative'</span>,<span class="st">'non-negative'</span>))
+tweets &lt;-<span class="st"> </span>tweets[,<span class="dv">2</span><span class="op">:</span><span class="kw">ncol</span>(tweets)]
+tweets[tweets<span class="op">&gt;</span><span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">1</span>
+
+tweets &lt;-<span class="st"> </span>tweets[,<span class="kw">which</span>(<span class="kw">colSums</span>(tweets)<span class="op">!=</span><span class="dv">0</span>)]
+tweets &lt;-<span class="st"> </span>tweets[,<span class="kw">which</span>(<span class="kw">colSums</span>(tweets)<span class="op">!=</span><span class="kw">nrow</span>(tweets))]
+
+tweet_mat &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(tweets)
+sparse_tweets &lt;-<span class="st"> </span><span class="kw">Matrix</span>(<span class="kw">as.matrix</span>(tweet_mat), <span class="dt">sparse =</span> <span class="ot">TRUE</span>)
+
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">ncol</span>(tweets)){
+  tweets[[i]] &lt;-<span class="st"> </span><span class="kw">as.factor</span>(tweets[[i]])
+}
+
+<span class="co"># BNLearn</span>
+bn_tweets &lt;-<span class="st"> </span><span class="kw">cbind</span>(y_var, tweets)
+<span class="kw">colnames</span>(bn_tweets)[<span class="dv">1</span>] &lt;-<span class="st"> 'y_var'</span>
+
+<span class="co"># Quanteda</span>
+dfm &lt;-<span class="st"> </span><span class="kw">as.dfm</span>(tweet_mat)
+
+res &lt;-<span class="st"> </span><span class="kw">microbenchmark</span>(
+  <span class="dt">klar =</span> <span class="kw">predict</span>(klaR<span class="op">::</span><span class="kw">NaiveBayes</span>(<span class="dt">x=</span>tweets, <span class="dt">grouping =</span> y_var, <span class="dt">fL=</span><span class="dv">1</span>), tweets),
+  <span class="dt">e1071 =</span> <span class="kw">predict</span>(e1071<span class="op">::</span><span class="kw">naiveBayes</span>(tweets, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), tweets),
+  <span class="dt">fastNaiveBayes =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.bernoulli</span>(tweet_mat, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), tweet_mat),
+  <span class="dt">fastNaiveBayes_sparse =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.bernoulli</span>(sparse_tweets, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), sparse_tweets),
+  <span class="dt">bnlearn =</span> <span class="kw">predict</span>(bnlearn<span class="op">::</span><span class="kw">naive.bayes</span>(bn_tweets, <span class="st">'y_var'</span>), bn_tweets),
+  <span class="dt">quanteda =</span> <span class="kw">predict</span>(quanteda<span class="op">::</span><span class="kw">textmodel_nb</span>(dfm, y_var, <span class="dt">prior =</span> <span class="st">&quot;docfreq&quot;</span>, <span class="dt">distribution =</span> <span class="st">&quot;Bernoulli&quot;</span>),
+                     <span class="dt">newdata =</span> dfm),
+  <span class="dt">naivebayes =</span> <span class="kw">predict</span>(naivebayes<span class="op">::</span><span class="kw">naive_bayes</span>(tweets, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), <span class="dt">newdata =</span> tweets),
+  <span class="dt">times =</span> <span class="dv">3</span>,
+  <span class="dt">unit =</span> <span class="st">&quot;ms&quot;</span>
+)
+
+res &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(res)
+res[,nrows<span class="op">:</span><span class="er">=</span><span class="kw">nrow</span>(tweet_mat)]
+res[,ncols<span class="op">:</span><span class="er">=</span><span class="kw">ncol</span>(tweet_mat)]
+res[,model<span class="op">:</span><span class="er">=</span><span class="st">'Bernoulli'</span>]
+
+results &lt;-<span class="st"> </span>res
+
+<span class="co"># Multinomial Event Model</span>
+tweets &lt;-<span class="st"> </span>fastNaiveBayes<span class="op">::</span>tweetsDTM
+
+y_var &lt;-<span class="st"> </span>tweets<span class="op">$</span>airline_sentiment
+y_var &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">ifelse</span>(y_var<span class="op">==</span><span class="st">'negative'</span>,<span class="st">'negative'</span>,<span class="st">'non-negative'</span>))
+tweets &lt;-<span class="st"> </span>tweets[,<span class="dv">2</span><span class="op">:</span><span class="kw">ncol</span>(tweets)]
+
+tweets &lt;-<span class="st"> </span>tweets[,<span class="kw">which</span>(<span class="kw">colSums</span>(tweets)<span class="op">!=</span><span class="dv">0</span>)]
+
+tweet_mat &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(tweets)
+sparse_tweets &lt;-<span class="st"> </span><span class="kw">Matrix</span>(<span class="kw">as.matrix</span>(tweet_mat), <span class="dt">sparse =</span> <span class="ot">TRUE</span>)
+
+<span class="co"># Quanteda</span>
+dfm &lt;-<span class="st"> </span><span class="kw">as.dfm</span>(tweet_mat)
+
+res &lt;-<span class="st"> </span><span class="kw">microbenchmark</span>(
+  <span class="dt">fastNaiveBayes =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.multinomial</span>(tweet_mat, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), tweet_mat),
+  <span class="dt">fastNaiveBayes_sparse =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.multinomial</span>(sparse_tweets, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), sparse_tweets),
+  <span class="dt">quanteda =</span> <span class="kw">predict</span>(quanteda<span class="op">::</span><span class="kw">textmodel_nb</span>(dfm, y_var, <span class="dt">prior =</span> <span class="st">&quot;docfreq&quot;</span>, <span class="dt">distribution =</span> <span class="st">&quot;multinomial&quot;</span>),
+                     <span class="dt">newdata =</span> dfm),
+  <span class="dt">Rfast =</span> Rfast<span class="op">::</span><span class="kw">multinom.nb</span>(tweet_mat, tweet_mat, y_var),
+  <span class="dt">times =</span> <span class="dv">3</span>,
+  <span class="dt">unit =</span> <span class="st">&quot;ms&quot;</span>
+)
+
+res &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(res)
+res[,nrows<span class="op">:</span><span class="er">=</span><span class="kw">nrow</span>(tweet_mat)]
+res[,ncols<span class="op">:</span><span class="er">=</span><span class="kw">ncol</span>(tweet_mat)]
+res[,model<span class="op">:</span><span class="er">=</span><span class="st">'Multinomial'</span>]
+
+results &lt;-<span class="st"> </span><span class="kw">rbind</span>(results, res)
+
+<span class="co"># Gaussian Event Model</span>
+tweets &lt;-<span class="st"> </span>mtcars
+
+y_var &lt;-<span class="st"> </span>tweets<span class="op">$</span>mpg
+y_var &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">ifelse</span>(y_var<span class="op">&gt;</span><span class="dv">20</span>,<span class="st">'negative'</span>,<span class="st">'non-negative'</span>))
+tweets &lt;-<span class="st"> </span>tweets[,<span class="dv">3</span><span class="op">:</span><span class="dv">7</span>]
+
+tweet_mat &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(tweets)
+sparse_tweets &lt;-<span class="st"> </span><span class="kw">Matrix</span>(<span class="kw">as.matrix</span>(tweet_mat), <span class="dt">sparse =</span> <span class="ot">TRUE</span>)
+
+res &lt;-<span class="st"> </span><span class="kw">microbenchmark</span>(
+  <span class="dt">klar =</span> <span class="kw">predict</span>(klaR<span class="op">::</span><span class="kw">NaiveBayes</span>(<span class="dt">x=</span>tweet_mat, <span class="dt">grouping =</span> y_var, <span class="dt">fL=</span><span class="dv">1</span>), tweet_mat),
+  <span class="dt">e1071 =</span> <span class="kw">predict</span>(e1071<span class="op">::</span><span class="kw">naiveBayes</span>(tweet_mat, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), tweet_mat),
+  <span class="dt">naivebayes =</span> <span class="kw">predict</span>(naivebayes<span class="op">::</span><span class="kw">naive_bayes</span>(tweet_mat, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), <span class="dt">newdata =</span> tweet_mat),
+  <span class="dt">fastNaiveBayes =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.gaussian</span>(tweet_mat, y_var), tweet_mat),
+  <span class="dt">fastNaiveBayes_sparse =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.gaussian</span>(sparse_tweets, y_var), sparse_tweets),
+  <span class="dt">Rfast =</span> Rfast<span class="op">::</span><span class="kw">gaussian.nb</span>(tweet_mat, tweet_mat, y_var),
+  <span class="dt">times =</span> <span class="dv">3</span>,
+  <span class="dt">unit =</span> <span class="st">&quot;ms&quot;</span>
+)
+
+res &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(res)
+res[,nrows<span class="op">:</span><span class="er">=</span><span class="kw">nrow</span>(tweet_mat)]
+res[,ncols<span class="op">:</span><span class="er">=</span><span class="kw">ncol</span>(tweet_mat)]
+res[,model<span class="op">:</span><span class="er">=</span><span class="st">'Gaussian'</span>]
+
+results &lt;-<span class="st"> </span><span class="kw">rbind</span>(results, res)
+
+<span class="kw">print</span>(results)
+<span class="kw">fwrite</span>(results, <span class="dt">file =</span> <span class="st">&quot;./package_timings.csv&quot;</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</code></pre></div>
 </div>
-<div id="references" class="section level1">
-<h1>References</h1>
+</div>
+<div id="examples" class="section level2">
+<h2>Examples</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">ls</span>())
+<span class="kw">library</span>(fastNaiveBayes)
+
+cars &lt;-<span class="st"> </span>mtcars
+y &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">ifelse</span>(cars<span class="op">$</span>mpg<span class="op">&gt;</span><span class="dv">25</span>,<span class="st">'High'</span>,<span class="st">'Low'</span>))
+x &lt;-<span class="st"> </span>cars[,<span class="dv">2</span><span class="op">:</span><span class="kw">ncol</span>(cars)]
+
+<span class="co"># Mixed event models</span>
+dist &lt;-<span class="st"> </span>fastNaiveBayes<span class="op">::</span><span class="kw">fastNaiveBayes.detect_distribution</span>(x, <span class="dt">nrows =</span> <span class="kw">nrow</span>(x))
+<span class="kw">print</span>(dist)
+mod &lt;-<span class="st"> </span><span class="kw">fastNaiveBayes.mixed</span>(x,y,<span class="dt">laplace =</span> <span class="dv">1</span>)
+pred &lt;-<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> x)
+<span class="kw">mean</span>(pred<span class="op">!=</span>y)
+
+<span class="co"># Bernoulli only</span>
+vars &lt;-<span class="st"> </span><span class="kw">c</span>(dist<span class="op">$</span>bernoulli, dist<span class="op">$</span>multinomial)
+newx &lt;-<span class="st"> </span>x[,vars]
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">ncol</span>(newx)){
+ newx[[i]] &lt;-<span class="st"> </span><span class="kw">as.factor</span>(newx[[i]])
+}
+new_mat &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(y <span class="op">~</span><span class="st"> </span>. <span class="op">-</span><span class="dv">1</span>, <span class="kw">cbind</span>(y,newx))
+mod &lt;-<span class="st"> </span><span class="kw">fastNaiveBayes.bernoulli</span>(new_mat, y, <span class="dt">laplace =</span> <span class="dv">1</span>)
+pred &lt;-<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> new_mat)
+<span class="kw">mean</span>(pred<span class="op">!=</span>y)
+
+<span class="co"># Construction sparse Matrix:</span>
+mod &lt;-<span class="st"> </span><span class="kw">fastNaiveBayes.bernoulli</span>(new_mat, y, <span class="dt">laplace =</span> <span class="dv">1</span>, <span class="dt">sparse =</span> <span class="ot">TRUE</span>)
+pred &lt;-<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> new_mat)
+<span class="kw">mean</span>(pred<span class="op">!=</span>y)
+
+<span class="co"># OR:</span>
+new_mat &lt;-<span class="st"> </span>Matrix<span class="op">::</span><span class="kw">Matrix</span>(<span class="kw">as.matrix</span>(new_mat), <span class="dt">sparse =</span> <span class="ot">TRUE</span>)
+mod &lt;-<span class="st"> </span><span class="kw">fastNaiveBayes.bernoulli</span>(new_mat, y, <span class="dt">laplace =</span> <span class="dv">1</span>)
+pred &lt;-<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> new_mat)
+<span class="kw">mean</span>(pred<span class="op">!=</span>y)
+
+<span class="co"># Multinomial only</span>
+vars &lt;-<span class="st"> </span><span class="kw">c</span>(dist<span class="op">$</span>bernoulli, dist<span class="op">$</span>multinomial)
+newx &lt;-<span class="st"> </span>x[,vars]
+mod &lt;-<span class="st"> </span><span class="kw">fastNaiveBayes.multinomial</span>(newx, y, <span class="dt">laplace =</span> <span class="dv">1</span>)
+pred &lt;-<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> newx)
+<span class="kw">mean</span>(pred<span class="op">!=</span>y)
+
+<span class="co"># Gaussian only</span>
+vars &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'hp'</span>, dist<span class="op">$</span>gaussian)
+newx &lt;-<span class="st"> </span>x[,vars]
+mod &lt;-<span class="st"> </span><span class="kw">fastNaiveBayes.gaussian</span>(newx, y)
+pred &lt;-<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> newx)
+<span class="kw">mean</span>(pred<span class="op">!=</span>y)</code></pre></div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
 <p>Hu, X., &amp; Liu, H. (2012). Text analytics in social media. In Mining text data (pp. 385-414). Springer, Boston, MA.</p>
 <p>McCallum, A., &amp; Nigam, K. (1998, July). A comparison of event models for naive bayes text classification. In AAAI-98 workshop on learning for text categorization (Vol. 752, No. 1, pp. 41-48).</p>
 <p>Schneider, K. M. (2003, April). A comparison of event models for Naive Bayes anti-spam e-mail filtering. In Proceedings of the tenth conference on European chapter of the Association for Computational Linguistics-Volume 1 (pp. 307-314). Association for Computational Linguistics.</p>
