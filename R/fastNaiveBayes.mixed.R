@@ -51,6 +51,10 @@
 #' \code{\link{fastNaiveBayes.bernoulli}} for a Bernoulli only model, \code{\link{fastNaiveBayes.gaussian}} for a Gaussian
 #' distribution only model, and finally, \code{\link{fastNaiveBayes.multinomial}} for a multinomial only distribution model.
 #' @rdname fastNaiveBayes.mixed
-fastNaiveBayes.mixed <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...) {
+fastNaiveBayes.mixed <- function(x,
+                                 y,
+                                 laplace = 0,
+                                 sparse = FALSE,
+                                 distribution = NULL, ...) {
   UseMethod("fastNaiveBayes.mixed")
 }

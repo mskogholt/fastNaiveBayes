@@ -54,19 +54,22 @@ predict.fastNaiveBayes.multinomial <- function(object, newdata, type = c("class"
     sparse <- TRUE
   }
   names <- object$names
-  other_names <- setdiff(names, colnames(newdata))
 
-  if (length(other_names) > 0) {
-    if (sparse) {
-      other_mat <- Matrix(0L, nrow = nrow(newdata), ncol = length(other_names), sparse = TRUE)
-    } else {
-      other_mat <- matrix(0L, nrow = nrow(newdata), ncol = length(other_names))
+  if ( length(colnames(newdata))!=length(object$names) ) {
+    other_names <- setdiff(names, colnames(newdata))
+    if(length(other_names)>0){
+      if (sparse) {
+        other_mat <- Matrix(0L, nrow = nrow(newdata), ncol = length(other_names), sparse = TRUE)
+      } else {
+        other_mat <- matrix(0L, nrow = nrow(newdata), ncol = length(other_names))
+      }
+      colnames(other_mat) <- other_names
+
+      newdata <- cbind(newdata, other_mat)
     }
-    colnames(other_mat) <- other_names
-
-    newdata <- cbind(newdata, other_mat)
+    newdata <- newdata[, names]
   }
-  newdata <- newdata[, names]
+
   if (!is.matrix(newdata)) {
     newdata <- as.matrix(newdata)
   }

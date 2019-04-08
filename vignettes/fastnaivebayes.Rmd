@@ -93,8 +93,8 @@ In this section, a brief overview is given of the unique features of this packag
 
 In order to demonstrate the power of this package a comparison of estimation and prediction execution times has been done using this package and been compared to different packages. The comparison was made on a dataset consisting of 14640 tweets, where all were used to train the Naive Bayes classifier and all tweets were used to test. After processing a total of 2214 features, i.e. words, were used. In the table below the comparison between execution times is shown. The reported figures are measured in seconds and is the amount of time to train and predict a single time on the tweets data. 
 
-|                       | Bernoulli | Gaussian | Multinomial |
-|-----------------------|-----------|----------|-------------|
+|                       | Bernoulli | Multinomial | Gaussian |
+|-----------------------|-----------|-------------|----------|
 | fastNaiveBayes        | 0.540     | 0.231       | 0.019    |
 | fastNaiveBayes_sparse | 1.333     | 0.012       | 0.031    |
 | bnlearn               | 5.976     |             |          |

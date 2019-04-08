@@ -20,6 +20,8 @@ Description: This is an extremely fast implementation of a Naive Bayes classifie
 Depends: R (>= 3.2.0)
 License: GPL-3
 Encoding: UTF-8
+URL: https://github.com/mskogholt/fastNaiveBayes
+BugReports: https://github.com/mskogholt/fastNaiveBayes/issues
 LazyData: TRUE
 Imports:
     Matrix,

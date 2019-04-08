@@ -23,30 +23,18 @@ fastNaiveBayes.bernoulli.default <- function(x, y, laplace = 0, sparse = FALSE, 
         Matrix::colSums(Matrix(as.matrix(x[y == level, ]), sparse = TRUE))
       })
       present <- do.call(rbind, present)
-
-      x <- 1 - x
-
-      non_present <- lapply(levels(y), function(level) {
-        Matrix::colSums(Matrix(as.matrix(x[y == level, ]), sparse = TRUE))
-      })
-      non_present <- do.call(rbind, non_present)
     } else {
       present <- lapply(levels(y), function(level) {
         Matrix::colSums(x[y == level, ])
       })
       present <- do.call(rbind, present)
-
-      x <- 1 - x
-
-      non_present <- lapply(levels(y), function(level) {
-        Matrix::colSums(x[y == level, ])
-      })
-      non_present <- do.call(rbind, non_present)
     }
   } else {
     present <- rowsum(x, y)
-    non_present <- rowsum(1 - x, y)
   }
+
+  totals <- summary(y)
+  non_present <- matrix(totals, nrow = length(totals), ncol = ncol(x))-present
 
   present <- present + laplace
   non_present <- non_present + laplace

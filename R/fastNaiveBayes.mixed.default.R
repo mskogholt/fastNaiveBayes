@@ -1,7 +1,11 @@
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayes.mixed
-fastNaiveBayes.mixed.default <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...) {
+fastNaiveBayes.mixed.default <- function(x,
+                                         y,
+                                         laplace = 0,
+                                         sparse = FALSE,
+                                         distribution = NULL, ...) {
   if (nrow(x) != length(y)) {
     stop("X and Y must be equal length")
   }
@@ -24,30 +28,30 @@ fastNaiveBayes.mixed.default <- function(x, y, laplace = 0, sparse = FALSE, dist
 
   models <- lapply(names(distribution), function(dist) {
     switch(dist,
-      bernoulli = {
-        newx <- x[, distribution[[dist]]]
-        if (length(distribution[[dist]]) == 1) {
-          newx <- as.matrix(newx)
-          colnames(newx) <- distribution[[dist]]
-        }
-        fastNaiveBayes.bernoulli(newx, y, laplace, sparse)
-      },
-      multinomial = {
-        newx <- x[, distribution[[dist]]]
-        if (length(distribution[[dist]]) == 1) {
-          newx <- as.matrix(newx)
-          colnames(newx) <- distribution[[dist]]
-        }
-        fastNaiveBayes.multinomial(newx, y, laplace, sparse)
-      },
-      gaussian = {
-        newx <- x[, distribution[[dist]]]
-        if (length(distribution[[dist]]) == 1) {
-          newx <- as.matrix(newx)
-          colnames(newx) <- distribution[[dist]]
-        }
-        fastNaiveBayes.gaussian(newx, y, sparse)
-      }
+           bernoulli = {
+             newx <- x[, distribution[[dist]]]
+             if (length(distribution[[dist]]) == 1) {
+               newx <- as.matrix(newx)
+               colnames(newx) <- distribution[[dist]]
+             }
+             fastNaiveBayes.bernoulli(newx, y, laplace, sparse)
+           },
+           multinomial = {
+             newx <- x[, distribution[[dist]]]
+             if (length(distribution[[dist]]) == 1) {
+               newx <- as.matrix(newx)
+               colnames(newx) <- distribution[[dist]]
+             }
+             fastNaiveBayes.multinomial(newx, y, laplace, sparse)
+           },
+           gaussian = {
+             newx <- x[, distribution[[dist]]]
+             if (length(distribution[[dist]]) == 1) {
+               newx <- as.matrix(newx)
+               colnames(newx) <- distribution[[dist]]
+             }
+             fastNaiveBayes.gaussian(newx, y, sparse)
+           }
     )
   })
 
