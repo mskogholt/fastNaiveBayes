@@ -7,6 +7,7 @@
 
 ### Bug Fixes
 - With 2x1 matrices error were thrown
+- Inefficiencies were removed to make it even faster
 
 ### Other Changes
 - Removed std_threshold in Gaussian model, not necessary since the introduction of the above threshold feature

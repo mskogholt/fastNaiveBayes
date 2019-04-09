@@ -60,7 +60,7 @@ predict.fastNaiveBayes.bernoulli <- function(object, newdata, type = c("class", 
 
   names <- object$names
 
-  if ( length(colnames(newdata))!=length(object$names) ) {
+  if ( length(colnames(newdata))!=length(names) || sum(colnames(newdata)!=names)>0) {
     other_names <- setdiff(names, colnames(newdata))
     if (length(other_names) > 0) {
       if (sparse) {
@@ -74,11 +74,6 @@ predict.fastNaiveBayes.bernoulli <- function(object, newdata, type = c("class", 
     }
     newdata <- newdata[, names]
   }
-
-  if (!is.matrix(newdata)) {
-    newdata <- as.matrix(newdata)
-  }
-
   data <- object$probability_table
 
   present <- log(data$present)

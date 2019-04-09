@@ -55,7 +55,7 @@ predict.fastNaiveBayes.multinomial <- function(object, newdata, type = c("class"
   }
   names <- object$names
 
-  if ( length(colnames(newdata))!=length(object$names) ) {
+  if ( length(colnames(newdata))!=length(object$names) || sum(colnames(newdata)!=names)>0 ) {
     other_names <- setdiff(names, colnames(newdata))
     if(length(other_names)>0){
       if (sparse) {
@@ -69,17 +69,12 @@ predict.fastNaiveBayes.multinomial <- function(object, newdata, type = c("class"
     }
     newdata <- newdata[, names]
   }
-
-  if (!is.matrix(newdata)) {
-    newdata <- as.matrix(newdata)
-  }
-
   data <- object$probability_table
 
   present <- log(data$present)
   present[is.infinite(present)] <- max(-100000, log(threshold))
 
-  presence_prob <- newdata %*% t(present)
+  presence_prob <-newdata %*% t(present)
 
   if (type == "rawprob") {
     return(presence_prob)
