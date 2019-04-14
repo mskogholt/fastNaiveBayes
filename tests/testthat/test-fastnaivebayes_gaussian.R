@@ -31,10 +31,10 @@ test_that("Gaussian estimation gives expected results", {
   expect_equal(sum(y != predict(mod, newdata = x, type = "class")), 0)
 
   x <- x[, 1:3]
-  frame_preds <- predict(mod, newdata = x, type = "raw")
+  expect_warning(frame_preds <- predict(mod, newdata = x, type = "raw"))
 
   x <- Matrix(as.matrix(x), sparse = TRUE)
-  newframe_preds <- predict(mod, newdata = x, type = "raw")
+  expect_warning(newframe_preds <- predict(mod, newdata = x, type = "raw"))
 
   expect_equal(sum(abs(newframe_preds - frame_preds)), 0)
 

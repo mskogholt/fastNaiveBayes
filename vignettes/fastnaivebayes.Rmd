@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ## Introduction
 This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution. 
 
-This implementation offers a huge performance gain compared to other implementations in R. The execution times were compared on a data set of tweets and this package was found to be around 283 to 34,841 times faster for the Bernoulli event models and 17 to 60 times faster for the Multinomial model. The implementation is largely based on the paper "A comparison of event models for Naive Bayes anti-spam e-mail filtering" written by K.M. Schneider (2003) <doi:10.3115/1067807>.
+This implementation offers a huge performance gain compared to other implementations in R. The execution times were compared on a data set of tweets and this package was found to be around 283 to 34,841 times faster for the Bernoulli event models and 17 to 60 times faster for the Multinomial model. For the Gaussian distribution this package was found to be between 2.8 and 1679 times faster. The implementation is largely based on the paper "A comparison of event models for Naive Bayes anti-spam e-mail filtering" written by K.M. Schneider (2003) <doi:10.3115/1067807>.
 
 Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/issues>.
 
@@ -95,33 +95,33 @@ In order to demonstrate the power of this package a comparison of estimation and
 
 |                       | Bernoulli | Multinomial | Gaussian |
 |-----------------------|-----------|-------------|----------|
-| fastNaiveBayes        | 0.263     | 0.193       | 0.019    |
-| fastNaiveBayes_sparse | 0.015     | 0.012       | 0.031    |
+| fastNaiveBayes        | 0.263     | 0.193       | 0.005    |
+| fastNaiveBayes_sparse | 0.015     | 0.012       | 0.043    |
 | bnlearn               | 5.976     |             |          |
-| e1071                 | 522.618   |             | 1.405    |
-| klar                  | 421.323   |             | 2.318    |
-| naivebayes            | 4.247     |             | 0.021    |
+| e1071                 | 522.618   |             | 8.397    |
+| klar                  | 421.323   |             | 8.040    |
+| naivebayes            | 4.247     |             | 0.349    |
 | quanteda              | 8.075     | 0.200       |          |
-| Rfast                 |           | 0.724       | 0.002    |
+| Rfast                 |           | 0.724       | 0.014    |
 
 For a relative comparison, the figures are also given with the shortest execution time is standardized to 1 in the table below:
 
 |                       | Bernoulli | Multinomial | Gaussian |
 |-----------------------|-----------|-------------|----------|
-| fastNaiveBayes        | 17.5      | 16.8        | 9.6      |
-| fastNaiveBayes_sparse | 1.0       | 1.0         | 15.6     |
+| fastNaiveBayes        | 17.5      | 16.8        | 1.0      |
+| fastNaiveBayes_sparse | 1.0       | 1.0         | 8.6      |
 | bnlearn               | 398.4     |             |          |
-| e1071                 | 34841.2   |             | 707.2    |
-| klaR                  | 28088.2   |             | 1166.5   |
-| naivebayes            | 283.1     |             | 10.7     |
+| e1071                 | 34841.2   |             | 1679.4   |
+| klaR                  | 28088.2   |             | 1608     |
+| naivebayes            | 283.1     |             | 69.8     |
 | quanteda              | 538.3     | 16.7        |          |
-| Rfast                 |           | 60.3        | 1.0      |
+| Rfast                 |           | 60.3        | 2.8      |
 
-As can be seen from the results, this package is magnitudes faster for both the Bernoulli and Multinomial event models. Using only a Bernoulli event model, the smallest speed-up was compared to the 'naivebayes' package, where this package was found to be 283 times faster. The largerst speed-up was compared to the 'klaR' and 'e1071' packages, where this package is around 28,088 and 34,841 times faster, respectively. It seems unbelievable, but it should be noted that the data set of tweets resulted in a very sparse matrix. This is why the sparse matrix combined with the matrix multiplication results in such a large increase in speed. 
+As can be seen from the results, this package is magnitudes faster for all event models. Using only a Bernoulli event model, the smallest speed-up was compared to the 'naivebayes' package, where this package was found to be 283 times faster. The largerst speed-up was compared to the 'klaR' and 'e1071' packages, where this package is around 28,088 and 34,841 times faster, respectively. It seems unbelievable, but it should be noted that the data set of tweets resulted in a very sparse matrix. This is why the sparse matrix combined with the matrix multiplication results in such a large increase in speed. 
 
 For the Multinomial event model, there's only two alternative implementations, from the 'quanteda' and 'Rfast' package. This implementation was found to be 17 times and 60 times faster, respectively. 
 
-Lastly, comparing the Gaussian event model, results are slightly different. As mentioned before, it is not possible to use the matrix multiplication and hence this package should not be noticeably faster compared to others. The fastest implementation is found in the 'Rfast' package, whereas both this package and the 'naivebayes' package were found to be 10 times slower. Compared to 'e1071' and 'klaR', the 'Rfast' implementation was found to be 707 and 1166 times faster, respectively. This means that comparing the execution speed of this package to 'e1071' and 'klaR', this package is still around 74 and 122 times faster, respectively. 
+Lastly, comparing the Gaussian event model the smallest speed-up was compared to the 'Rfast' package of 2.8 times. Compared to the 'naivebayes' package a speed-up of 70 times was achieved and finally compared to the 'e1071' and 'klaR' packages this package was found to be 1680 and 1608 times faster, respectively. Using a sparse matrix did not result in a faster execution time. This makes sense since the data used to test the Gaussian distribution is not sparse at all. 
 
 It should be noted, that these results can vary a lot between data sets and is dependent on both hardware and software. The tweets data is very sparse when converted to a document-term matrix and hence this is probably a best case scenario. In order to make it easier to compare execution times, the tweets data that was used to establish these results are included in the package as 'tweets', the raw data, and 'tweetsDTM' a clean document-term matrix of the previously mentioned 'tweets' data. The code used to convert the raw 'tweets' data can be found on github in the 'data-raw' folder. Moreover, the code to establish the results can be found below.
 
@@ -223,29 +223,36 @@ res[,model:='Multinomial']
 results <- rbind(results, res)
 
 # Gaussian Event Model
-tweets <- mtcars
+cars <- mtcars
+for(i in 1:6){
+  cars <- rbind(cars, cars)
+}
 
-y_var <- tweets$mpg
+y_var <- cars$mpg
 y_var <- as.factor(ifelse(y_var>20,'negative','non-negative'))
-tweets <- tweets[,3:7]
 
-tweet_mat <- as.matrix(tweets)
-sparse_tweets <- Matrix(as.matrix(tweet_mat), sparse = TRUE)
+cars <- cars[,3:7]
+for(i in 1:6){
+  cars <- cbind(cars, cars)
+}
+
+cars_mat <- as.matrix(cars)
+sparse_cars <- Matrix(as.matrix(cars_mat), sparse = TRUE)
 
 res <- microbenchmark(
-  klar = predict(klaR::NaiveBayes(x=tweet_mat, grouping = y_var, fL=1), tweet_mat),
-  e1071 = predict(e1071::naiveBayes(tweet_mat, y_var, laplace = 1), tweet_mat),
-  naivebayes = predict(naivebayes::naive_bayes(tweet_mat, y_var, laplace = 1), newdata = tweet_mat),
-  fastNaiveBayes = predict(fastNaiveBayes.gaussian(tweet_mat, y_var), tweet_mat),
-  fastNaiveBayes_sparse = predict(fastNaiveBayes.gaussian(sparse_tweets, y_var), sparse_tweets),
-  Rfast = Rfast::gaussian.nb(tweet_mat, tweet_mat, y_var),
+  klar = predict(klaR::NaiveBayes(x=cars_mat, grouping = y_var, fL=1), cars_mat),
+  e1071 = predict(e1071::naiveBayes(cars_mat, y_var, laplace = 1), cars_mat),
+  naivebayes = predict(naivebayes::naive_bayes(cars_mat, y_var, laplace = 1), newdata = cars_mat),
+  fastNaiveBayes = predict(fastNaiveBayes.gaussian(cars_mat, y_var), cars_mat),
+  fastNaiveBayes_sparse = predict(fastNaiveBayes.gaussian(sparse_cars, y_var), sparse_cars),
+  Rfast = Rfast::gaussian.nb(cars_mat, cars_mat, y_var),
   times = 3,
   unit = "ms"
 )
 
 res <- as.data.table(res)
-res[,nrows:=nrow(tweet_mat)]
-res[,ncols:=ncol(tweet_mat)]
+res[,nrows:=nrow(cars_mat)]
+res[,ncols:=ncol(cars_mat)]
 res[,model:='Gaussian']
 
 results <- rbind(results, res)

@@ -11,10 +11,9 @@
 \arguments{
 \item{object}{A fitted object of class "fastNaiveBayes.gaussian".}
 
-\item{newdata}{A numeric matrix with 1's and 0's to indicate the presence or absence of features. A Sparse dgcMatrix is also accepted.
+\item{newdata}{A numeric matrix. A Sparse dgcMatrix is also accepted.
 Note that if newdata contains features that were not encountered in the training data, these are omitted from the prediction.
-Furthermore, newdata can contain fewer features than encountered in the training data. In this case, newdata will be padded with
-extra columns all filled with 0's.}
+Furthermore, newdata can contain fewer features than encountered in the training data.}
 
 \item{type}{If "raw", the conditional a-posterior probabilities for each class are returned, and the class with maximal probability else.}
 

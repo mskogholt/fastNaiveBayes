@@ -12,7 +12,7 @@
 
 <meta name="author" content="Martin Skogholt" />
 
-<meta name="date" content="2019-04-13" />
+<meta name="date" content="2019-04-14" />
 
 <title>Fast Naive Bayes</title>
 
@@ -92,14 +92,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Fast Naive Bayes</h1>
 <h4 class="author"><em>Martin Skogholt</em></h4>
-<h4 class="date"><em>2019-04-13</em></h4>
+<h4 class="date"><em>2019-04-14</em></h4>
 
 
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>This is an extremely fast implementation of a Naive Bayes classifier. This package is currently the only package that supports a Bernoulli distribution, a Multinomial distribution, and a Gaussian distribution, making it suitable for both binary features, frequency counts, and numerical features. Another feature is the support of a mix of different event models. Only numerical variables are allowed, however, categorical variables can be transformed into dummies and used with the Bernoulli distribution.</p>
-<p>This implementation offers a huge performance gain compared to other implementations in R. The execution times were compared on a data set of tweets and this package was found to be around 283 to 34,841 times faster for the Bernoulli event models and 17 to 60 times faster for the Multinomial model. The implementation is largely based on the paper “A comparison of event models for Naive Bayes anti-spam e-mail filtering” written by K.M. Schneider (2003) <a href="doi:10.3115/1067807" class="uri">doi:10.3115/1067807</a>.</p>
+<p>This implementation offers a huge performance gain compared to other implementations in R. The execution times were compared on a data set of tweets and this package was found to be around 283 to 34,841 times faster for the Bernoulli event models and 17 to 60 times faster for the Multinomial model. For the Gaussian distribution this package was found to be between 2.8 and 1679 times faster. The implementation is largely based on the paper “A comparison of event models for Naive Bayes anti-spam e-mail filtering” written by K.M. Schneider (2003) <a href="doi:10.3115/1067807" class="uri">doi:10.3115/1067807</a>.</p>
 <p>Any issues can be submitted to: <a href="https://github.com/mskogholt/fastNaiveBayes/issues" class="uri">https://github.com/mskogholt/fastNaiveBayes/issues</a>.</p>
 <p>The purpose of this vignette is to explain some key aspects of this implementation in detail. Firstly, a short introduction to text classification is given as the context for further explanations about the Naive Bayes classifier. It should be noted that the Naive Bayes classifier is not restricted to text classification. The Naive Bayes classifier is a general classification algorithm, but most commonly applied to text classification. Secondly, the general framework of a Naive Bayes classifier is outlined in order to subsequently delve deeper into the different event models. Thirdly, a mathematical explanation is given as to why this particular implementation has such an excellent performance in terms of speed. In the fourth section a description is given about the unique features that sets this implementation of a Naive Bayes classifier apart from other implementations within the R community. Lastly, some code examples are included.</p>
 </div>
@@ -172,13 +172,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td>fastNaiveBayes</td>
 <td>0.263</td>
 <td>0.193</td>
-<td>0.019</td>
+<td>0.005</td>
 </tr>
 <tr class="even">
 <td>fastNaiveBayes_sparse</td>
 <td>0.015</td>
 <td>0.012</td>
-<td>0.031</td>
+<td>0.043</td>
 </tr>
 <tr class="odd">
 <td>bnlearn</td>
@@ -190,19 +190,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td>e1071</td>
 <td>522.618</td>
 <td></td>
-<td>1.405</td>
+<td>8.397</td>
 </tr>
 <tr class="odd">
 <td>klar</td>
 <td>421.323</td>
 <td></td>
-<td>2.318</td>
+<td>8.040</td>
 </tr>
 <tr class="even">
 <td>naivebayes</td>
 <td>4.247</td>
 <td></td>
-<td>0.021</td>
+<td>0.349</td>
 </tr>
 <tr class="odd">
 <td>quanteda</td>
@@ -214,7 +214,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td>Rfast</td>
 <td></td>
 <td>0.724</td>
-<td>0.002</td>
+<td>0.014</td>
 </tr>
 </tbody>
 </table>
@@ -233,13 +233,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td>fastNaiveBayes</td>
 <td>17.5</td>
 <td>16.8</td>
-<td>9.6</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td>fastNaiveBayes_sparse</td>
 <td>1.0</td>
 <td>1.0</td>
-<td>15.6</td>
+<td>8.6</td>
 </tr>
 <tr class="odd">
 <td>bnlearn</td>
@@ -251,19 +251,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td>e1071</td>
 <td>34841.2</td>
 <td></td>
-<td>707.2</td>
+<td>1679.4</td>
 </tr>
 <tr class="odd">
 <td>klaR</td>
 <td>28088.2</td>
 <td></td>
-<td>1166.5</td>
+<td>1608</td>
 </tr>
 <tr class="even">
 <td>naivebayes</td>
 <td>283.1</td>
 <td></td>
-<td>10.7</td>
+<td>69.8</td>
 </tr>
 <tr class="odd">
 <td>quanteda</td>
@@ -275,13 +275,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td>Rfast</td>
 <td></td>
 <td>60.3</td>
-<td>1.0</td>
+<td>2.8</td>
 </tr>
 </tbody>
 </table>
-<p>As can be seen from the results, this package is magnitudes faster for both the Bernoulli and Multinomial event models. Using only a Bernoulli event model, the smallest speed-up was compared to the ‘naivebayes’ package, where this package was found to be 283 times faster. The largerst speed-up was compared to the ‘klaR’ and ‘e1071’ packages, where this package is around 28,088 and 34,841 times faster, respectively. It seems unbelievable, but it should be noted that the data set of tweets resulted in a very sparse matrix. This is why the sparse matrix combined with the matrix multiplication results in such a large increase in speed.</p>
+<p>As can be seen from the results, this package is magnitudes faster for all event models. Using only a Bernoulli event model, the smallest speed-up was compared to the ‘naivebayes’ package, where this package was found to be 283 times faster. The largerst speed-up was compared to the ‘klaR’ and ‘e1071’ packages, where this package is around 28,088 and 34,841 times faster, respectively. It seems unbelievable, but it should be noted that the data set of tweets resulted in a very sparse matrix. This is why the sparse matrix combined with the matrix multiplication results in such a large increase in speed.</p>
 <p>For the Multinomial event model, there’s only two alternative implementations, from the ‘quanteda’ and ‘Rfast’ package. This implementation was found to be 17 times and 60 times faster, respectively.</p>
-<p>Lastly, comparing the Gaussian event model, results are slightly different. As mentioned before, it is not possible to use the matrix multiplication and hence this package should not be noticeably faster compared to others. The fastest implementation is found in the ‘Rfast’ package, whereas both this package and the ‘naivebayes’ package were found to be 10 times slower. Compared to ‘e1071’ and ‘klaR’, the ‘Rfast’ implementation was found to be 707 and 1166 times faster, respectively. This means that comparing the execution speed of this package to ‘e1071’ and ‘klaR’, this package is still around 74 and 122 times faster, respectively.</p>
+<p>Lastly, comparing the Gaussian event model the smallest speed-up was compared to the ‘Rfast’ package of 2.8 times. Compared to the ‘naivebayes’ package a speed-up of 70 times was achieved and finally compared to the ‘e1071’ and ‘klaR’ packages this package was found to be 1680 and 1608 times faster, respectively. Using a sparse matrix did not result in a faster execution time. This makes sense since the data used to test the Gaussian distribution is not sparse at all.</p>
 <p>It should be noted, that these results can vary a lot between data sets and is dependent on both hardware and software. The tweets data is very sparse when converted to a document-term matrix and hence this is probably a best case scenario. In order to make it easier to compare execution times, the tweets data that was used to establish these results are included in the package as ‘tweets’, the raw data, and ‘tweetsDTM’ a clean document-term matrix of the previously mentioned ‘tweets’ data. The code used to convert the raw ‘tweets’ data can be found on github in the ‘data-raw’ folder. Moreover, the code to establish the results can be found below.</p>
 <div id="code-to-compare-execution-times" class="section level3">
 <h3>Code to compare Execution Times</h3>
@@ -381,29 +381,36 @@ res[,model<span class="op">:</span><span class="er">=</span><span class="st">'Mu
 results &lt;-<span class="st"> </span><span class="kw">rbind</span>(results, res)
 
 <span class="co"># Gaussian Event Model</span>
-tweets &lt;-<span class="st"> </span>mtcars
+cars &lt;-<span class="st"> </span>mtcars
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">6</span>){
+  cars &lt;-<span class="st"> </span><span class="kw">rbind</span>(cars, cars)
+}
 
-y_var &lt;-<span class="st"> </span>tweets<span class="op">$</span>mpg
+y_var &lt;-<span class="st"> </span>cars<span class="op">$</span>mpg
 y_var &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">ifelse</span>(y_var<span class="op">&gt;</span><span class="dv">20</span>,<span class="st">'negative'</span>,<span class="st">'non-negative'</span>))
-tweets &lt;-<span class="st"> </span>tweets[,<span class="dv">3</span><span class="op">:</span><span class="dv">7</span>]
 
-tweet_mat &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(tweets)
-sparse_tweets &lt;-<span class="st"> </span><span class="kw">Matrix</span>(<span class="kw">as.matrix</span>(tweet_mat), <span class="dt">sparse =</span> <span class="ot">TRUE</span>)
+cars &lt;-<span class="st"> </span>cars[,<span class="dv">3</span><span class="op">:</span><span class="dv">7</span>]
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">6</span>){
+  cars &lt;-<span class="st"> </span><span class="kw">cbind</span>(cars, cars)
+}
+
+cars_mat &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(cars)
+sparse_cars &lt;-<span class="st"> </span><span class="kw">Matrix</span>(<span class="kw">as.matrix</span>(cars_mat), <span class="dt">sparse =</span> <span class="ot">TRUE</span>)
 
 res &lt;-<span class="st"> </span><span class="kw">microbenchmark</span>(
-  <span class="dt">klar =</span> <span class="kw">predict</span>(klaR<span class="op">::</span><span class="kw">NaiveBayes</span>(<span class="dt">x=</span>tweet_mat, <span class="dt">grouping =</span> y_var, <span class="dt">fL=</span><span class="dv">1</span>), tweet_mat),
-  <span class="dt">e1071 =</span> <span class="kw">predict</span>(e1071<span class="op">::</span><span class="kw">naiveBayes</span>(tweet_mat, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), tweet_mat),
-  <span class="dt">naivebayes =</span> <span class="kw">predict</span>(naivebayes<span class="op">::</span><span class="kw">naive_bayes</span>(tweet_mat, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), <span class="dt">newdata =</span> tweet_mat),
-  <span class="dt">fastNaiveBayes =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.gaussian</span>(tweet_mat, y_var), tweet_mat),
-  <span class="dt">fastNaiveBayes_sparse =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.gaussian</span>(sparse_tweets, y_var), sparse_tweets),
-  <span class="dt">Rfast =</span> Rfast<span class="op">::</span><span class="kw">gaussian.nb</span>(tweet_mat, tweet_mat, y_var),
+  <span class="dt">klar =</span> <span class="kw">predict</span>(klaR<span class="op">::</span><span class="kw">NaiveBayes</span>(<span class="dt">x=</span>cars_mat, <span class="dt">grouping =</span> y_var, <span class="dt">fL=</span><span class="dv">1</span>), cars_mat),
+  <span class="dt">e1071 =</span> <span class="kw">predict</span>(e1071<span class="op">::</span><span class="kw">naiveBayes</span>(cars_mat, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), cars_mat),
+  <span class="dt">naivebayes =</span> <span class="kw">predict</span>(naivebayes<span class="op">::</span><span class="kw">naive_bayes</span>(cars_mat, y_var, <span class="dt">laplace =</span> <span class="dv">1</span>), <span class="dt">newdata =</span> cars_mat),
+  <span class="dt">fastNaiveBayes =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.gaussian</span>(cars_mat, y_var), cars_mat),
+  <span class="dt">fastNaiveBayes_sparse =</span> <span class="kw">predict</span>(<span class="kw">fastNaiveBayes.gaussian</span>(sparse_cars, y_var), sparse_cars),
+  <span class="dt">Rfast =</span> Rfast<span class="op">::</span><span class="kw">gaussian.nb</span>(cars_mat, cars_mat, y_var),
   <span class="dt">times =</span> <span class="dv">3</span>,
   <span class="dt">unit =</span> <span class="st">&quot;ms&quot;</span>
 )
 
 res &lt;-<span class="st"> </span><span class="kw">as.data.table</span>(res)
-res[,nrows<span class="op">:</span><span class="er">=</span><span class="kw">nrow</span>(tweet_mat)]
-res[,ncols<span class="op">:</span><span class="er">=</span><span class="kw">ncol</span>(tweet_mat)]
+res[,nrows<span class="op">:</span><span class="er">=</span><span class="kw">nrow</span>(cars_mat)]
+res[,ncols<span class="op">:</span><span class="er">=</span><span class="kw">ncol</span>(cars_mat)]
 res[,model<span class="op">:</span><span class="er">=</span><span class="st">'Gaussian'</span>]
 
 results &lt;-<span class="st"> </span><span class="kw">rbind</span>(results, res)

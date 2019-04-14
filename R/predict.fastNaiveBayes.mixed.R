@@ -91,6 +91,7 @@ predict.fastNaiveBayes.mixed <- function(object, newdata, type = c("class", "raw
   }
 
   denom <- rowSums(probs)
+  denom[denom==0] <- 1
   probs <- probs / denom
 
   if (type == "class") {

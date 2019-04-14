@@ -3,11 +3,11 @@
 ### New Features
 - threshold in all predict functions to ensure a minimum probability
 - Added tweets and tweetsDTM datasets as example data and for time comparisons
-- 
+- Changed Gaussian model to achieve a huge speed-up
+- Removed inefficiencies for both the Bernoulli and Multinomial models. Much faster now.
 
 ### Bug Fixes
 - With 2x1 matrices error were thrown
-- Inefficiencies were removed to make it even faster
 
 ### Other Changes
 - Removed std_threshold in Gaussian model, not necessary since the introduction of the above threshold feature

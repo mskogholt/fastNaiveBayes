@@ -98,6 +98,7 @@ predict.fastNaiveBayes.bernoulli <- function(object, newdata, type = c("class", 
   }
 
   denom <- rowSums(probs)
+  denom[denom==0] <- 1
   probs <- probs / denom
 
   if (type == "class") {
