@@ -101,29 +101,36 @@ knitr::opts_chunk$set(
 #  results <- rbind(results, res)
 #  
 #  # Gaussian Event Model
-#  tweets <- mtcars
+#  cars <- mtcars
+#  for(i in 1:6){
+#    cars <- rbind(cars, cars)
+#  }
 #  
-#  y_var <- tweets$mpg
+#  y_var <- cars$mpg
 #  y_var <- as.factor(ifelse(y_var>20,'negative','non-negative'))
-#  tweets <- tweets[,3:7]
 #  
-#  tweet_mat <- as.matrix(tweets)
-#  sparse_tweets <- Matrix(as.matrix(tweet_mat), sparse = TRUE)
+#  cars <- cars[,3:7]
+#  for(i in 1:6){
+#    cars <- cbind(cars, cars)
+#  }
+#  
+#  cars_mat <- as.matrix(cars)
+#  sparse_cars <- Matrix(as.matrix(cars_mat), sparse = TRUE)
 #  
 #  res <- microbenchmark(
-#    klar = predict(klaR::NaiveBayes(x=tweet_mat, grouping = y_var, fL=1), tweet_mat),
-#    e1071 = predict(e1071::naiveBayes(tweet_mat, y_var, laplace = 1), tweet_mat),
-#    naivebayes = predict(naivebayes::naive_bayes(tweet_mat, y_var, laplace = 1), newdata = tweet_mat),
-#    fastNaiveBayes = predict(fastNaiveBayes.gaussian(tweet_mat, y_var), tweet_mat),
-#    fastNaiveBayes_sparse = predict(fastNaiveBayes.gaussian(sparse_tweets, y_var), sparse_tweets),
-#    Rfast = Rfast::gaussian.nb(tweet_mat, tweet_mat, y_var),
+#    klar = predict(klaR::NaiveBayes(x=cars_mat, grouping = y_var, fL=1), cars_mat),
+#    e1071 = predict(e1071::naiveBayes(cars_mat, y_var, laplace = 1), cars_mat),
+#    naivebayes = predict(naivebayes::naive_bayes(cars_mat, y_var, laplace = 1), newdata = cars_mat),
+#    fastNaiveBayes = predict(fastNaiveBayes.gaussian(cars_mat, y_var), cars_mat),
+#    fastNaiveBayes_sparse = predict(fastNaiveBayes.gaussian(sparse_cars, y_var), sparse_cars),
+#    Rfast = Rfast::gaussian.nb(cars_mat, cars_mat, y_var),
 #    times = 3,
 #    unit = "ms"
 #  )
 #  
 #  res <- as.data.table(res)
-#  res[,nrows:=nrow(tweet_mat)]
-#  res[,ncols:=ncol(tweet_mat)]
+#  res[,nrows:=nrow(cars_mat)]
+#  res[,ncols:=ncol(cars_mat)]
 #  res[,model:='Gaussian']
 #  
 #  results <- rbind(results, res)
