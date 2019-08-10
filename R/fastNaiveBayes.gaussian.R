@@ -4,7 +4,7 @@
 #'
 #' @param x a numeric matrix. A sparse dgcMatrix is also accepted
 #' @param y a factor of classes
-#' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
+#' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
 #' @param ... Not used.
 #'

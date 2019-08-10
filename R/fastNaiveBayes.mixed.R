@@ -4,7 +4,7 @@
 #' @param x a numeric matrix, or a dgcMatrix
 #' @param y a factor of classes
 #' @param laplace A number used for Laplace smoothing. Default is 0
-#' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
+#' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
 #' @param distribution A list with distribution names and column names to for which to use the distribution, see examples.
 #' @param ... Not used.

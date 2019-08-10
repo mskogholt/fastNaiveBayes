@@ -4,6 +4,7 @@
 fastNaiveBayes.detect_distribution.default <- function(x, nrows = 10) {
   nrows <- min(nrow(x), nrows)
   x <- x[1:nrows, ]
+  x[is.na(x)] <- 0
 
   integersums <- colSums(abs(x - round(x)) > .Machine$double.eps)
   ones <- colSums(x > 1)

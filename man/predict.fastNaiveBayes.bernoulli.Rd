@@ -18,7 +18,7 @@ extra columns all filled with 0's.}
 
 \item{type}{If "raw", the conditional a-posterior probabilities for each class are returned, and the class with maximal probability else.}
 
-\item{sparse}{Use a sparse Matrix? If true a sparse matrix will be constructed from x, which can give up to a 40\% speed up.
+\item{sparse}{Use a sparse matrix? If true a sparse matrix will be constructed from x.
 It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE}
 
 \item{threshold}{A threshold for the minimum probability. For Bernoulli and Multinomial event models Laplace smoothing solves this,
@@ -36,7 +36,7 @@ Uses a fastNaiveBayes.bernoulli model and a new data set to create the classific
 }
 \details{
 In the extremely unlikely case that two classes have the exact same estimated probability, the first encountered class
-    is used as the classification and a warning is issued.
+    is used as the classification.
 
     Using a sparse matrix directly can be especially useful if it's necessary to use predict multiple times on the same matrix or
     on different subselections of the same initial matrix, see examples for further details.

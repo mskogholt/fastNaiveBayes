@@ -10,6 +10,10 @@ fastNaiveBayes.mixed.default <- function(x,
     stop("X and Y must be equal length")
   }
 
+  if(!is.factor(y)){
+    y <- as.factor(y)
+  }
+
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {
       x <- as.matrix(x)
@@ -19,6 +23,10 @@ fastNaiveBayes.mixed.default <- function(x,
     }
   } else {
     sparse <- TRUE
+  }
+
+  if(any(is.na(x))){
+    x[is.na(x)] <- 0
   }
 
   if (is.null(distribution)) {

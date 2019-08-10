@@ -5,7 +5,7 @@
 #' @param x a numeric matrix with 1's and 0's to indicate the presence or absence of features. A sparse dgcMatrix is also accepted
 #' @param y a factor of classes
 #' @param laplace A number used for Laplace smoothing. Default is 0
-#' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
+#' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
 #' @param ... Not used.
 #'
@@ -35,9 +35,9 @@
 #' cars <- mtcars
 #' y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
 #' x <- cars[, 2:ncol(cars)]
-#' 
+#'
 #' dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
-#' 
+#'
 #' # Bernoulli only
 #' vars <- c(dist$bernoulli, dist$multinomial)
 #' newx <- x[, vars]
@@ -45,7 +45,7 @@
 #'   newx[[i]] <- as.factor(newx[[i]])
 #' }
 #' new_mat <- model.matrix(y ~ . - 1, cbind(y, newx))
-#' 
+#'
 #' mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1)
 #' pred <- predict(mod, newdata = new_mat)
 #' mean(pred != y)

@@ -19,7 +19,7 @@ fastNaiveBayes.mixed(x, y, laplace = 0, sparse = FALSE,
 
 \item{laplace}{A number used for Laplace smoothing. Default is 0}
 
-\item{sparse}{Use a sparse matrix? If true a sparse matrix will be constructed from x, which can give up to a 40% speed up.
+\item{sparse}{Use a sparse matrix? If true a sparse matrix will be constructed from x.
 It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE}
 
 \item{distribution}{A list with distribution names and column names to for which to use the distribution, see examples.}
