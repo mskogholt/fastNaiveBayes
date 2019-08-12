@@ -1,7 +1,14 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes.gaussian
-fastNaiveBayes.gaussian.default <- function(x, y, sparse = FALSE, ...) {
+#' @rdname fastNaiveBayes
+fnb.gaussian <- function(x, y, sparse = FALSE, ...) {
+  UseMethod("fnb.gaussian")
+}
+
+#' @export
+#' @import Matrix
+#' @rdname fastNaiveBayes
+fnb.gaussian.default <- function(x, y, sparse = FALSE, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {
       x <- as.matrix(x)
@@ -13,10 +20,6 @@ fastNaiveBayes.gaussian.default <- function(x, y, sparse = FALSE, ...) {
     sparse <- TRUE
   }
 
-  if (nrow(x) != length(y)) {
-    stop("X and Y must be equal length")
-  }
-
   n <- tabulate(y)
   if (sparse) {
     probability_table <- lapply(levels(y), function(level) {
@@ -24,7 +27,6 @@ fastNaiveBayes.gaussian.default <- function(x, y, sparse = FALSE, ...) {
       if (ncol(x) == 1) {
         x_level <- as.matrix(x_level)
       }
-
 
       means <- Matrix::colMeans(x_level, na.rm = TRUE)
       mat_means <- matrix(means, nrow = nrow(x_level), ncol = ncol(x_level), byrow = TRUE)
@@ -41,11 +43,13 @@ fastNaiveBayes.gaussian.default <- function(x, y, sparse = FALSE, ...) {
     })
   }
 
-  names(n) <- levels(y)
   priors <- n/nrow(x)
   structure(list(
     probability_table = probability_table,
     priors = priors,
-    names = colnames(x)
-  ), class = "fastNaiveBayes.gaussian")
+    names = colnames(x),
+    levels = levels(y)),
+
+    class = "fnb.gaussian")
 }
+

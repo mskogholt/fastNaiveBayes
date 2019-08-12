@@ -1,7 +1,14 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes.bernoulli
-fastNaiveBayes.bernoulli.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
+#' @rdname fastNaiveBayes
+fnb.bernoulli <- function(x, y, laplace = 0, sparse = FALSE, ...) {
+  UseMethod("fnb.bernoulli")
+}
+
+#' @export
+#' @import Matrix
+#' @rdname fastNaiveBayes
+fnb.bernoulli.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {
       x <- as.matrix(x)
@@ -11,10 +18,6 @@ fastNaiveBayes.bernoulli.default <- function(x, y, laplace = 0, sparse = FALSE, 
     }
   } else {
     sparse <- TRUE
-  }
-
-  if (nrow(x) != length(y)) {
-    stop("X and Y must be equal length")
   }
 
   if (sparse) {
@@ -33,26 +36,28 @@ fastNaiveBayes.bernoulli.default <- function(x, y, laplace = 0, sparse = FALSE, 
     present <- rowsum(x, y)
   }
 
-  totals <- summary(y)
-  non_present <- matrix(totals, nrow = length(totals), ncol = ncol(x))-present
+  n <- tabulate(y)
 
   present <- present + laplace
-  non_present <- non_present + laplace
-  total <- present + non_present
+  present <- present / (n+2*laplace)
 
-  present <- present / total
-  non_present <- non_present / total
+
+
+  non_present <- 1-present
+
   probability_table <- list(
     present = present,
     non_present = non_present
   )
 
-  priors <- table(y) / nrow(x)
+  priors <- n / nrow(x)
   structure(list(
     probability_table = probability_table,
     priors = priors,
-    names = colnames(x)
-  ),
-  class = "fastNaiveBayes.bernoulli"
+    present = present,
+    names = colnames(x),
+    levels = levels(y)),
+
+    class = "fnb.bernoulli"
   )
 }

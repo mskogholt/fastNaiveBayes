@@ -14,11 +14,11 @@ test_that("Check distribution detection function", {
     gaussian = c("ma")
   )
 
-  expect_equal(real_distribution, fastNaiveBayes.detect_distribution(x))
+  expect_equal(real_distribution, fnb.detect_distribution(x))
 
   x <- matrix(c(1, 2, 3, 4), nrow = 2, ncol = 2)
   colnames(x) <- c("wo", "mo")
-  distribution <- fastNaiveBayes.detect_distribution(x)
+  distribution <- fnb.detect_distribution(x)
 
   real_distribution <- list(
     multinomial = c("wo", "mo")

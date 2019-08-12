@@ -14,9 +14,9 @@ test_that("Bernoulli estimation gives expected results", {
   )
 
   # Bernoulli model test with laplace = 1
-  mod <- fastNaiveBayes.bernoulli(x, y, laplace = 0, sparse = FALSE)
-  sparse_mod <- fastNaiveBayes.bernoulli(x, y, laplace = 0, sparse = TRUE)
-  sparse_cast_mod <- fastNaiveBayes.bernoulli(Matrix(as.matrix(x), sparse = TRUE),
+  mod <- fnb.bernoulli(x, y, laplace = 0, sparse = FALSE)
+  sparse_mod <- fnb.bernoulli(x, y, laplace = 0, sparse = TRUE)
+  sparse_cast_mod <- fnb.bernoulli(Matrix(as.matrix(x), sparse = TRUE),
     y,
     laplace = 0
   )
@@ -45,9 +45,9 @@ test_that("Bernoulli estimation gives expected results", {
   )
 
   # Bernoulli model test with laplace = 1
-  mod <- fastNaiveBayes.bernoulli(x, y, laplace = 1, sparse = FALSE)
-  sparse_mod <- fastNaiveBayes.bernoulli(x, y, laplace = 1, sparse = TRUE)
-  sparse_cast_mod <- fastNaiveBayes.bernoulli(Matrix(as.matrix(x), sparse = TRUE),
+  mod <- fnb.bernoulli(x, y, laplace = 1, sparse = FALSE)
+  sparse_mod <- fnb.bernoulli(x, y, laplace = 1, sparse = TRUE)
+  sparse_cast_mod <- fnb.bernoulli(Matrix(as.matrix(x), sparse = TRUE),
     y,
     laplace = 1
   )
@@ -60,15 +60,6 @@ test_that("Bernoulli estimation gives expected results", {
   expect_equal(sum(abs(mod_preds - sparse_preds)), 0)
   expect_equal(sum(abs(mod_preds - sparse_cast_preds)), 0)
   expect_equal(sum(y != predict(mod, newdata = x, type = "class")), 0)
-
-  x <- x[, 1:3]
-  frame_preds <- predict(mod, newdata = x, type = "raw")
-
-  x <- Matrix(as.matrix(x), sparse = TRUE)
-  newframe_preds <- predict(mod, newdata = x, type = "raw")
-
-  expect_equal(sum(abs(newframe_preds - frame_preds)), 0)
-  expect_error(fastNaiveBayes.bernoulli(x[1:3, ], y))
 
   x <- as.matrix(x[, 3])
   colnames(x) <- col_names[3]
@@ -86,7 +77,7 @@ test_that("Bernoulli estimation gives expected results", {
     0.5454545
   ), nrow = 5, ncol = 2)
   # Standard Multinomial model test with laplace = 0
-  mod <- fastNaiveBayes.bernoulli(x, y, laplace = 1, sparse = FALSE)
+  mod <- fnb.bernoulli(x, y, laplace = 1, sparse = FALSE)
   probs <- predict(mod, newdata = x, type = "raw")
 
   expect_equal(sum(round(abs(real_probs - probs), digits = 7)), 0)

@@ -1,7 +1,14 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes.multinomial
-fastNaiveBayes.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
+#' @rdname fastNaiveBayes
+fnb.multinomial <- function(x, y, laplace = 0, sparse = FALSE, ...) {
+  UseMethod("fnb.multinomial")
+}
+
+#' @export
+#' @import Matrix
+#' @rdname fastNaiveBayes
+fnb.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {
       x <- as.matrix(x)
@@ -11,10 +18,6 @@ fastNaiveBayes.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE
     }
   } else {
     sparse <- TRUE
-  }
-
-  if (nrow(x) != length(y)) {
-    stop("X and Y must be equal length")
   }
 
   if (sparse) {
@@ -46,12 +49,14 @@ fastNaiveBayes.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE
 
   probability_table <- list(present = present)
 
-  priors <- table(y) / nrow(x)
+  priors <- tabulate(y) / nrow(x)
   structure(list(
     probability_table = probability_table,
     priors = priors,
-    names = colnames(x)
-  ),
-  class = "fastNaiveBayes.multinomial"
+    names = colnames(x),
+    levels = levels(y)),
+
+    class = "fnb.multinomial"
   )
 }
+

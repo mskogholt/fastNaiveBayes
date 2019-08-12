@@ -10,9 +10,9 @@ test_that("Gaussian estimation gives expected results", {
   x <- as.data.frame(x)
 
   # Standard Multinomial model test with laplace = 0
-  mod <- fastNaiveBayes.gaussian(x, y, std_threshold = 0, sparse = FALSE)
-  sparse_cast_mod <- fastNaiveBayes.gaussian(x, y, std_threshold = 0, sparse = TRUE)
-  sparse_mod <- fastNaiveBayes.gaussian(Matrix(as.matrix(x), sparse = TRUE), y, std_threshold = 0)
+  mod <- fnb.gaussian(x, y, std_threshold = 0, sparse = FALSE)
+  sparse_cast_mod <- fnb.gaussian(x, y, std_threshold = 0, sparse = TRUE)
+  sparse_mod <- fnb.gaussian(Matrix(as.matrix(x), sparse = TRUE), y, std_threshold = 0)
 
   preds <- predict(mod, newdata = x, type = "raw")
   sparse_preds <- predict(sparse_mod, newdata = x, type = "raw")
@@ -30,18 +30,10 @@ test_that("Gaussian estimation gives expected results", {
   expect_equal(sum(round(abs(preds - real_preds), digits = 7)), 0)
   expect_equal(sum(y != predict(mod, newdata = x, type = "class")), 0)
 
-  x <- x[, 1:3]
-  expect_warning(frame_preds <- predict(mod, newdata = x, type = "raw"))
-
-  x <- Matrix(as.matrix(x), sparse = TRUE)
-  expect_warning(newframe_preds <- predict(mod, newdata = x, type = "raw"))
-
-  expect_equal(sum(abs(newframe_preds - frame_preds)), 0)
-
   x <- as.matrix(x[, 1])
   colnames(x) <- col_names[1]
 
-  mod <- fastNaiveBayes.gaussian(x, y, std_threshold = 0, sparse = FALSE)
+  mod <- fnb.gaussian(x, y, std_threshold = 0, sparse = FALSE)
   preds <- predict(mod, newdata = x, type = "raw")
 
   real_preds <- matrix(c(
@@ -52,5 +44,5 @@ test_that("Gaussian estimation gives expected results", {
   )
 
   expect_equal(sum(round(abs(preds - real_preds), digits = 7)), 0)
-  expect_error(fastNaiveBayes.gaussian(x[1:3, ], y))
+  expect_error(fnb.gaussian(x[1:3, ], y))
 })

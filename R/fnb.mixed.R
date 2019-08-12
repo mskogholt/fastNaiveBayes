@@ -1,19 +1,22 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes.mixed
-fastNaiveBayes.mixed.default <- function(x,
-                                         y,
-                                         laplace = 0,
-                                         sparse = FALSE,
-                                         distribution = NULL, ...) {
-  if (nrow(x) != length(y)) {
-    stop("X and Y must be equal length")
-  }
+#' @rdname fastNaiveBayes
+fnb.mixed <- function(x,
+                      y,
+                      laplace = 0,
+                      sparse = FALSE,
+                      distribution = NULL, ...) {
+  UseMethod("fnb.mixed")
+}
 
-  if(!is.factor(y)){
-    y <- as.factor(y)
-  }
-
+#' @export
+#' @import Matrix
+#' @rdname fastNaiveBayes
+fnb.mixed.default <- function(x,
+                              y,
+                              laplace = 0,
+                              sparse = FALSE,
+                              distribution = NULL, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {
       x <- as.matrix(x)
@@ -25,12 +28,8 @@ fastNaiveBayes.mixed.default <- function(x,
     sparse <- TRUE
   }
 
-  if(any(is.na(x))){
-    x[is.na(x)] <- 0
-  }
-
   if (is.null(distribution)) {
-    distribution <- fastNaiveBayes.detect_distribution(x)
+    distribution <- fnb.detect_distribution(x)
   }
   distribution <- distribution[lengths(distribution) != 0]
 
@@ -42,7 +41,7 @@ fastNaiveBayes.mixed.default <- function(x,
                newx <- as.matrix(newx)
                colnames(newx) <- distribution[[dist]]
              }
-             fastNaiveBayes.bernoulli(newx, y, laplace, sparse)
+             fnb.bernoulli(newx, y, laplace, sparse)
            },
            multinomial = {
              newx <- x[, distribution[[dist]]]
@@ -50,7 +49,7 @@ fastNaiveBayes.mixed.default <- function(x,
                newx <- as.matrix(newx)
                colnames(newx) <- distribution[[dist]]
              }
-             fastNaiveBayes.multinomial(newx, y, laplace, sparse)
+             fnb.multinomial(newx, y, laplace, sparse)
            },
            gaussian = {
              newx <- x[, distribution[[dist]]]
@@ -58,18 +57,22 @@ fastNaiveBayes.mixed.default <- function(x,
                newx <- as.matrix(newx)
                colnames(newx) <- distribution[[dist]]
              }
-             fastNaiveBayes.gaussian(newx, y, sparse)
+             fnb.gaussian(newx, y, sparse)
            }
     )
   })
 
-  priors <- table(y) / nrow(x)
+  n <- tabulate(y)
+  priors <- n / nrow(x)
+
   structure(list(
     models = models,
     priors = priors,
     names = colnames(x),
-    distribution = distribution
-  ),
-  class = "fastNaiveBayes.mixed"
+    distribution = distribution,
+    levels = levels(y)),
+
+    class = "fnb.mixed"
   )
 }
+
