@@ -54,6 +54,16 @@ test_that("fastNaiveBayes estimation gives expected results", {
   expect_equal(sum(round(abs(fastNaiveBayes_sparse_preds - preds), digits = 7)), 0)
   expect_equal(sum(round(abs(fastNaiveBayes_sparse_cast_preds - preds), digits = 7)), 0)
 
+
+  x <- cbind(x1, x1, x2, x2, x3, x3)
+  col_names <- c("wo", "so", "no", "go", "mo", "po")
+  colnames(x) <- col_names
+
+  mixed_mod <- fnb.mixed(x, y, laplace = 0, sparse = FALSE)
+  fastNaiveBayesMod <- fastNaiveBayes(x, y, laplace = 0, sparse = FALSE)
+
+  expect_warning(predict(fastNaiveBayesMod, newdata = as.data.frame(x[,c(1, 3, 5)]), type = "class"))
+
   expect_error(fastNaiveBayes(x[1:2,], y, laplace = 0, sparse = FALSE))
   expect_error(fastNaiveBayes(x[1:2,], y[1:2], laplace = 0, sparse = FALSE))
   expect_error(fastNaiveBayes(x, as.character(y[1:2]), laplace = 0, sparse = FALSE))

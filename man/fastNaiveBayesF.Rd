@@ -44,9 +44,10 @@ fnb.naiveBayes(x, y, laplace = 0, sparse = FALSE,
   distribution = NULL, ...)
 }
 \arguments{
-\item{x}{a numeric matrix, or a dgcMatrix}
+\item{x}{a numeric matrix, or a dgcMatrix. For bernoulli should only contain 0's and 1's. For multinomial should only
+contain integers.}
 
-\item{y}{a factor of classes}
+\item{y}{a factor of classes to classify}
 
 \item{laplace}{A number used for Laplace smoothing. Default is 0}
 
@@ -58,31 +59,44 @@ It's possible to directly feed a sparse dgcMatrix as x, which will set this para
 \item{...}{Not used.}
 }
 \value{
-A fitted object of class "fastNaiveBayes". It has three components:
+A fitted object of class "fastNaiveBayes". It has four components:
 
     \describe{
-        \item{probability_table}{Posterior probabilities}
-        \item{priors}{calculated prior probabilities for each class}
-        \item{names}{names of features used to train this fastNaiveBayes}
+        \item{model}{Fitted fnb.mixed model}
+        \item{names}{Names of features used to train this fastNaiveBayes model}
+        \item{distribution}{Distribution used for each column of x}
+        \item{levels}{Levels of y}
     }
 }
 \description{
 Extremely fast implementation of a Naive Bayes Classifier.
+
+A Naive Bayes classifier that assumes independence between the feature variables. Currently, either a Bernoulli,
+multinomial, or Gaussian distribution can be used. The bernoulli distribution should be used when the features are 0 or 1 to
+indicate the presence or absence of the feature in each document. The multinomial distribution should be used when the
+features are the frequency that the feature occurs in each document. Finally, the Gaussian distribution
+should be used with numerical variables. The distribution parameter is used to mix different distributions
+for different columns in the input matrix
+
+Use fastNaiveBayes(...) for the user friendly version. fnb.bernoulli, fnb.multinomial, fnb.gaussian and
+fnb.mixed are barebone implementations. Use with care as no formal checks are done on input data.
+These can however be faster.
 }
 \details{
-A Naive Bayes classifier that assumes independence between the feature variables. Currently, either a Bernoulli,
-    multinomial, or Gaussian distribution can be used. The bernoulli distribution should be used when the features are 0 or 1 to
-    indicate the presence or absence of the feature in each document. The multinomial distribution should be used when the
-    features are the frequency that the feature occurs in each document. Finally, the Gaussian distribution
-    should be used with numerical variables. fnb.mixed uses the distribution parameter to mix different distributions
-    for different columns in the input matrix
+fastNaiveBayes(...) will convert non numeric columns to one hot encoded features to use with the Bernoulli event
+model. NA's in x will be set to 0 by default and observations with NA in y will be removed.
 
-    By setting sparse = TRUE the numeric matrix x will be converted to a sparse dgcMatrix. This can be considerably faster
-    in case few observations have a value different than 0.
+The distribution that is used for each feature is determined by a set of rules:
+- if the column only contains 0's and 1's a Bernoulli event model will be used
+- if the column only contains whole numbers a Multinomial event model will be used
+- if none of the above a Gaussian event model will be used.
 
-    It's also possible to directly supply a sparse dgcMatrix, which can be a lot faster in case a fastNaiveBayes model
-    is trained multiple times on the same matrix or a subset of this. See examples for more details. Bear in mind that
-    converting to a sparse matrix can actually be slower depending on the data.
+By setting sparse = TRUE the numeric matrix x will be converted to a sparse dgcMatrix. This can be considerably faster
+in case few observations have a value different than 0.
+
+It's also possible to directly supply a sparse dgcMatrix, which can be a lot faster in case a fastNaiveBayes model
+is trained multiple times on the same matrix or a subset of this. See examples for more details. Bear in mind that
+converting to a sparse matrix can actually be slower depending on the data.
 }
 \examples{
 rm(list = ls())
@@ -91,8 +105,29 @@ cars <- mtcars
 y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
 x <- cars[,2:ncol(cars)]
 
-dist <- fnb.detect_distribution(x, nrows = nrow(x))
+mod <- fastNaiveBayes(x, y, laplace = 1)
 
+pred <- predict(mod, newdata = x)
+mean(y!=pred)
+
+mod <- fnb.mixed(x, y, laplace = 1)
+
+pred <- predict(mod, newdata = x)
+mean(y!=pred)
+
+dist <- fnb.detect_distribution(x)
+
+bern <- fnb.bernoulli(x[,dist$bernoulli], y, laplace = 1)
+pred <- predict(bern, x[,dist$bernoulli])
+mean(y!=pred)
+
+mult <- fnb.multinomial(x[,dist$multinomial], y, laplace = 1)
+pred <- predict(mult, x[,dist$multinomial])
+mean(y!=pred)
+
+gauss <- fnb.gaussian(x[,dist$gaussian], y)
+pred <- predict(gauss, x[,dist$gaussian])
+mean(y!=pred)
 
 }
 \seealso{

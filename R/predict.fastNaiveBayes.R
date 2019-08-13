@@ -91,23 +91,27 @@ predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"),
   for (i in 1:length(object$mod$models)) {
     model <- object$mod$models[[i]]
     newnames <- model$names
-    newx <- newdata[, model$names]
-    if(length(model$names)==1){
-      newx <- as.matrix(newx)
-      colnames(newx) <- model$names
-    }
-
+    newx <- newdata
     if(class(model)=="fnb.gaussian"){
-      names <- intersect(model$names, colnames(newx))
+      names <- intersect(model$names, colnames(newdata))
       if(length(model$names)!=length(names)){
         warning('Columns in test and train set not equal! Only the intersect of the two is used for prediction')
-        newx <- newx[, names]
+      }
+      newx <- newdata[, names]
+      if (length(names) == 1) {
+        newx <- as.matrix(newx)
+        colnames(newx) <- names
       }
     }else{
-      names <- intersect(model$names, colnames(newx))
+      names <- intersect(model$names, colnames(newdata))
+      newx <- newdata[, names]
+      if (length(names) == 1) {
+        newx <- as.matrix(newx)
+        colnames(newx) <- names
+      }
+
       if(length(model$names)!=length(names)){
         warning('Columns in test and train set not equal! Newdata is padded with zeros')
-        newx <- newx[, names]
 
         other_names <- setdiff(model$names, colnames(newx))
         if(length(other_names)>0){
@@ -120,12 +124,12 @@ predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"),
 
           newx <- cbind(newx, other_mat)
         }
-        newx <- newx[, names]
+        newx <- newx[, model$names]
       }
-    }
-    if (length(newnames) == 1) {
-      newx <- as.matrix(newx)
-      colnames(newx) <- newnames
+      if (length(model$names) == 1) {
+        newx <- as.matrix(newx)
+        colnames(newx) <- model$names
+      }
     }
 
     if (is.null(probs)) {

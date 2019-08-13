@@ -15,9 +15,17 @@ predict.fnb.gaussian <- function(object, newdata, type = c("class", "raw", "rawp
     sparse <- TRUE
   }
 
+  names <- intersect(object$names, colnames(newdata))
+  if(length(object$names)!=length(names)){
+    warning('Columns in test and train set not equal! Only the intersect of the two is used for prediction')
+    newdata <- newdata[, names]
+  }
+  if(length(names)==1){
+    newdata <- as.matrix(newdata)
+  }
+
   data <- object$probability_table
   probs <- NULL
-
   newdata <- t(newdata)
   for (j in 1:length(data)) {
     level <- data[[j]]

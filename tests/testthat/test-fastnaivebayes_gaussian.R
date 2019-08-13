@@ -14,8 +14,9 @@ test_that("Gaussian estimation gives expected results", {
   sparse_mod <- fnb.gaussian(Matrix(as.matrix(x), sparse = TRUE), y, std_threshold = 0)
 
   preds <- predict(mod, newdata = x, type = "raw")
-  sparse_preds <- predict(sparse_mod, newdata = x, type = "raw")
-  sparse_cast_preds <- predict(sparse_cast_mod, newdata = x, type = "raw")
+  expect_warning(predict(mod, newdata = x[,1:2]))
+  sparse_preds <- predict(sparse_mod, newdata = x, type = "raw", sparse = TRUE)
+  sparse_cast_preds <- predict(sparse_cast_mod, newdata = Matrix(as.matrix(x)), type = "raw")
 
   expect_equal(sum(abs(preds - sparse_preds)), 0)
   expect_equal(sum(abs(preds - sparse_cast_preds)), 0)
@@ -41,4 +42,5 @@ test_that("Gaussian estimation gives expected results", {
 
   expect_equal(sum(round(abs(preds - real_preds), digits = 7)), 0)
   expect_error(fnb.gaussian(x[1:3, ], y))
+
 })
