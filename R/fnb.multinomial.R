@@ -1,13 +1,13 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fnb.multinomial <- function(x, y, laplace = 0, sparse = FALSE, ...) {
   UseMethod("fnb.multinomial")
 }
 
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fnb.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {

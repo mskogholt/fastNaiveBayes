@@ -1,5 +1,3 @@
-#' @param threshold A threshold for the minimum probability. For Bernoulli and Multinomial event models Laplace smoothing solves this,
-#' but in the case of Gaussian event models, this ensures numerical probabilities
 #' @export
 #' @import Matrix
 #' @rdname predict.fastNaiveBayes

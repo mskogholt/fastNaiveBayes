@@ -1,22 +1,14 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
-fnb.mixed <- function(x,
-                      y,
-                      laplace = 0,
-                      sparse = FALSE,
-                      distribution = NULL, ...) {
+#' @rdname fastNaiveBayesF
+fnb.mixed <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...) {
   UseMethod("fnb.mixed")
 }
 
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
-fnb.mixed.default <- function(x,
-                              y,
-                              laplace = 0,
-                              sparse = FALSE,
-                              distribution = NULL, ...) {
+#' @rdname fastNaiveBayesF
+fnb.mixed.default <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {
       x <- as.matrix(x)

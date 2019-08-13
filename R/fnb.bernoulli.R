@@ -1,13 +1,13 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fnb.bernoulli <- function(x, y, laplace = 0, sparse = FALSE, ...) {
   UseMethod("fnb.bernoulli")
 }
 
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fnb.bernoulli.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {

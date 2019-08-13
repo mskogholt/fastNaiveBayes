@@ -1,31 +1,3 @@
-#' @description  This is an extremely fast implementation of a Naive Bayes classifier. This package is
-#' currently the only package that supports a Bernoulli distribution, a Multinomial distribution,
-#' and a Gaussian distribution, making it suitable for both binary features, frequency counts,
-#' and numerical features. Another feature is the support of a mix of different event models.
-#' Only numerical variables are allowed, however, categorical variables can be transformed into
-#' dummies and used with the Bernoulli distribution.
-#'
-#' This implementation offers a huge performance gain compared to other implementations in R.
-#' The execution times were compared on a data set of tweets and this package was found to be
-#' around 283 to 34,841 times faster for the Bernoulli event models and 17 to 60 times faster
-#' for the Multinomial model. For the Gaussian distribution this package was found to be
-#' between 2.8 and 1679 times faster. See the vignette for more details.
-#'
-#' The implementation is largely based on the paper
-#' "A comparison of event models for Naive Bayes anti-spam e-mail filtering" written by
-#' K.M. Schneider (2003) <doi:10.3115/1067807>.
-#'
-#' Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/issues>.
-#'
-#' For a complete list of functions, use library(help = "fastNaiveBayes").
-#'
-#' The easiest starting point is to use the fnb.train function. This will convert the data to a suitable format
-#' and determine the distributions to use for each feature.
-#'
-#' @keywords internal
-#' @rdname fastNaiveBayes-package
-"_PACKAGE"
-
 #' @title Fast Naive Bayes Classifier for different Distributions
 #' @description Extremely fast implementation of a Naive Bayes Classifier.
 #'
@@ -66,20 +38,20 @@
 #' library(fastNaiveBayes)
 #' cars <- mtcars
 #' y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
-#' x <- cars[, 2:ncol(cars)]
+#' x <- cars[,2:ncol(cars)]
 #'
 #' dist <- fnb.detect_distribution(x, nrows = nrow(x))
 #'
 #'
 #' @seealso \code{\link{predict.fastNaiveBayes}} for the predict function for the fastNaiveBayes model.
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fastNaiveBayes <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...){
   UseMethod("fastNaiveBayes")
 }
 
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fastNaiveBayes.default <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...){
 
   if (class(x)[1] != "dgCMatrix") {
@@ -103,7 +75,7 @@ fastNaiveBayes.default <- function(x, y, laplace = 0, sparse = FALSE, distributi
     y <- as.factor(y)
   }
   if(nlevels(y)<=1){
-    stop('ý does not have enough levels to classify.')
+    stop('y does not have enough levels to classify.')
   }
   if(nrow(x)!=length(y)){
     stop('Rows of x not equal to length of y')

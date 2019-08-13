@@ -1,6 +1,6 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fnb.naiveBayes <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...){
   UseMethod("fastNaiveBayes")
 }

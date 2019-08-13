@@ -89,7 +89,7 @@ rm(list = ls())
 library(fastNaiveBayes)
 cars <- mtcars
 y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
-x <- cars[, 2:ncol(cars)]
+x <- cars[,2:ncol(cars)]
 
 dist <- fnb.detect_distribution(x, nrows = nrow(x))
 

@@ -67,11 +67,7 @@
 #' pred <- predict(mod, newdata = newx)
 #' mean(pred != y)
 #'
-#' @seealso \code{\link{predict.fnb.mixed}} for the predict function for a fastNaiveBayes class,
-#' \code{\link{fnb.bernoulli}} for the bernoulli only naive bayes model,
-#' \code{\link{fnb.multinomial}} for the multinomial only naive bayes model,
-#' \code{\link{fnb.gaussian}} for the gaussian only naive bayes model,
-#' \code{\link{fastNaiveBayes}} for the more general and user friendly fastNaiveBayes model.
+#' @seealso \code{\link{fastNaiveBayes}} for the fastNaiveBayes model.
 #' @rdname predict.fastNaiveBayes
 predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"),
                                    sparse = FALSE, threshold = .Machine$double.eps, ...){
@@ -96,6 +92,10 @@ predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"),
     model <- object$mod$models[[i]]
     newnames <- model$names
     newx <- newdata[, model$names]
+    if(length(model$names)==1){
+      newx <- as.matrix(newx)
+      colnames(newx) <- model$names
+    }
 
     if(class(model)=="fnb.gaussian"){
       names <- intersect(model$names, colnames(newx))
@@ -136,7 +136,7 @@ predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"),
   }
   probs <- exp(probs)
 
-  priors <- object$priors
+  priors <- object$mod$priors
   for(i in 1:length(priors)){
     probs[,i] <- probs[,i]*priors[i]
   }

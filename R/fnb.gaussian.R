@@ -1,13 +1,13 @@
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fnb.gaussian <- function(x, y, sparse = FALSE, ...) {
   UseMethod("fnb.gaussian")
 }
 
 #' @export
 #' @import Matrix
-#' @rdname fastNaiveBayes
+#' @rdname fastNaiveBayesF
 fnb.gaussian.default <- function(x, y, sparse = FALSE, ...) {
   if (class(x)[1] != "dgCMatrix") {
     if (!is.matrix(x)) {

@@ -43,9 +43,6 @@ It's possible to directly feed a sparse dgcMatrix as x, which will set this para
 but in the case of Gaussian event models, this ensures numerical probabilities.}
 
 \item{...}{Not used.}
-
-\item{threshold}{A threshold for the minimum probability. For Bernoulli and Multinomial event models Laplace smoothing solves this,
-but in the case of Gaussian event models, this ensures numerical probabilities}
 }
 \value{
 If type = 'class', a factor with classified class levels. If type = 'raw', a matrix with the predicted probabilities of
@@ -107,9 +104,5 @@ mean(pred != y)
 
 }
 \seealso{
-\code{\link{predict.fnb.mixed}} for the predict function for a fastNaiveBayes class,
-\code{\link{fnb.bernoulli}} for the bernoulli only naive bayes model,
-\code{\link{fnb.multinomial}} for the multinomial only naive bayes model,
-\code{\link{fnb.gaussian}} for the gaussian only naive bayes model,
-\code{\link{fastNaiveBayes}} for the more general and user friendly fastNaiveBayes model.
+\code{\link{fastNaiveBayes}} for the fastNaiveBayes model.
 }
