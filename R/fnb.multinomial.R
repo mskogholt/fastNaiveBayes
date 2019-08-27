@@ -25,17 +25,10 @@ fnb.multinomial.default <- function(x, y, priors = NULL, laplace = 0, sparse = F
       })
       present <- do.call(rbind, present)
     } else {
-      if (nrow(x) == nlevels(y)) {
-        present <- lapply(levels(y), function(level) {
-          Matrix::colSums(Matrix(t(as.matrix(x[y == level, ])), sparse = TRUE))
-        })
-        present <- do.call(rbind, present)
-      } else {
-        present <- lapply(levels(y), function(level) {
-          Matrix::colSums(x[y == level, ])
-        })
-        present <- do.call(rbind, present)
-      }
+      present <- lapply(levels(y), function(level) {
+        Matrix::colSums(x[y == level, ])
+      })
+      present <- do.call(rbind, present)
     }
   } else {
     present <- rowsum(x, y)

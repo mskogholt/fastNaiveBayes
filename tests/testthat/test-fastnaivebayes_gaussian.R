@@ -6,6 +6,8 @@ test_that("Gaussian estimation gives expected results", {
   x <- matrix(c(2, 3, 2, 1, 2, 5, 3, 4, 2, 4, 0, 1, 3, 1, 0, 3, 4, 4, 3, 5),
     nrow = 5, ncol = 4)
   colnames(x) <- c("wo", "mo", "bo", "so")
+
+  ho <- c(1, 1, 2, 1, 5)
   x <- as.data.frame(x)
 
   # Standard Multinomial model test with laplace = 0
@@ -15,11 +17,17 @@ test_that("Gaussian estimation gives expected results", {
 
   preds <- predict(mod, newdata = x, type = "raw")
   expect_warning(predict(mod, newdata = x[,1:2]))
+
   sparse_preds <- predict(sparse_mod, newdata = x, type = "raw", sparse = TRUE)
   sparse_cast_preds <- predict(sparse_cast_mod, newdata = Matrix(as.matrix(x)), type = "raw")
 
+  # Tests intersect with newdata!
+  modpp <- fnb.gaussian(cbind(x, ho), y, std_threshold = 0, sparse = FALSE)
+  predpp <- predict(modpp, x, type = "raw", silent = TRUE)
+
   expect_equal(sum(abs(preds - sparse_preds)), 0)
   expect_equal(sum(abs(preds - sparse_cast_preds)), 0)
+  expect_equal(sum(abs(preds - predpp)), 0)
 
   real_preds <- matrix(c(
     0.8014134, 0.8847304, 0.004007538, 0.1698076, 0.226208,

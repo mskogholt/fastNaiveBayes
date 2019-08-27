@@ -62,7 +62,7 @@ test_that("fastNaiveBayes estimation gives expected results", {
   mixed_mod <- fnb.train(x, y, laplace = 0, sparse = FALSE)
   fastNaiveBayesMod <- fastNaiveBayes(x, y, laplace = 0, sparse = FALSE)
 
-  expect_warning(predict(fastNaiveBayesMod, newdata = as.data.frame(x[,c(1, 3, 5)]), type = "class"))
+  # expect_warning(predict(fastNaiveBayesMod, newdata = as.data.frame(x[,c(1, 3, 5)]), type = "class"))
 
   expect_error(fastNaiveBayes(x[1:2,], y, laplace = 0, sparse = FALSE))
   expect_error(fastNaiveBayes(x[1:2,], y[1:2], laplace = 0, sparse = FALSE))

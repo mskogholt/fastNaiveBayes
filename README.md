@@ -32,53 +32,33 @@ Usage
 -----
 
 ``` r
-rm(list=ls())
+rm(list = ls())
 library(fastNaiveBayes)
-
 cars <- mtcars
-y <- as.factor(ifelse(cars$mpg>25,'High','Low'))
+y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
 x <- cars[,2:ncol(cars)]
 
-# Mixed event models
-dist <- fastNaiveBayes::fastNaiveBayes.detect_distribution(x, nrows = nrow(x))
-print(dist)
-mod <- fastNaiveBayes.mixed(x,y,laplace = 1)
+mod <- fastNaiveBayes(x, y, laplace = 1)
+
 pred <- predict(mod, newdata = x)
-mean(pred!=y)
+mean(y!=pred)
 
-# Bernoulli only
-vars <- c(dist$bernoulli, dist$multinomial)
-newx <- x[,vars]
-for(i in 1:ncol(newx)){
- newx[[i]] <- as.factor(newx[[i]])
-}
-new_mat <- model.matrix(y ~ . -1, cbind(y,newx))
-mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1)
-pred <- predict(mod, newdata = new_mat)
-mean(pred!=y)
+mod <- fnb.train(x, y, laplace = 1)
 
-# Construction sparse Matrix:
-mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1, sparse = TRUE)
-pred <- predict(mod, newdata = new_mat)
-mean(pred!=y)
+pred <- predict(mod, newdata = x)
+mean(y!=pred)
 
-# OR:
-new_mat <- Matrix::Matrix(as.matrix(new_mat), sparse = TRUE)
-mod <- fastNaiveBayes.bernoulli(new_mat, y, laplace = 1)
-pred <- predict(mod, newdata = new_mat)
-mean(pred!=y)
+dist <- fnb.detect_distribution(x)
 
-# Multinomial only
-vars <- c(dist$bernoulli, dist$multinomial)
-newx <- x[,vars]
-mod <- fastNaiveBayes.multinomial(newx, y, laplace = 1)
-pred <- predict(mod, newdata = newx)
-mean(pred!=y)
+bern <- fnb.bernoulli(x[,dist$bernoulli], y, laplace = 1)
+pred <- predict(bern, x[,dist$bernoulli])
+mean(y!=pred)
 
-# Gaussian only
-vars <- c('hp', dist$gaussian)
-newx <- x[,vars]
-mod <- fastNaiveBayes.gaussian(newx, y)
-pred <- predict(mod, newdata = newx)
-mean(pred!=y)
+mult <- fnb.multinomial(x[,dist$multinomial], y, laplace = 1)
+pred <- predict(mult, x[,dist$multinomial])
+mean(y!=pred)
+
+gauss <- fnb.gaussian(x[,dist$gaussian], y)
+pred <- predict(gauss, x[,dist$gaussian])
+mean(y!=pred)
 ```

@@ -55,4 +55,26 @@ test_that("Multinomial estimation gives expected results", {
   probs <- predict(mod, newdata = x, type = "raw")
 
   expect_equal(sum(round(abs(real_probs - probs), digits = 7)), 0)
+
+
+  ho <- c(0,0,0,0,0)
+  mod <- fnb.multinomial(cbind(x, ho), y, laplace = 1, sparse = FALSE)
+  probs <- predict(mod, newdata = x, type = "raw", silent = TRUE)
+  real_probs <- matrix(c(
+    0.5242718,
+    0.5862485,
+    0.4000000,
+    0.4615385,
+    0.4000000,
+    0.4757282,
+    0.4137515,
+    0.6000000,
+    0.5384615,
+    0.6000000
+  ), nrow = 5, ncol = 2)
+
+  expect_equal(sum(round(abs(real_probs - probs), digits = 7)), 0)
+
+
+
 })

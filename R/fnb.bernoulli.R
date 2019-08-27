@@ -55,7 +55,7 @@ fnb.bernoulli.default <- function(x, y, priors = NULL, laplace = 0, sparse = FAL
   structure(list(
     probability_table = probability_table,
     priors = priors,
-    present = present,
+    # present = present,
     names = colnames(x),
     levels = levels(y)),
 

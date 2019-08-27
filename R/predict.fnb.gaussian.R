@@ -16,17 +16,24 @@ predict.fnb.gaussian <- function(object, newdata, type = c("class", "raw", "rawp
 
   data <- object$probability_table
   probs <- NULL
+
+  names <- colnames(newdata)
   newdata <- t(newdata)
   for (j in 1:length(data)) {
     level <- data[[j]]
     level_probs <- NULL
 
-    if(length(names)==1){
+    if(!check){
       means <- level$means
       stddevs <- level$stddev
     }else{
-      means <- level$means[names]
-      stddevs <- level$stddev[names]
+      if(length(level$means)==1 && length(names)==1){
+        means <- level$means
+        stddevs <- level$stddev
+      }else{
+        means <- level$means[names]
+        stddevs <- level$stddev[names]
+      }
     }
 
     level_probs <- colSums((newdata-means)^2/stddevs^2)
