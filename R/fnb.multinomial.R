@@ -1,23 +1,21 @@
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayesF
-fnb.multinomial <- function(x, y, laplace = 0, sparse = FALSE, ...) {
+fnb.multinomial <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, ...) {
   UseMethod("fnb.multinomial")
 }
 
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayesF
-fnb.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
-  if (class(x)[1] != "dgCMatrix") {
-    if (!is.matrix(x)) {
-      x <- as.matrix(x)
-    }
-    if (sparse) {
-      x <- Matrix(x, sparse = TRUE)
-    }
-  } else {
-    sparse <- TRUE
+fnb.multinomial.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, ...) {
+  if(check){
+    args <- fnb.check.args.model(x, y, priors, laplace, sparse)
+    x <- args$x
+    y <- args$y
+    priors <- args$priors
+    laplace <- args$laplace
+    sparse <- args$sparse
   }
 
   if (sparse) {
@@ -49,7 +47,10 @@ fnb.multinomial.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
 
   probability_table <- list(present = present)
 
-  priors <- tabulate(y) / nrow(x)
+  if(is.null(priors)){
+    priors <- tabulate(y) / nrow(x)
+  }
+
   structure(list(
     probability_table = probability_table,
     priors = priors,

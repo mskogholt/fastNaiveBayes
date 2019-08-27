@@ -1,4 +1,4 @@
-context("Test fastNaiveBayes Mixed Training Function")
+context("Test fastNaiveBayes Train Function")
 
 test_that("Mixed event models estimation gives expected results when mixed", {
   real_probs <- matrix(c(
@@ -30,9 +30,9 @@ test_that("Mixed event models estimation gives expected results when mixed", {
   colnames(x) <- col_names
   x <- as.data.frame(x)
 
-  mixed_mod <- fnb.mixed(x, y, laplace = 0, sparse = FALSE)
-  mixed_sparse_mod <- fnb.mixed(Matrix(as.matrix(x), sparse = TRUE), y, laplace = 0)
-  mixed_sparse_cast_mod <- fnb.mixed(x, y, laplace = 0, sparse = TRUE)
+  mixed_mod <- fnb.train(x, y, laplace = 0, sparse = FALSE)
+  mixed_sparse_mod <- fnb.train(Matrix(as.matrix(x), sparse = TRUE), y, laplace = 0)
+  mixed_sparse_cast_mod <- fnb.train(x, y, laplace = 0, sparse = TRUE)
 
   preds <- predict(mixed_mod, newdata = x, type = "raw")
   sparse_preds <- predict(mixed_sparse_mod, newdata = x, sparse = TRUE, type = "raw")

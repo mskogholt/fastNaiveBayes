@@ -36,9 +36,8 @@ fnb.detect_distribution <- function(x, nrows = nrow(x)) {
 #' @import Matrix
 #' @rdname fnb.detect_distribution
 fnb.detect_distribution.default <- function(x, nrows = nrow(x)) {
-  nrows <- min(nrow(x), nrows)
-  x <- x[1:nrows, ]
-  x[is.na(x)] <- 0
+
+  x <- fnb.check.args.dist(x, nrows)
 
   integersums <- colSums(abs(x - round(x)) > .Machine$double.eps)
   ones <- colSums(x > 1)

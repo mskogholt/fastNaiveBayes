@@ -1,27 +1,17 @@
 #' @export
 #' @import Matrix
 #' @rdname predict.fastNaiveBayes
-predict.fnb.gaussian <- function(object, newdata, type = c("class", "raw", "rawprob"),
-                                 sparse = FALSE, threshold = .Machine$double.eps, ...) {
-  type <- match.arg(type)
-  if (class(newdata)[1] != "dgCMatrix") {
-    if (!is.matrix(newdata)) {
-      newdata <- as.matrix(newdata)
-    }
-    if (sparse) {
-      newdata <- Matrix(newdata, sparse = TRUE)
-    }
-  } else {
-    sparse <- TRUE
-  }
+predict.fnb.gaussian <- function(object, newdata, type = c("class", "raw", "rawprob"), sparse = FALSE,
+                                 threshold = .Machine$double.eps, check = TRUE, ...) {
 
-  names <- intersect(object$names, colnames(newdata))
-  if(length(object$names)!=length(names)){
-    warning('Columns in test and train set not equal! Only the intersect of the two is used for prediction')
-    newdata <- newdata[, names]
-  }
-  if(length(names)==1){
-    newdata <- as.matrix(newdata)
+  type <- match.arg(type)
+  if(check){
+    args <- fnb.check.args.predict(object, newdata, type, sparse, threshold, ...)
+    object <- args$object
+    newdata <- args$newdata
+    type <- args$type
+    sparse <- args$sparse
+    threshold <- args$threshold
   }
 
   data <- object$probability_table

@@ -30,9 +30,9 @@ test_that("fastNaiveBayes estimation gives expected results", {
   col_names <- c("wo", "no", "go")
   colnames(x) <- col_names
 
-  mixed_mod <- fnb.mixed(x, y, laplace = 0, sparse = FALSE)
-  mixed_sparse_mod <- fnb.mixed(Matrix(as.matrix(x), sparse = TRUE), y, laplace = 0)
-  mixed_sparse_cast_mod <- fnb.mixed(x, y, laplace = 0, sparse = TRUE)
+  mixed_mod <- fnb.train(x, y, laplace = 0, sparse = FALSE)
+  mixed_sparse_mod <- fnb.train(Matrix(as.matrix(x), sparse = TRUE), y, laplace = 0)
+  mixed_sparse_cast_mod <- fnb.train(x, y, laplace = 0, sparse = TRUE)
 
   preds <- predict(mixed_mod, newdata = x, type = "raw")
   sparse_preds <- predict(mixed_sparse_mod, newdata = x, sparse = TRUE, type = "raw")
@@ -59,7 +59,7 @@ test_that("fastNaiveBayes estimation gives expected results", {
   col_names <- c("wo", "so", "no", "go", "mo", "po")
   colnames(x) <- col_names
 
-  mixed_mod <- fnb.mixed(x, y, laplace = 0, sparse = FALSE)
+  mixed_mod <- fnb.train(x, y, laplace = 0, sparse = FALSE)
   fastNaiveBayesMod <- fastNaiveBayes(x, y, laplace = 0, sparse = FALSE)
 
   expect_warning(predict(fastNaiveBayesMod, newdata = as.data.frame(x[,c(1, 3, 5)]), type = "class"))

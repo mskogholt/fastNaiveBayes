@@ -1,23 +1,21 @@
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayesF
-fnb.bernoulli <- function(x, y, laplace = 0, sparse = FALSE, ...) {
+fnb.bernoulli <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, ...) {
   UseMethod("fnb.bernoulli")
 }
 
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayesF
-fnb.bernoulli.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
-  if (class(x)[1] != "dgCMatrix") {
-    if (!is.matrix(x)) {
-      x <- as.matrix(x)
-    }
-    if (sparse) {
-      x <- Matrix(x, sparse = TRUE)
-    }
-  } else {
-    sparse <- TRUE
+fnb.bernoulli.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, ...) {
+  if(check){
+    args <- fnb.check.args.model(x, y, priors, laplace, sparse)
+    x <- args$x
+    y <- args$y
+    priors <- args$priors
+    laplace <- args$laplace
+    sparse <- args$sparse
   }
 
   if (sparse) {
@@ -50,7 +48,10 @@ fnb.bernoulli.default <- function(x, y, laplace = 0, sparse = FALSE, ...) {
     non_present = non_present
   )
 
-  priors <- n / nrow(x)
+  if(is.null(priors)){
+    priors <- n / nrow(x)
+  }
+
   structure(list(
     probability_table = probability_table,
     priors = priors,

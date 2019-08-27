@@ -8,16 +8,17 @@
 #' should be used with numerical variables. The distribution parameter is used to mix different distributions
 #' for different columns in the input matrix
 #'
-#' Use fastNaiveBayes(...) for the user friendly version. fnb.bernoulli, fnb.multinomial, fnb.gaussian and
-#' fnb.mixed are barebone implementations. Use with care as no formal checks are done on input data.
-#' These can however be faster.
+#' Use fastNaiveBayes(...) or fnb.train(...) for a mixed event distribution model. fnb.bernoulli, fnb.multinomial, fnb.gaussian and
+#' for the specific distributions
 #'
 #' @param x a numeric matrix, or a dgcMatrix. For bernoulli should only contain 0's and 1's. For multinomial should only
 #' contain integers.
 #' @param y a factor of classes to classify
+#' @param priors a numeric vector with the priors. If left empty the priors will be determined by the relative frequency of the classes in the data
 #' @param laplace A number used for Laplace smoothing. Default is 0
 #' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x.
 #'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
+#' @param check Whether to enable formal checks on input. Recommended to set to TRUE. Set to FALSE will make it faster, but at your own risk.
 #' @param distribution A list with distribution names and column names for which to use the distribution, see examples.
 #' @param ... Not used.
 #'
@@ -40,7 +41,7 @@
 #' @return A fitted object of class "fastNaiveBayes". It has four components:
 #'
 #'     \describe{
-#'         \item{model}{Fitted fnb.mixed model}
+#'         \item{model}{Fitted fastNaiveBayes model}
 #'         \item{names}{Names of features used to train this fastNaiveBayes model}
 #'         \item{distribution}{Distribution used for each column of x}
 #'         \item{levels}{Levels of y}
@@ -59,7 +60,7 @@
 #' pred <- predict(mod, newdata = x)
 #' mean(y!=pred)
 #'
-#' mod <- fnb.mixed(x, y, laplace = 1)
+#' mod <- fnb.train(x, y, laplace = 1)
 #'
 #' pred <- predict(mod, newdata = x)
 #' mean(y!=pred)
@@ -80,70 +81,13 @@
 #'
 #' @seealso \code{\link{predict.fastNaiveBayes}} for the predict function for the fastNaiveBayes model.
 #' @rdname fastNaiveBayesF
-fastNaiveBayes <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...){
+fastNaiveBayes <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, distribution = NULL, ...){
   UseMethod("fastNaiveBayes")
 }
 
-#' @export
 #' @import Matrix
+#' @export
 #' @rdname fastNaiveBayesF
-fastNaiveBayes.default <- function(x, y, laplace = 0, sparse = FALSE, distribution = NULL, ...){
-
-  if (class(x)[1] != "dgCMatrix") {
-    if (!is.matrix(x)) {
-      x <- as.data.frame(x)
-
-      classes <- sapply(x, class)
-      cols <- colnames(x)[which(classes!='numeric' & classes!='factor')]
-      x[cols] <- lapply(x[cols] , factor)
-
-      x <- stats::model.matrix(y ~ . -1, cbind(y, x))
-      x <- as.matrix(x)
-    }
-    if (sparse) {
-      x <- Matrix(x, sparse = TRUE)
-    }
-  } else {
-    sparse <- TRUE
-  }
-  if(!is.factor(y)){
-    y <- as.factor(y)
-  }
-  if(nlevels(y)<=1){
-    stop('y does not have enough levels to classify.')
-  }
-  if(nrow(x)!=length(y)){
-    stop('Rows of x not equal to length of y')
-  }
-
-  if(ncol(x)<1){
-    stop('x seems to be empty')
-  }
-  if(any(is.na(x))){
-    warning("x contains na's. These will be set to 0")
-    x[is.na(x)] <- 0
-  }
-  if(any(is.na(y))){
-    warning("y contains na's. These observations will be removed")
-    x <- x[!is.na(y),]
-    y <- y[!is.na(y)]
-  }
-  if(any(rowsum(rep(1,times = length(y)), y)<2)){
-    stop('Not enough rows. Should be at least 2 rows or more for each class')
-  }
-
-  if(is.null(distribution)){
-    distribution <- fnb.detect_distribution(x)
-  }
-
-  mod <- fnb.mixed(x, y, laplace, sparse, distribution = distribution)
-  structure(list(
-    model = mod,
-    names = colnames(x),
-    distribution = distribution,
-    levels = levels(y)),
-
-    class = "fastNaiveBayes"
-  )
+fastNaiveBayes.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, distribution = NULL, ...){
+  return(fnb.train(x, y, priors, laplace, sparse, check, distribution = distribution))
 }
-

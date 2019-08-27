@@ -1,20 +1,18 @@
 #' @export
 #' @import Matrix
 #' @rdname predict.fastNaiveBayes
-predict.fnb.multinomial <- function(object, newdata, type = c("class", "raw", "rawprob"),
-                                    sparse = FALSE, threshold = .Machine$double.eps, ...) {
+predict.fnb.multinomial <- function(object, newdata, type = c("class", "raw", "rawprob"), sparse = FALSE,
+                                    threshold = .Machine$double.eps, check = TRUE, ...) {
+
   type <- match.arg(type)
-  if (class(newdata)[1] != "dgCMatrix") {
-    if (!is.matrix(newdata)) {
-      newdata <- as.matrix(newdata)
-    }
-    if (sparse) {
-      newdata <- Matrix(newdata, sparse = TRUE)
-    }
-  } else {
-    sparse <- TRUE
+  if(check){
+    args <- fnb.check.args.predict(object, newdata, type, sparse, threshold, ...)
+    object <- args$object
+    newdata <- args$newdata
+    type <- args$type
+    sparse <- args$sparse
+    threshold <- args$threshold
   }
-  names <- object$names
   data <- object$probability_table
 
   present <- log(data$present)

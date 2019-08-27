@@ -1,27 +1,6 @@
 context("Test fastNaiveBayes Multinomial Training Function")
 
 test_that("Multinomial estimation gives expected results", {
-  # Test 1
-  y <- as.factor(c("Ham", "Spam"))
-  x <- matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
-  colnames(x) <- c("wo", "so")
-  x <- as.data.frame(x)
-
-  real_probs <- matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
-
-  # Bernoulli model test with laplace = 1
-  mod <- fnb.multinomial(x, y, laplace = 0, sparse = FALSE)
-  sparse_mod <- fnb.multinomial(x, y, laplace = 0, sparse = TRUE)
-  sparse_cast_mod <- fnb.multinomial(Matrix(as.matrix(x), sparse = TRUE), y, laplace = 0)
-
-  mod_preds <- predict(mod, newdata = x, type = "raw")
-  sparse_preds <- predict(sparse_mod, newdata = Matrix(as.matrix(x), sparse = TRUE), type = "raw")
-  sparse_cast_preds <- predict(sparse_cast_mod, newdata = x, type = "raw", sparse = TRUE)
-
-  expect_equal(sum(abs(round(mod_preds - real_probs, digits = 8))), 0)
-  expect_equal(sum(abs(mod_preds - sparse_preds)), 0)
-  expect_equal(sum(abs(mod_preds - sparse_cast_preds)), 0)
-
   # Test 2
   y <- as.factor(c("Ham", "Ham", "Spam", "Spam", "Spam"))
   x <- matrix(c(2, 3, 0, 1, 0, 5, 3, 0, 2, 0, 0, 1, 3, 1, 0, 0, 0, 4, 3, 5),
