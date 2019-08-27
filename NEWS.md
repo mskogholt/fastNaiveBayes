@@ -1,3 +1,15 @@
+## fastNaiveBayes 2.1.0
+
+### New Features
+- New naming structure
+- User can specify priors
+
+### Bug Fixes
+- y not as factor caused vague error
+
+### Other Changes
+- Enriched unit tests
+
 ## fastNaiveBayes 1.1.2
 
 ### New Features

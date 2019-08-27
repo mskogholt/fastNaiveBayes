@@ -50,19 +50,16 @@ test_that("Bernoulli estimation gives expected results", {
   expect_equal(sum(round(abs(real_probs - probs), digits = 7)), 0)
 
   ho <- c(0,0,0,0,0)
-  mod <- fnb.bernoulli(cbind(x, ho), y, laplace = 1, sparse = FALSE)
-  probs <- predict(mod, newdata = x, type = "raw", silent = TRUE)
-  real_probs <- matrix(c(
-    0.4385965,
-    0.3424658,
-    0.3424658,
-    0.3424658,
-    0.4385965,
-    0.5614035,
-    0.6575342,
-    0.6575342,
-    0.6575342,
-    0.5614035
-  ), nrow = 5, ncol = 2)
-  expect_equal(sum(round(abs(real_probs - probs), digits = 7)), 0)
+  alt_x <- cbind(x, ho)
+  mod <- fnb.bernoulli(alt_x, y, laplace = 1, sparse = FALSE)
+  sparse_mod <- fnb.bernoulli(Matrix(alt_x, sparse = TRUE), y, laplace = 1, sparse = FALSE)
+  sparse_cast_mod <- fnb.bernoulli(alt_x, y, laplace = 1, sparse = TRUE)
+
+  probs <- predict(mod, newdata = alt_x, type = "raw", silent = TRUE)
+  alt_probs <- predict(mod, newdata = x, type = "raw", silent = TRUE)
+  alt_sparse_probs <- predict(mod, newdata = Matrix(x, sparse = TRUE), type = "raw", silent = TRUE)
+  alt_sparse_cast_probs <- predict(mod, newdata = x, sparse = TRUE, type = "raw", silent = TRUE)
+  expect_equal(sum(round(abs(alt_probs - probs), digits = 7)), 0)
+  expect_equal(sum(round(abs(alt_sparse_probs - probs), digits = 7)), 0)
+  expect_equal(sum(round(abs(alt_sparse_cast_probs - probs), digits = 7)), 0)
 })
