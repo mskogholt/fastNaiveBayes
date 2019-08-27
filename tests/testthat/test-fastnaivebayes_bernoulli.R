@@ -56,9 +56,12 @@ test_that("Bernoulli estimation gives expected results", {
   sparse_cast_mod <- fnb.bernoulli(alt_x, y, laplace = 1, sparse = TRUE)
 
   probs <- predict(mod, newdata = alt_x, type = "raw", silent = TRUE)
+
+  expect_warning(predict(mod, newdata = x, type = "raw", silent = FALSE))
   alt_probs <- predict(mod, newdata = x, type = "raw", silent = TRUE)
   alt_sparse_probs <- predict(mod, newdata = Matrix(x, sparse = TRUE), type = "raw", silent = TRUE)
   alt_sparse_cast_probs <- predict(mod, newdata = x, sparse = TRUE, type = "raw", silent = TRUE)
+
   expect_equal(sum(round(abs(alt_probs - probs), digits = 7)), 0)
   expect_equal(sum(round(abs(alt_sparse_probs - probs), digits = 7)), 0)
   expect_equal(sum(round(abs(alt_sparse_cast_probs - probs), digits = 7)), 0)

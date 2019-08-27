@@ -49,6 +49,7 @@ test_that("Gaussian estimation gives expected results", {
   ), nrow = 5, ncol = 2)
 
   expect_equal(sum(round(abs(preds - real_preds), digits = 7)), 0)
+  expect_equal(sum(round(abs(predict(mod, newdata = x, type = "raw", check = FALSE) - real_preds), digits = 7)), 0)
   expect_error(fnb.gaussian(x[1:3, ], y))
 
 })

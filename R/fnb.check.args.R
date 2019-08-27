@@ -151,11 +151,6 @@ fnb.check.args.model <- function(x, y, priors, laplace, sparse, distribution=NUL
     distribution <- distribution[names(distribution) %in% c("bernoulli","multinomial","gaussian")]
   }
 
-  distribution <- distribution[lengths(distribution) != 0]
-  if(!any(c("bernoulli","multinomial","gaussian") %in% names(distribution))){
-    stop('Not a single accepted distribution was specified or all were empty')
-  }
-
   return(list(x=x, y=y, priors = priors, laplace=laplace, sparse=sparse, distribution=distribution))
 }
 
