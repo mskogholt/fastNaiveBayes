@@ -1,3 +1,22 @@
+fnb.check.args.save <- function(model, filename, overwrite){
+  if(!is.null(model)){
+    if(!class(model) %in% c("fnb.bernoulli","fnb.gaussian","fnb.multinomial",
+                            "fastNaiveBayes")){
+      stop('Cannot save objects that are not a fastNaiveBayes model.')
+    }
+  }
+
+  if(file.exists(paste0("./cache/",filename)) && !overwrite){
+    stop(paste0("There's already a model saved under ", filename))
+  }
+}
+
+fnb.check.args.load <- function(filename){
+  if(!file.exists(paste0("./cache/",filename))){
+    stop(paste0("There's not any model saved under ", filename))
+  }
+}
+
 #' @import Matrix
 fnb.check.args.predict <- function(object, newdata, type, sparse, threshold, silent = FALSE){
   if(threshold<0){

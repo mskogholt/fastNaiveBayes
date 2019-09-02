@@ -33,24 +33,66 @@ fnb.multinomial.default <- function(x, y, priors = NULL, laplace = 0, sparse = F
   } else {
     present <- rowsum(x, y)
   }
-  present <- present + laplace
-  total <- rowSums(present)
-
-  present <- present / total
-
-  probability_table <- list(present = present)
 
   if(is.null(priors)){
     priors <- tabulate(y) / nrow(x)
   }
 
   structure(list(
-    probability_table = probability_table,
+    present = present,
+    laplace = laplace,
     priors = priors,
     names = colnames(x),
     levels = levels(y)),
 
     class = "fnb.multinomial"
   )
+}
+
+#' @export
+#' @import Matrix
+#' @rdname predict.fastNaiveBayes
+predict.fnb.multinomial <- function(object, newdata, type = c("class", "raw", "rawprob"), sparse = FALSE,
+                                    threshold = .Machine$double.eps, check = TRUE, ...) {
+
+  type <- match.arg(type)
+  if(check){
+    args <- fnb.check.args.predict(object, newdata, type, sparse, threshold, ...)
+    object <- args$object
+    newdata <- args$newdata
+    type <- args$type
+    sparse <- args$sparse
+    threshold <- args$threshold
+  }
+
+  present <- object$present + object$laplace
+  total <- rowSums(present)
+
+  present <- present / total
+
+  present <- log(present)
+  present[is.infinite(present)] <- max(-100000, log(threshold))
+
+  presence_prob <- newdata %*% t(present)
+
+  if (type == "rawprob") {
+    return(presence_prob)
+  }
+  probs <- exp(presence_prob)
+  priors <- object$priors
+  for(i in 1:length(priors)){
+    probs[,i] <- probs[,i]*priors[i]
+  }
+
+  denom <- rowSums(probs)
+  denom[denom==0] <- 1
+  probs <- probs / denom
+
+  if (type == "class") {
+    class <- as.factor(object$levels[max.col(probs, ties.method = "first")])
+    levels(class) <- object$levels
+    return(class)
+  }
+  return(probs)
 }
 
