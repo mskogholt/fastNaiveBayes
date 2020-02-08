@@ -1,4 +1,4 @@
-context("test-fastnaivebayes_detect_distribution")
+context("Test fnb.detect_distribution")
 
 test_that("Check distribution detection function", {
   x <- matrix(c(2, 3, 2, 1, 2, 5, 3, 4, 2, 4, 0, 1, 1, 1, 0, 3, 4, 4, 3, 5),

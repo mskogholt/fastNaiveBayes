@@ -13,8 +13,6 @@ fnb.detect_distribution(x, nrows = nrow(x))
 \item{x}{a numeric matrix, or a dgcMatrix}
 
 \item{nrows}{number of rows to use to detect distributions}
-
-\item{...}{Not used.}
 }
 \value{
 A list of distribution names mapped to column names

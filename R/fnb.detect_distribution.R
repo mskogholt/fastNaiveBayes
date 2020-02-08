@@ -4,7 +4,6 @@
 #'
 #' @param x a numeric matrix, or a dgcMatrix
 #' @param nrows number of rows to use to detect distributions
-#' @param ... Not used.
 #'
 #' @details A simple utility function to detect the distribution to use for each columns
 #'

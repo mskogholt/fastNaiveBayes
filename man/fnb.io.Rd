@@ -7,13 +7,13 @@
 \alias{fnb.load.default}
 \title{Save & Load Function for Fast Naive Bayes Models}
 \usage{
-fnb.save(model, filename, overwrite = FALSE, ...)
+fnb.save(model, filename, overwrite = FALSE)
 
-\method{fnb.save}{default}(model, filename, overwrite = FALSE, ...)
+\method{fnb.save}{default}(model, filename, overwrite = FALSE)
 
-fnb.load(filename, ...)
+fnb.load(filename)
 
-\method{fnb.load}{default}(filename, ...)
+\method{fnb.load}{default}(filename)
 }
 \arguments{
 \item{model}{the fitted Naive Bayes model to save.}
@@ -21,8 +21,6 @@ fnb.load(filename, ...)
 \item{filename}{the file name to use to save or load the model.}
 
 \item{overwrite}{Whether to allow overwriting of previously saved models.}
-
-\item{...}{Not used.}
 }
 \value{
 fnb.save returns the filename that was used, and fnb.load returns the saved object.

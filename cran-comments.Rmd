@@ -1,7 +1,7 @@
 ---
 title: "cran-comments"
 author: "Martin Skogholt"
-date: "26 december 2018"
+date: "9 February 2020"
 output:
   md_document
 ---
@@ -12,14 +12,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ## comments
 
 ### New Features
-- New naming structure
-- User can specify priors
+- load and save options
 
 ### Bug Fixes
-- y not as factor caused vague error
+- Argument errors
 
 ### Other Changes
-- Enriched unit tests
+
 
 ## R CMD check results
 There were no ERRORs, WARNINGs, or NOTEs.

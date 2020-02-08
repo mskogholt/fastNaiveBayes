@@ -1,55 +1,139 @@
-context("Test fastNaiveBayes Gaussian Training Function")
+context("Test Gaussian")
 
-test_that("Gaussian estimation gives expected results", {
-  # Test 1
+test_that("Predict", {
   y <- as.factor(c("Ham", "Ham", "Spam", "Spam", "Spam"))
-  x <- matrix(c(2, 3, 2, 1, 2, 5, 3, 4, 2, 4, 0, 1, 3, 1, 0, 3, 4, 4, 3, 5),
-    nrow = 5, ncol = 4)
-  colnames(x) <- c("wo", "mo", "bo", "so")
+  x <- matrix(
+    c(2, 3, 2, 1, 2,
+      5, 3, 4, 2, 4,
+      0, 1, 3, 1, 0,
+      3, 4, 4, 3, 5),
+    nrow = 5,
+    ncol = 4,
+    dimnames = list(NULL, c("wo", "mo", "bo", "so")))
+  df <- as.data.frame(x)
 
-  ho <- c(1, 1, 2, 1, 5)
-  x <- as.data.frame(x)
+  # Data frame casting
+  mod <- fnb.gaussian(x, y)
+  df_mod <- fnb.gaussian(df, y)
 
-  # Standard Multinomial model test with laplace = 0
-  mod <- fnb.gaussian(x, y, std_threshold = 0, sparse = FALSE)
-  sparse_cast_mod <- fnb.gaussian(x, y, std_threshold = 0, sparse = TRUE)
-  sparse_mod <- fnb.gaussian(Matrix(as.matrix(x), sparse = TRUE), y, std_threshold = 0)
+  predictions <- predict(mod, x, type = "raw")
+  df_predictions <- predict(df_mod, df, type = "raw")
 
-  preds <- predict(mod, newdata = x, type = "raw")
-  expect_warning(predict(mod, newdata = x[,1:2]))
+  expect_equal(sum(round(abs(predictions-df_predictions), digits = 12)), 0)
 
-  sparse_preds <- predict(sparse_mod, newdata = x, type = "raw", sparse = TRUE)
-  sparse_cast_preds <- predict(sparse_cast_mod, newdata = Matrix(as.matrix(x)), type = "raw")
+  classification <- predict(mod, x, type = "class")
+  expect_equal(as.factor(mod$levels[max.col(predictions)]), classification)
 
-  # Tests intersect with newdata!
-  modpp <- fnb.gaussian(cbind(x, ho), y, std_threshold = 0, sparse = FALSE)
-  predpp <- predict(modpp, x, type = "raw", silent = TRUE)
+  # Column padding
+  expect_warning(predict(mod, x[,1:3], type = "raw"))
+  dropped_predictions <- predict(mod, x[,1:3], type = "raw", silent = TRUE)
 
-  expect_equal(sum(abs(preds - sparse_preds)), 0)
-  expect_equal(sum(abs(preds - sparse_cast_preds)), 0)
-  expect_equal(sum(abs(preds - predpp)), 0)
+  dropped_x <- x[,1:3]
+  mod <- fnb.gaussian(dropped_x, y)
+  alt_predictions <- predict(mod, x, type = "raw")
 
-  real_preds <- matrix(c(
-    0.8014134, 0.8847304, 0.004007538, 0.1698076, 0.226208,
-    0.1985866, 0.1152696, 0.9959925, 0.8301924, 0.773792
-  ), nrow = 5, ncol = 2)
-  expect_equal(sum(round(abs(preds - real_preds), digits = 7)), 0)
-  expect_equal(sum(y != predict(mod, newdata = x, type = "class")), 0)
+  expect_equal(sum(round(abs(dropped_predictions-alt_predictions), digits = 12)), 0)
 
-  # Test 2
-  x <- as.matrix(x[, 1])
-  colnames(x) <- "wo"
+  # Ignore new column
+  mod <- fnb.gaussian(x, y)
+  predictions <- predict(mod, x, type = "raw")
 
-  mod <- fnb.gaussian(x, y, std_threshold = 0, sparse = FALSE)
-  preds <- predict(mod, newdata = x, type = "raw")
+  x <- cbind(x, x[,1, drop=FALSE])
+  colnames(x)[5] <- "womo"
 
-  real_preds <- matrix(c(
-    0.3336926, 0.8591767, 0.3336926, 0.1005136, 0.3336926,
-    0.6663074, 0.1408233, 0.6663074, 0.8994864, 0.6663074
-  ), nrow = 5, ncol = 2)
+  new_predictions <- predict(mod, x, type = "raw")
+  expect_equal(sum(round(abs(predictions-new_predictions), digits = 12)), 0)
 
-  expect_equal(sum(round(abs(preds - real_preds), digits = 7)), 0)
-  expect_equal(sum(round(abs(predict(mod, newdata = x, type = "raw", check = FALSE) - real_preds), digits = 7)), 0)
-  expect_error(fnb.gaussian(x[1:3, ], y))
+  # All new columns is same as all 0
+  all_new_columns_predictions <- predict(mod, x[,5,drop=FALSE], type="raw", silent = TRUE)
+  predictions <- matrix(
+    c(2/5,2/5,2/5,2/5,2/5,
+      3/5,3/5,3/5,3/5,3/5),
+    nrow = 5,
+    ncol = 2
+  )
+  expect_equal(sum(round(abs(predictions-all_new_columns_predictions), digits = 12)), 0)
+})
+
+test_that("Standard 3 classes", {
+  y <- as.factor(c("Ham", "Ham", "Spam", "Spam", "Spam"))
+  x <- matrix(
+    c(2, 3, 2, 1, 2,
+      5, 3, 4, 2, 4,
+      0, 1, 3, 1, 0,
+      3, 4, 4, 3, 5),
+    nrow = 5,
+    ncol = 4,
+    dimnames = list(NULL, c("wo", "mo", "bo", "so")))
+
+  actuals <- matrix(
+    c(
+      0.668632030, 0.3313680,
+      0.793288288, 0.2067117,
+      0.002007792, 0.9979922,
+      0.092781300, 0.9072187,
+      0.127527893, 0.8724721
+    ),
+    nrow = 5,
+    ncol = 2,
+    byrow=TRUE,
+    dimnames = list(NULL, c("Ham", "Spam"))
+  )
+
+  mod <- fnb.gaussian(x, y, priors = c(1/4, 3/4))
+
+  predictions <- predict(mod, x, type="raw")
+
+  expect_equal(sum(round(abs(predictions-actuals), digits = 7)), 0)
+
+  # Test Sparse Matrices
+  sparse_mod <- fnb.gaussian(Matrix(x, sparse = TRUE), y, priors = c(1/4, 3/4))
+  sparse_cast_mod <- fnb.gaussian(x, y, sparse = TRUE, priors = c(1/4, 3/4))
+
+  sparse_predictions <- predict(sparse_mod, x, type = "raw")
+  sparse_cast_predictions <- predict(sparse_cast_mod, x, type = "raw")
+
+  expect_equal(sum(round(abs(predictions-sparse_predictions), digits = 12)), 0)
+  expect_equal(sum(round(abs(predictions-sparse_cast_predictions), digits = 12)), 0)
+
+})
+
+test_that("Single column",{
+  y <- as.factor(c( "Spam", "Spam", "Ham", "Ham", "Ham"))
+  x <- matrix(
+    c(2, 3, 2, 1, 2),
+    nrow = 5,
+    ncol = 1,
+    dimnames = list(NULL, c("ho"))
+  )
+
+  actuals_ho_only <- matrix(
+    c(
+      0.6663074, 0.3336926,
+      0.1408233, 0.8591767,
+      0.6663074, 0.3336926,
+      0.8994864, 0.1005136,
+      0.6663074, 0.3336926
+    ),
+    nrow = 5,
+    ncol = 2,
+    byrow = TRUE,
+    dimnames = list(NULL, c("Ham", "Spam"))
+  )
+
+  mod <- fnb.gaussian(x[, 1, drop=FALSE], y)
+  predictions <- predict(mod, x[, 1, drop=FALSE], type="raw")
+
+  expect_equal(sum(round(abs(predictions-actuals_ho_only), digits = 7)), 0)
+
+  # Test Sparse Matrices
+  sparse_mod <- fnb.gaussian(Matrix(x[, 1, drop=FALSE], sparse = TRUE), y)
+  sparse_cast_mod <- fnb.gaussian(x[, 1, drop=FALSE], y, sparse = TRUE)
+
+  sparse_predictions <- predict(sparse_mod, x[, 1, drop=FALSE], type = "raw")
+  sparse_cast_predictions <- predict(sparse_cast_mod, x[, 1, drop=FALSE], type = "raw")
+
+  expect_equal(sum(round(abs(predictions-sparse_predictions), digits = 12)), 0)
+  expect_equal(sum(round(abs(predictions-sparse_cast_predictions), digits = 12)), 0)
 
 })

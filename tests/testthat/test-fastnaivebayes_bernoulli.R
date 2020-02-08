@@ -1,68 +1,195 @@
-context("Test fastNaiveBayes Bernoulli Training Function")
+context("Test Bernoulli")
 
-test_that("Bernoulli estimation gives expected results", {
-  # Test 2
+test_that("Predict", {
+  # Test 1
   y <- as.factor(c("Ham", "Ham", "Spam", "Spam", "Spam"))
-  x <- matrix(c(1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1),
-    nrow = 5, ncol = 4
-  )
-  colnames(x) <- c("wo", "mo", "bo", "so")
-  x <- as.data.frame(x)
+  x <- matrix(
+    c(1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1),
+    nrow = 5,
+    ncol = 4,
+    dimnames = list(NULL, c("wo", "mo", "bo", "so")))
+  df <- as.data.frame(x)
 
-  real_probs <- matrix(c(
-    0.93609586, 0.70942111, 0.04325559, 0.16905599, 0.06350981, 0.06390414,
-    0.29057889, 0.95674441, 0.83094401, 0.93649019
-  ), nrow = 5, ncol = 2 )
+  # Data frame casting
+  mod <- fnb.bernoulli(x, y, laplace = 1)
+  df_mod <- fnb.bernoulli(df, y, laplace = 1)
 
-  # Bernoulli model test with laplace = 1
-  mod <- fnb.bernoulli(x, y, laplace = 1, sparse = FALSE)
-  sparse_mod <- fnb.bernoulli(x, y, laplace = 1, sparse = TRUE)
-  sparse_cast_mod <- fnb.bernoulli(Matrix(as.matrix(x), sparse = TRUE), y, laplace = 1)
+  predictions <- predict(mod, x, type = "raw")
+  df_predictions <- predict(df_mod, df, type = "raw")
 
-  mod_preds <- predict(mod, newdata = x, type = "raw")
-  sparse_preds <- predict(sparse_mod, newdata = Matrix(as.matrix(x), sparse = TRUE), type = "raw")
-  sparse_cast_preds <- predict(sparse_cast_mod, newdata = x, type = "raw", sparse = TRUE)
+  expect_equal(sum(round(abs(predictions-df_predictions), digits = 12)), 0)
 
-  expect_equal(sum(abs(round(mod_preds - real_probs, digits = 8))), 0)
-  expect_equal(sum(abs(mod_preds - sparse_preds)), 0)
-  expect_equal(sum(abs(mod_preds - sparse_cast_preds)), 0)
-  expect_equal(sum(y != predict(mod, newdata = x, type = "class")), 0)
+  classification <- predict(mod, x, type = "class")
+  expect_equal(as.factor(mod$levels[max.col(predictions)]), classification)
 
-  x <- as.matrix(x[, 3])
-  colnames(x) <- "wo"
+  # Column padding
+  expect_warning(predict(mod, x[,1:3], type = "raw"))
+  dropped_predictions <- predict(mod, x[,1:3], type = "raw", silent = TRUE)
 
-  real_probs <- matrix(c(
-    0.4545455,
-    0.3571429,
-    0.3571429,
-    0.3571429,
-    0.4545455,
-    0.5454545,
-    0.6428571,
-    0.6428571,
-    0.6428571,
-    0.5454545
-  ), nrow = 5, ncol = 2)
-  # Standard Multinomial model test with laplace = 0
-  mod <- fnb.bernoulli(x, y, laplace = 1, sparse = FALSE)
-  probs <- predict(mod, newdata = x, type = "raw")
+  x[,4] <- 0
+  alt_predictions <- predict(mod, x, type = "raw")
 
-  expect_equal(sum(round(abs(real_probs - probs), digits = 7)), 0)
+  expect_equal(sum(round(abs(dropped_predictions-alt_predictions), digits = 12)), 0)
 
-  ho <- c(0,0,0,0,0)
-  alt_x <- cbind(x, ho)
-  mod <- fnb.bernoulli(alt_x, y, laplace = 1, sparse = FALSE)
-  sparse_mod <- fnb.bernoulli(Matrix(alt_x, sparse = TRUE), y, laplace = 1, sparse = FALSE)
-  sparse_cast_mod <- fnb.bernoulli(alt_x, y, laplace = 1, sparse = TRUE)
+  # Ignore new column
+  mod <- fnb.bernoulli(x, y, laplace = 1)
+  predictions <- predict(mod, x, type = "raw")
 
-  probs <- predict(mod, newdata = alt_x, type = "raw", silent = TRUE)
+  x <- cbind(x, x[,1, drop=FALSE])
+  colnames(x)[5] <- "womo"
 
-  expect_warning(predict(mod, newdata = x, type = "raw", silent = FALSE))
-  alt_probs <- predict(mod, newdata = x, type = "raw", silent = TRUE)
-  alt_sparse_probs <- predict(mod, newdata = Matrix(x, sparse = TRUE), type = "raw", silent = TRUE)
-  alt_sparse_cast_probs <- predict(mod, newdata = x, sparse = TRUE, type = "raw", silent = TRUE)
+  new_predictions <- predict(mod, x, type = "raw")
+  expect_equal(sum(round(abs(predictions-new_predictions), digits = 12)), 0)
 
-  expect_equal(sum(round(abs(alt_probs - probs), digits = 7)), 0)
-  expect_equal(sum(round(abs(alt_sparse_probs - probs), digits = 7)), 0)
-  expect_equal(sum(round(abs(alt_sparse_cast_probs - probs), digits = 7)), 0)
+  # All new columns is same as all 0
+  all_new_columns_predictions <- predict(mod, x[,5,drop=FALSE], type="raw", silent = TRUE)
+
+  x[,1:4] <- 0
+  predictions <- predict(mod, x[,1:4], type = "raw")
+  expect_equal(sum(round(abs(predictions-all_new_columns_predictions), digits = 12)), 0)
 })
+
+test_that("Standard 3 classes", {
+  y <- as.factor(c( "Spam", "Spam", "Ham", "Ham", "Lamb", "Lamb"))
+  x <- matrix(
+    c(1,0,1,1,0,1,
+      1,1,0,1,1,0),
+    nrow = 6,
+    ncol = 2,
+    dimnames = list(NULL, c("ho", "mo"))
+  )
+
+  actuals <- matrix(
+    c(2/5, 0, 2/3, 2/5, 0, 2/3,
+      1/5, 1/3, 1/3, 1/5, 1/3, 1/3,
+      2/5, 2/3, 0, 2/5, 2/3, 0),
+    nrow = 6,
+    ncol = 3,
+    dimnames = list(NULL, c("Ham", "Lamb", "Spam"))
+  )
+
+  mod <- fnb.bernoulli(x, y)
+
+  predictions <- predict(mod, x, type="raw")
+
+  expect_equal(sum(round(abs(predictions-actuals), digits = 12)), 0)
+
+  # Test Sparse Matrices
+  sparse_mod <- fnb.bernoulli(Matrix(x, sparse = TRUE), y)
+  sparse_cast_mod <- fnb.bernoulli(x, y, sparse = TRUE)
+
+  sparse_predictions <- predict(sparse_mod, x, type = "raw")
+  sparse_cast_predictions <- predict(sparse_cast_mod, x, type = "raw")
+
+  expect_equal(sum(round(abs(predictions-sparse_predictions), digits = 12)), 0)
+  expect_equal(sum(round(abs(predictions-sparse_cast_predictions), digits = 12)), 0)
+
+})
+
+test_that("Laplace and priors",{
+  actuals_laplace <- matrix(
+    c(1/4, 9/21,
+      3/4, 12/21),
+    nrow = 2,
+    ncol = 2,
+    dimnames = list(NULL, c("Ham", "Spam"))
+  )
+
+  y <- as.factor(c( "Spam", "Ham"))
+  x <- matrix(
+    c(0,1,
+      1,1),
+    nrow = 2,
+    ncol = 2,
+    dimnames = list(NULL, c("ho", "mo"))
+  )
+
+  mod <- fnb.bernoulli(x, y, laplace = 2, priors = c(1/3, 2/3))
+
+  predictions <- predict(mod, x, type="raw")
+
+  expect_equal(sum(round(abs(predictions-actuals_laplace), digits = 12)), 0)
+
+  # Test Sparse Matrices
+  sparse_mod <- fnb.bernoulli(Matrix(x, sparse = TRUE), y, laplace = 2, priors = c(1/3, 2/3))
+  sparse_cast_mod <- fnb.bernoulli(x, y, sparse = TRUE, laplace = 2, priors = c(1/3, 2/3))
+
+  sparse_predictions <- predict(sparse_mod, x, type = "raw")
+  sparse_cast_predictions <- predict(sparse_cast_mod, x, type = "raw")
+
+  expect_equal(sum(round(abs(predictions-sparse_predictions), digits = 12)), 0)
+  expect_equal(sum(round(abs(predictions-sparse_cast_predictions), digits = 12)), 0)
+})
+
+test_that("Single column",{
+  y <- as.factor(c( "Spam", "Spam", "Ham", "Ham", "Lamb", "Lamb"))
+  x <- matrix(
+    c(1,0,1,1,0,1,
+      1,1,0,1,1,0),
+    nrow = 6,
+    ncol = 2,
+    dimnames = list(NULL, c("ho", "mo"))
+  )
+
+  actuals_ho_only <- matrix(
+    c(1/2, 0, 1/2, 1/2, 0, 1/2,
+      1/4, 1/2, 1/4, 1/4, 1/2, 1/4,
+      1/4, 1/2, 1/4, 1/4, 1/2, 1/4),
+    nrow = 6,
+    ncol = 3,
+    dimnames = list(NULL, c("Ham", "Lamb", "Spam"))
+  )
+
+  mod <- fnb.bernoulli(x[, 1, drop=FALSE], y)
+  predictions <- predict(mod, x[, 1, drop=FALSE], type="raw")
+
+  expect_equal(sum(round(abs(predictions-actuals_ho_only), digits = 12)), 0)
+
+  # Test Sparse Matrices
+  sparse_mod <- fnb.bernoulli(Matrix(x[, 1, drop=FALSE], sparse = TRUE), y)
+  sparse_cast_mod <- fnb.bernoulli(x[, 1, drop=FALSE], y, sparse = TRUE)
+
+  sparse_predictions <- predict(sparse_mod, x[, 1, drop=FALSE], type = "raw")
+  sparse_cast_predictions <- predict(sparse_cast_mod, x[, 1, drop=FALSE], type = "raw")
+
+  expect_equal(sum(round(abs(predictions-sparse_predictions), digits = 12)), 0)
+  expect_equal(sum(round(abs(predictions-sparse_cast_predictions), digits = 12)), 0)
+
+})
+
+test_that("Single row",{
+  actuals_single_row_spam <- matrix(
+    c(2/5, 2/3, 2/5, 0, 2/3,
+      1/5, 1/3, 1/5, 1, 1/3,
+      2/5, 0, 2/5, 0, 0),
+    nrow = 5,
+    ncol = 3,
+    dimnames = list(NULL, c("Ham", "Lamb", "Spam"))
+  )
+
+  y <- as.factor(c( "Spam", "Ham", "Ham", "Lamb", "Lamb"))
+  x <- matrix(
+    c(1,1,1,0,1,
+      1,0,1,1,0),
+    nrow = 5,
+    ncol = 2,
+    dimnames = list(NULL, c("ho", "mo"))
+  )
+
+  mod <- fnb.bernoulli(x, y)
+
+  predictions <- predict(mod, x, type="raw")
+
+  expect_equal(sum(round(abs(predictions-actuals_single_row_spam), digits = 12)), 0)
+
+  # Test Sparse Matrices
+  sparse_mod <- fnb.bernoulli(Matrix(x, sparse = TRUE), y)
+  sparse_cast_mod <- fnb.bernoulli(x, y, sparse = TRUE)
+
+  sparse_predictions <- predict(sparse_mod, x, type = "raw")
+  sparse_cast_predictions <- predict(sparse_cast_mod, x, type = "raw")
+
+  expect_equal(sum(round(abs(predictions-sparse_predictions), digits = 12)), 0)
+  expect_equal(sum(round(abs(predictions-sparse_cast_predictions), digits = 12)), 0)
+})
+

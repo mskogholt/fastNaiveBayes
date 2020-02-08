@@ -42,7 +42,7 @@ but in the case of Gaussian event models, this ensures numerical probabilities.}
 
 \item{check}{Whether to perform formal checks on the input. Set to false, if this is not necessary and speed is of the essence}
 
-\item{...}{Not used.}
+\item{...}{not used}
 }
 \value{
 If type = 'class', a factor with classified class levels. If type = 'raw', a matrix with the predicted probabilities of

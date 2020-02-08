@@ -1,16 +1,95 @@
+#' @title Fast Naive Bayes Classifier for different Distributions
+#' @description Extremely fast implementation of a Naive Bayes Classifier.
+#'
+#' A Naive Bayes classifier that assumes independence between the feature variables. Currently, either a Bernoulli,
+#' multinomial, or Gaussian distribution can be used. The bernoulli distribution should be used when the features are 0 or 1 to
+#' indicate the presence or absence of the feature in each document. The multinomial distribution should be used when the
+#' features are the frequency that the feature occurs in each document. Finally, the Gaussian distribution
+#' should be used with numerical variables. The distribution parameter is used to mix different distributions
+#' for different columns in the input matrix
+#'
+#' Use fastNaiveBayes(...) or fnb.train(...) for a mixed event distribution model. fnb.bernoulli, fnb.multinomial, fnb.gaussian and
+#' for the specific distributions
+#'
+#' @param x a numeric matrix, or a dgcMatrix. For bernoulli should only contain 0's and 1's. For multinomial should only
+#' contain integers.
+#' @param y a factor of classes to classify
+#' @param priors a numeric vector with the priors. If left empty the priors will be determined by the relative frequency of the classes in the data
+#' @param laplace A number used for Laplace smoothing. Default is 0
+#' @param sparse Use a sparse matrix? If true a sparse matrix will be constructed from x.
+#'     It's possible to directly feed a sparse dgcMatrix as x, which will set this parameter to TRUE
+#' @param check Whether to enable formal checks on input. Recommended to set to TRUE. Set to FALSE will make it faster, but at your own risk.
+#' @param distribution A list with distribution names and column names for which to use the distribution, see examples.
+#'
+#' @details
+#' fastNaiveBayes(...) will convert non numeric columns to one hot encoded features to use with the Bernoulli event
+#' model. NA's in x will be set to 0 by default and observations with NA in y will be removed.
+#'
+#' The distribution that is used for each feature is determined by a set of rules:
+#' - if the column only contains 0's and 1's a Bernoulli event model will be used
+#' - if the column only contains whole numbers a Multinomial event model will be used
+#' - if none of the above a Gaussian event model will be used.
+#'
+#' By setting sparse = TRUE the numeric matrix x will be converted to a sparse dgcMatrix. This can be considerably faster
+#' in case few observations have a value different than 0.
+#'
+#' It's also possible to directly supply a sparse dgcMatrix, which can be a lot faster in case a fastNaiveBayes model
+#' is trained multiple times on the same matrix or a subset of this. See examples for more details. Bear in mind that
+#' converting to a sparse matrix can actually be slower depending on the data.
+#'
+#' @return A fitted object of class "fastNaiveBayes". It has four components:
+#'
+#'     \describe{
+#'         \item{model}{Fitted fastNaiveBayes model}
+#'         \item{names}{Names of features used to train this fastNaiveBayes model}
+#'         \item{distribution}{Distribution used for each column of x}
+#'         \item{levels}{Levels of y}
+#'     }
 #' @export
 #' @import Matrix
+#' @examples
+#' rm(list = ls())
+#' library(fastNaiveBayes)
+#' cars <- mtcars
+#' y <- as.factor(ifelse(cars$mpg > 25, "High", "Low"))
+#' x <- cars[,2:ncol(cars)]
+#'
+#' mod <- fastNaiveBayes(x, y, laplace = 1)
+#'
+#' pred <- predict(mod, newdata = x)
+#' mean(y!=pred)
+#'
+#' mod <- fnb.train(x, y, laplace = 1)
+#'
+#' pred <- predict(mod, newdata = x)
+#' mean(y!=pred)
+#'
+#' dist <- fnb.detect_distribution(x)
+#'
+#' bern <- fnb.bernoulli(x[,dist$bernoulli], y, laplace = 1)
+#' pred <- predict(bern, x[,dist$bernoulli])
+#' mean(y!=pred)
+#'
+#' mult <- fnb.multinomial(x[,dist$multinomial], y, laplace = 1)
+#' pred <- predict(mult, x[,dist$multinomial])
+#' mean(y!=pred)
+#'
+#' gauss <- fnb.gaussian(x[,dist$gaussian], y)
+#' pred <- predict(gauss, x[,dist$gaussian])
+#' mean(y!=pred)
+#'
+#' @seealso \code{\link{predict.fastNaiveBayes}} for the predict function for the fastNaiveBayes model.
 #' @rdname fastNaiveBayesF
-fnb.train <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, distribution = NULL, ...) {
+fnb.train <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, distribution = fnb.detect_distribution(x)) {
   UseMethod("fnb.train")
 }
 
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayesF
-fnb.train.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, distribution = NULL, ...) {
+fnb.train.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE, distribution = fnb.detect_distribution(x)) {
   if(check){
-    args <- fnb.check.args.model(x, y, priors, laplace, sparse, distribution)
+    args <- fnb.check.args.train(x, y, priors, laplace, sparse, distribution)
     x <- args$x
     y <- args$y
     priors <- args$priors
@@ -22,27 +101,15 @@ fnb.train.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, 
   models <- lapply(names(distribution), function(dist) {
     switch(dist,
            bernoulli = {
-             newx <- x[, distribution[[dist]]]
-             if (length(distribution[[dist]]) == 1) {
-               newx <- as.matrix(newx)
-               colnames(newx) <- distribution[[dist]]
-             }
+             newx <- x[, distribution[[dist]], drop=FALSE]
              fnb.bernoulli(newx, y, priors, laplace, sparse)
            },
            multinomial = {
-             newx <- x[, distribution[[dist]]]
-             if (length(distribution[[dist]]) == 1) {
-               newx <- as.matrix(newx)
-               colnames(newx) <- distribution[[dist]]
-             }
+             newx <- x[, distribution[[dist]], drop=FALSE]
              fnb.multinomial(newx, y, priors, laplace, sparse)
            },
            gaussian = {
-             newx <- x[, distribution[[dist]]]
-             if (length(distribution[[dist]]) == 1) {
-               newx <- as.matrix(newx)
-               colnames(newx) <- distribution[[dist]]
-             }
+             newx <- x[, distribution[[dist]], drop=FALSE]
              fnb.gaussian(newx, y, priors, sparse)
            }
     )
@@ -77,7 +144,8 @@ fnb.train.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, 
 #' @param threshold A threshold for the minimum probability. For Bernoulli and Multinomial event models Laplace smoothing should solve this,
 #' but in the case of Gaussian event models, this ensures numerical probabilities.
 #' @param check Whether to perform formal checks on the input. Set to false, if this is not necessary and speed is of the essence
-#' @param ... Not used.
+#' @param ... not used
+#'
 #' @return If type = 'class', a factor with classified class levels. If type = 'raw', a matrix with the predicted probabilities of
 #'     each class, where each column in the matrix corresponds to a class level.
 #' @seealso \code{\link{fastNaiveBayes}} for the fastNaiveBayes model
@@ -89,7 +157,7 @@ predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"), sp
 
   type <- match.arg(type)
   if(check){
-    args <- fnb.check.args.predict(object, newdata, type, sparse, threshold, ...)
+    args <- fnb.check.args.mixed_predict(object, newdata, type, sparse, threshold)
     object <- args$object
     newdata <- args$newdata
     type <- args$type
@@ -124,4 +192,120 @@ predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"), sp
   }
   return(probs)
 }
+
+#' @import Matrix
+fnb.check.args.train <- function(x, y, priors, laplace, sparse, distribution=NULL){
+  # x
+  if (class(x)[1] != "dgCMatrix") {
+    if (!is.matrix(x)) {
+      x <- as.matrix(x)
+    }
+    if (sparse) {
+      x <- Matrix(x, sparse = TRUE)
+    }
+  } else {
+    sparse <- TRUE
+  }
+
+  if(is.null(colnames(x))){
+    stop("x must have column names!")
+  }
+
+  if(ncol(x)<1){
+    stop('x seems to be empty')
+  }
+
+  if(any(is.na(x))){
+    warning("x contains na's. These will be set to 0")
+    x[is.na(x)] <- 0
+  }
+
+  # y
+  if(!is.factor(y)){
+    y <- as.factor(y)
+  }
+
+  if(nlevels(y)<=1){
+    stop('y does not have enough levels to classify.')
+  }
+
+  if(any(is.na(y))){
+    warning("y contains na's. These observations will be removed")
+    x <- x[!is.na(y),]
+    y <- y[!is.na(y)]
+  }
+
+  # y with x
+  if(nrow(x)!=length(y)){
+    stop('Rows of x not equal to length of y')
+  }
+
+  if(any(rowsum(rep(1,times = length(y)), y)<1)){
+    stop('Not enough rows. Should be at least 1 rows or more for each class')
+  }
+
+  # laplace
+  if(laplace < 0){
+    stop('Laplace smoothing must a positive number.')
+  }
+
+  # priors
+  if(!is.null(priors)){
+    if(!is.vector(priors, mode = "numeric")){
+      stop(paste0("Priors should be a numeric vector with ",
+                  nlevels(y), " prior probabilities"))
+    }
+
+    if (length(priors) != nlevels(y)){
+      stop(paste0("Priors should be a vector with ",
+                  nlevels(y), " prior probabilities"))
+    }
+
+    if(abs(sum(priors)-1) > .Machine$double.eps){
+      stop(paste0('Sum of the priors should equal 1, not ', sum(priors)))
+    }
+  }
+
+  # distribution
+  if (!is.null(distribution)) {
+    if(!is.list(distribution)){
+      stop('distribution should be a list with distribution names and column names corresponding to x, see details.')
+    }
+
+    distribution <- distribution[lengths(distribution) != 0]
+    if(!any(c("bernoulli","multinomial","gaussian") %in% names(distribution))){
+      stop('Not a single accepted distribution was specified or all were empty')
+    }
+
+    if(any(!names(distribution) %in% c("bernoulli","multinomial","gaussian"))){
+      warning('Redundant distribution specified, will be removed')
+      distribution <- distribution[names(distribution) %in% c("bernoulli","multinomial","gaussian")]
+    }
+  }
+  return(list(x=x, y=y, priors = priors, laplace=laplace, sparse=sparse, distribution=distribution))
+}
+
+#' @import Matrix
+fnb.check.args.mixed_predict <- function(object, newdata, type, sparse, threshold, silent = FALSE){
+  if(threshold<0){
+    stop('Threshold must be a positive number')
+  }
+  if (class(newdata)[1] != "dgCMatrix") {
+    if (!is.matrix(newdata)) {
+      newdata <- as.matrix(newdata)
+    }
+    if (sparse) {
+      newdata <- Matrix(newdata, sparse = TRUE)
+    }
+  } else {
+    sparse <- TRUE
+  }
+
+  if(is.null(colnames(newdata))){
+    stop("newdata does not have any column names!")
+  }
+
+  return(list(object=object, newdata=newdata, type=type, sparse=sparse, threshold = threshold))
+}
+
 

@@ -3,7 +3,6 @@
 #' @param model the fitted Naive Bayes model to save.
 #' @param overwrite Whether to allow overwriting of previously saved models.
 #' @param filename the file name to use to save or load the model.
-#' @param ... Not used.
 #'
 #' @return fnb.save returns the filename that was used, and fnb.load returns the saved object.
 #' @import Matrix
@@ -21,14 +20,14 @@
 #' identical(mod, mod2)
 #'
 #' @rdname fnb.io
-fnb.save <- function(model, filename, overwrite=FALSE, ...){
+fnb.save <- function(model, filename, overwrite=FALSE){
   UseMethod("fnb.save")
 }
 
 #' @import Matrix
 #' @export
 #' @rdname fnb.io
-fnb.save.default <- function(model, filename, overwrite=FALSE, ...){
+fnb.save.default <- function(model, filename, overwrite=FALSE){
   fnb.check.args.save(model, filename, overwrite)
   folder <- "./cache/"
   if(!dir.exists(folder)){
@@ -41,14 +40,14 @@ fnb.save.default <- function(model, filename, overwrite=FALSE, ...){
 #' @import Matrix
 #' @export
 #' @rdname fnb.io
-fnb.load <- function(filename, ...){
+fnb.load <- function(filename){
   UseMethod("fnb.load")
 }
 
 #' @import Matrix
 #' @export
 #' @rdname fnb.io
-fnb.load.default <- function(filename, ...){
+fnb.load.default <- function(filename){
   fnb.check.args.load(filename)
   folder <- "./cache/"
   return(readRDS(paste0(folder,filename)))

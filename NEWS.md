@@ -1,3 +1,11 @@
+## fastNaiveBayes 2.1.1
+
+### New Features
+- load and save options
+
+### Bug Fixes
+- Argument errors
+
 ## fastNaiveBayes 2.1.0
 
 ### New Features

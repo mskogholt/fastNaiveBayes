@@ -15,6 +15,11 @@ Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/iss
 News
 ----
 
+### v2.1.1 (2020-02-09)
+
+-   Load and save option that enables storing model to file and loading it later
+-   Minor fixes
+
 ### v2.1.0 (2019-08-27)
 
 -   All new naming structure! All functions now start as fnb.\[name\]. This makes it easy to browse the functions with autocomplete. The one exception is the 'fastNaiveBayes' function which is a wrapper around fnb.train. This also allows easier bundled documentation, since a lot of the function arguments are the same across different event models
