@@ -1,18 +1,18 @@
 fnb.check.args.save <- function(model, filename, overwrite){
   if(!is.null(model)){
-    if(!class(model) %in% c("fnb.bernoulli","fnb.gaussian","fnb.multinomial",
+    if(!class(model)[1] %in% c("fnb.bernoulli","fnb.gaussian","fnb.multinomial",
                             "fastNaiveBayes")){
       stop('Cannot save objects that are not a fastNaiveBayes model.')
     }
   }
 
-  if(file.exists(paste0("./cache/",filename)) && !overwrite){
+  if(file.exists(filename) && !overwrite){
     stop(paste0("There's already a model saved under ", filename))
   }
 }
 
 fnb.check.args.load <- function(filename){
-  if(!file.exists(paste0("./cache/",filename))){
+  if(!file.exists(filename)){
     stop(paste0("There's not any model saved under ", filename))
   }
 }

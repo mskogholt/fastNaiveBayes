@@ -2,16 +2,6 @@ context("Test fnb.io function")
 
 test_that("fnb.load and fnb.save works as expected", {
 
-  setup({
-    folder <- "./cache/"
-    if(dir.exists(folder)){
-      for(file in list.files(folder)){
-        file.remove(paste0(folder, file))
-      }
-    }
-  }
-  )
-
   # Test
   x <- as.matrix(tweetsDTM[,2:ncol(tweetsDTM)])
   y <- as.factor(tweetsDTM[,1])
@@ -31,13 +21,7 @@ test_that("fnb.load and fnb.save works as expected", {
   expect_equal(identical(mod, mod2), TRUE)
 
   teardown({
-    folder <- "./cache/"
-    if(dir.exists(folder)){
-      for(file in list.files(folder)){
-        file.remove(paste0(folder, file))
-      }
-    }
-  }
-  )
+    file.remove("fnbmod")
+  })
 
 })

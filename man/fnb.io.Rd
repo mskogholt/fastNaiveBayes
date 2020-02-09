@@ -39,5 +39,6 @@ mod <- fastNaiveBayes(x, y, laplace = 1)
 fnb.save(mod, "fastNaiveBayesModel")
 mod2 <- fnb.load("fastNaiveBayesModel")
 identical(mod, mod2)
+file.remove("fastNaiveBayesModel")
 
 }

@@ -18,6 +18,7 @@
 #' fnb.save(mod, "fastNaiveBayesModel")
 #' mod2 <- fnb.load("fastNaiveBayesModel")
 #' identical(mod, mod2)
+#' file.remove("fastNaiveBayesModel")
 #'
 #' @rdname fnb.io
 fnb.save <- function(model, filename, overwrite=FALSE){
@@ -29,11 +30,7 @@ fnb.save <- function(model, filename, overwrite=FALSE){
 #' @rdname fnb.io
 fnb.save.default <- function(model, filename, overwrite=FALSE){
   fnb.check.args.save(model, filename, overwrite)
-  folder <- "./cache/"
-  if(!dir.exists(folder)){
-    dir.create(folder)
-  }
-  saveRDS(model, paste0(folder,filename))
+  saveRDS(model, filename)
   return(filename)
 }
 
@@ -49,7 +46,6 @@ fnb.load <- function(filename){
 #' @rdname fnb.io
 fnb.load.default <- function(filename){
   fnb.check.args.load(filename)
-  folder <- "./cache/"
-  return(readRDS(paste0(folder,filename)))
+  return(readRDS(filename))
 }
 

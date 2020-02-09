@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## comments
+This should fix the errors that are seen on win-builder. For some reason I do not get any results from win-builder to my email, so it is hard to debug from my side. 
 
 ### New Features
 - load and save options
