@@ -31,13 +31,18 @@ test_that("Train checks args", {
   expect_error(fastNaiveBayes:::fnb.check.args.train(x, y, priors = NULL, laplace = 0, sparse = FALSE,
                                                      distribution = c("bernoulli")))
 
+  expect_error(fastNaiveBayes::fnb.check.args.train(x[,1], y, priors=NULL, laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes::fnb.check.args.train(NULL, y, priors=NULL, laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes::fnb.check.args.train(x[2:5,], y, priors=NULL, laplace = 0, sparse = FALSE))
+
+
 })
 
 
 test_that("Bernoulli checks args", {
   y <- as.factor(c("Ham", "Ham", "Spam", "Spam", "Spam"))
   x <- matrix(c(2, 3, 0, 1, 0, 5, 3, 0, 2, 0, 0, 1, 3, 1, 0, 0, 0, 4, 3, 5),
-    nrow = 5, ncol = 4)
+              nrow = 5, ncol = 4)
   colnames(x) <- c("wo", "mo", "bo", "so")
   x <- as.data.frame(x)
 
@@ -45,11 +50,14 @@ test_that("Bernoulli checks args", {
   expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.predict(object=mod, newdata=x, type="raw", sparse = FALSE, threshold = -1))
   expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.predict(object=mod, newdata=x[,1:2], type="raw", sparse = TRUE, threshold = -1))
 
-  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x[2:5,], y[2:5], priors = NULL, laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x, y, priors = NULL, laplace = -1, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x, y, priors = list(1,2), laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x, y, priors = c(1,2,3), laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x, y, priors = c(1,2), laplace = 0, sparse = FALSE, distribution = NULL))
+  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x, y, priors = NULL, laplace = -1, sparse = FALSE))
+  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x, y, priors = list(1,2), laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x, y, priors = c(1,2,3), laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes:::fnb.bernoulli.check.args.model(x, y, priors = c(1,2), laplace = 0, sparse = FALSE))
+
+  expect_error(fastNaiveBayes::fnb.bernoulli.check.args.model(x[,1], y, priors=NULL, laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes::fnb.bernoulli.check.args.model(x[2:5,], y, priors=NULL, laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes::fnb.bernoulli.check.args.model(NULL, y, priors=NULL, laplace = 0, sparse = FALSE))
 })
 
 test_that("Multinomial checks args", {
@@ -63,11 +71,15 @@ test_that("Multinomial checks args", {
   expect_error(fastNaiveBayes:::fnb.multinomial.check.args.predict(object=mod, newdata=x, type="raw", sparse = FALSE, threshold = -1))
   expect_error(fastNaiveBayes:::fnb.multinomial.check.args.predict(object=mod, newdata=x[,1:2], type="raw", sparse = TRUE, threshold = -1))
 
-  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x[2:5,], y[2:5], priors = NULL, laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x, y, priors = NULL, laplace = -1, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x, y, priors = list(1,2), laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x, y, priors = c(1,2,3), laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x, y, priors = c(1,2), laplace = 0, sparse = FALSE, distribution = NULL))
+  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x, y, priors = NULL, laplace = -1, sparse = FALSE))
+  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x, y, priors = list(1,2), laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x, y, priors = c(1,2,3), laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes:::fnb.multinomial.check.args.model(x, y, priors = c(1,2), laplace = 0, sparse = FALSE))
+
+  expect_error(fastNaiveBayes::fnb.multinomial.check.args.model(x[,1], y, priors=NULL, laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes::fnb.multinomial.check.args.model(NULL, y, priors=NULL, laplace = 0, sparse = FALSE))
+  expect_error(fastNaiveBayes::fnb.multinomial.check.args.model(x[2:5,], y, priors=NULL, laplace = 0, sparse = FALSE))
+
 
 })
 
@@ -82,10 +94,12 @@ test_that("Gaussian checks args", {
   expect_error(fastNaiveBayes:::fnb.gaussian.check.args.predict(object=mod, newdata=x, type="raw", sparse = FALSE, threshold = -1))
   expect_error(fastNaiveBayes:::fnb.gaussian.check.args.predict(object=mod, newdata=x[,1:2], type="raw", sparse = TRUE, threshold = -1))
 
-  expect_error(fastNaiveBayes:::fnb.gaussian.check.args.model(x[2:5,], y[2:5], priors = NULL, laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.gaussian.check.args.model(x, y, priors = NULL, laplace = -1, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.gaussian.check.args.model(x, y, priors = list(1,2), laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.gaussian.check.args.model(x, y, priors = c(1,2,3), laplace = 0, sparse = FALSE, distribution = NULL))
-  expect_error(fastNaiveBayes:::fnb.gaussian.check.args.model(x, y, priors = c(1,2), laplace = 0, sparse = FALSE, distribution = NULL))
+  expect_error(fastNaiveBayes:::fnb.gaussian.check.args.model(x, y, priors = list(1,2), sparse = FALSE))
+  expect_error(fastNaiveBayes:::fnb.gaussian.check.args.model(x, y, priors = c(1,2,3), sparse = FALSE))
+  expect_error(fastNaiveBayes:::fnb.gaussian.check.args.model(x, y, priors = c(1,2), sparse = FALSE))
+
+  expect_error(fastNaiveBayes::fnb.gaussian.check.args.model(x[,1], y, priors=NULL, sparse = FALSE))
+  expect_error(fastNaiveBayes::fnb.gaussian.check.args.model(NULL, y, priors=NULL, sparse = FALSE))
+  expect_error(fastNaiveBayes::fnb.gaussian.check.args.model(x[2:5,], y, priors=NULL, laplace = 0, sparse = FALSE))
 
 })
