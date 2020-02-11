@@ -142,10 +142,6 @@ fnb.gaussian.check.args.model <- function(x, y, priors, sparse){
     stop("x must have column names!")
   }
 
-  if(ncol(x)<1){
-    stop('x seems to be empty')
-  }
-
   if(any(is.na(x))){
     warning("x contains na's. These will be set to 0")
     x[is.na(x)] <- 0
@@ -213,6 +209,11 @@ fnb.gaussian.check.args.predict <- function(object, newdata, type, sparse, thres
 
   if(is.null(colnames(newdata))){
     stop("newdata does not have any column names!")
+  }
+
+  if(any(is.na(newdata))){
+    warning("newdata contains na's. These will be set to 0")
+    newdata[is.na(newdata)] <- 0
   }
 
   names <- intersect(object$names, colnames(newdata))
