@@ -211,10 +211,6 @@ fnb.check.args.train <- function(x, y, priors, laplace, sparse, distribution=NUL
     stop("x must have column names!")
   }
 
-  if(ncol(x)<1){
-    stop('x seems to be empty')
-  }
-
   if(any(is.na(x))){
     warning("x contains na's. These will be set to 0")
     x[is.na(x)] <- 0
