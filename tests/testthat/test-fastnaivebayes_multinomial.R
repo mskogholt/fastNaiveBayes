@@ -25,11 +25,13 @@ test_that("Predict", {
   # Column padding
   expect_warning(predict(mod, x[,1:3], type = "raw"))
   dropped_predictions <- predict(mod, x[,1:3], type = "raw", silent = TRUE)
+  dropped_alt_predictions <- predict(mod, x[,1:3], type = "raw", silent = TRUE, sparse = TRUE)
 
   x[,4] <- 0
   alt_predictions <- predict(mod, x, type = "raw")
 
   expect_equal(sum(round(abs(dropped_predictions-alt_predictions), digits = 12)), 0)
+  expect_equal(sum(round(abs(dropped_predictions-dropped_alt_predictions), digits = 12)), 0)
 
   # Ignore new column
   mod <- fnb.multinomial(x, y, laplace = 1)

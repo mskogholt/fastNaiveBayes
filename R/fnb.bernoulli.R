@@ -121,10 +121,6 @@ fnb.bernoulli.check.args.model <- function(x, y, priors, laplace, sparse){
     stop("x must have column names!")
   }
 
-  if(ncol(x)<1){
-    stop('x seems to be empty')
-  }
-
   if(any(is.na(x))){
     warning("x contains na's. These will be set to 0")
     x[is.na(x)] <- 0
@@ -148,10 +144,6 @@ fnb.bernoulli.check.args.model <- function(x, y, priors, laplace, sparse){
   # y with x
   if(nrow(x)!=length(y)){
     stop('Rows of x not equal to length of y')
-  }
-
-  if(any(rowsum(rep(1,times = length(y)), y)<1)){
-    stop('Not enough rows. Should be at least 1 rows or more for each class')
   }
 
   # laplace
@@ -200,6 +192,11 @@ fnb.bernoulli.check.args.predict <- function(object, newdata, type, sparse, thre
 
   names <- intersect(object$names, colnames(newdata))
   newdata <- newdata[, names, drop=FALSE]
+
+  if(any(is.na(newdata))){
+    warning("newdata contains na's. These will be set to 0")
+    newdata[is.na(newdata)] <- 0
+  }
 
   if(length(object$names)!=length(names)){
     if(!silent){

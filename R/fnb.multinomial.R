@@ -107,10 +107,6 @@ fnb.multinomial.check.args.model <- function(x, y, priors, laplace, sparse){
     stop("x must have column names!")
   }
 
-  if(ncol(x)<1){
-    stop('x seems to be empty')
-  }
-
   if(any(is.na(x))){
     warning("x contains na's. These will be set to 0")
     x[is.na(x)] <- 0
@@ -187,6 +183,11 @@ fnb.multinomial.check.args.predict <- function(object, newdata, type, sparse, th
 
   names <- intersect(object$names, colnames(newdata))
   newdata <- newdata[, names, drop=FALSE]
+
+  if(any(is.na(newdata))){
+    warning("newdata contains na's. These will be set to 0")
+    newdata[is.na(newdata)] <- 0
+  }
 
   if(length(object$names)!=length(names)){
     if(!silent){
