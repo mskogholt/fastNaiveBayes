@@ -40,7 +40,7 @@ test_that("Predict", {
   x <- cbind(x, x[,1, drop=FALSE])
   colnames(x)[5] <- "womo"
 
-  new_predictions <- predict(mod, x, type = "raw")
+  new_predictions <- predict(mod, x, type = "raw", silent=TRUE)
   expect_equal(sum(round(abs(predictions-new_predictions), digits = 12)), 0)
 
   # All new columns is same as all 0
