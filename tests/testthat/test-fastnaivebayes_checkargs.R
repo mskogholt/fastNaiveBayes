@@ -39,6 +39,10 @@ test_that("Train checks args", {
   expect_error(fastNaiveBayes::fnb.check.args.train(
     matrix("", ncol = 0, nrow = 10), y, priors=NULL, laplace = 0, sparse = FALSE))
 
+  expect_error(fastNaiveBayes::fnb.check.args.mixed_predict(mod,
+                                                                matrix("", ncol = 0, nrow = 10)))
+
+
   predictions <- predict(mod, x, type="raw")
   x[1,3] <- NA
   expect_warning(alt_mod <- fnb.train(x, as.character(y)))
@@ -94,6 +98,10 @@ test_that("Bernoulli checks args", {
   expect_error(fastNaiveBayes::fnb.bernoulli.check.args.model(
     matrix("", ncol = 0, nrow = 10), y, priors=NULL, laplace = 0, sparse = FALSE))
 
+  expect_error(fastNaiveBayes::fnb.bernoulli.check.args.predict(mod,
+                                                                  matrix("", ncol = 0, nrow = 10)))
+
+
   predictions <- predict(mod, x, type="raw")
   x[1,3] <- NA
   expect_warning(alt_mod <- fnb.bernoulli(x, as.character(y), laplace=1))
@@ -145,6 +153,9 @@ test_that("Multinomial checks args", {
   # 100%
   expect_error(fastNaiveBayes::fnb.multinomial.check.args.model(
     matrix("", ncol = 0, nrow = 10), y, priors=NULL, laplace = 0, sparse = FALSE))
+
+  expect_error(fastNaiveBayes::fnb.multinomial.check.args.predict(mod,
+                                                               matrix("", ncol = 0, nrow = 10)))
 
   predictions <- predict(mod, x, type="raw")
   x[1,3] <- NA
@@ -201,6 +212,9 @@ test_that("Gaussian checks args", {
   # 100%
   expect_error(fastNaiveBayes::fnb.gaussian.check.args.model(
     matrix("", ncol = 0, nrow = 10), y, priors=NULL, sparse = FALSE))
+
+  expect_error(fastNaiveBayes::fnb.gaussian.check.args.predict(mod,
+                                                               matrix("", ncol = 0, nrow = 10)))
 
   predictions <- predict(mod, x, type="raw")
   x[1,3] <- NA
