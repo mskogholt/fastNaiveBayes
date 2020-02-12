@@ -16,7 +16,7 @@ test_that("Predict", {
   mod <- fnb.gaussian(x, y)
   df_mod <- fnb.gaussian(df, y)
 
-  expect_error(fnb.gaussian(x[1:3], y[1:3]))
+  expect_error(fnb.gaussian(x[1:3,], y[1:3]))
 
   predictions <- predict(mod, x, type = "raw")
   risky_predictions <- predict(mod, x, type = "raw", check=FALSE)
