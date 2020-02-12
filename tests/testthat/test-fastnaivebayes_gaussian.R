@@ -16,10 +16,14 @@ test_that("Predict", {
   mod <- fnb.gaussian(x, y)
   df_mod <- fnb.gaussian(df, y)
 
+  expect_error(fnb.gaussian(x[1:3], y[1:3]))
+
   predictions <- predict(mod, x, type = "raw")
+  risky_predictions <- predict(mod, x, type = "raw", check=FALSE)
   df_predictions <- predict(df_mod, df, type = "raw")
 
   expect_equal(sum(round(abs(predictions-df_predictions), digits = 12)), 0)
+  expect_equal(sum(round(abs(predictions-risky_predictions), digits = 12)), 0)
 
   classification <- predict(mod, x, type = "class")
   expect_equal(as.factor(mod$levels[max.col(predictions)]), classification)

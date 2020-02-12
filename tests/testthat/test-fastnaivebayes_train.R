@@ -30,6 +30,17 @@ test_that("Mixed event models estimation gives expected results when mixed", {
   colnames(x) <- col_names
   x <- as.data.frame(x)
 
+  # Distributions
+  expect_error(fnb.train(x, y, laplace = 0, sparse = FALSE,
+                         distribution = "ABC"))
+  expect_error(fnb.train(x, y, laplace = 0, sparse = FALSE,
+                         distribution = list("ABC"=1)))
+
+  dist <- fnb.detect_distribution(x)
+  dist[["abc"]] <- "bcd"
+  expect_warning(fnb.train(x, y, laplace = 0, sparse = FALSE,
+                         distribution =  dist))
+
   mixed_mod <- fnb.train(x, y, laplace = 0, sparse = FALSE)
   mixed_sparse_mod <- fnb.train(Matrix(as.matrix(x), sparse = TRUE), y, laplace = 0)
   mixed_sparse_cast_mod <- fnb.train(x, y, laplace = 0, sparse = TRUE)

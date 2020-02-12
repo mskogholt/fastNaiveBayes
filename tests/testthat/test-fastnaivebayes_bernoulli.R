@@ -71,6 +71,7 @@ test_that("Standard 3 classes", {
   )
 
   mod <- fnb.bernoulli(x, y)
+  expect_error(fnb.bernoulli(x, y, laplace = -1))
 
   predictions <- predict(mod, x, type="raw")
 

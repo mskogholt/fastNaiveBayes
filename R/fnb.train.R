@@ -178,8 +178,6 @@ predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"), sp
     type <- args$type
     sparse <- args$sparse
     threshold <- args$threshold
-
-
   }
 
   probs <- NULL
