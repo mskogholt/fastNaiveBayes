@@ -19,12 +19,8 @@ fnb.check.args.load <- function(filename){
 
 #' @import Matrix
 fnb.check.args.dist <- function(x, nrows){
-  # x
-  if (class(x)[1] != "dgCMatrix") {
-    if (!is.matrix(x)) {
-      x <- as.matrix(x)
-    }
-  }
+  cast <- fnb.utils.cast(x, FALSE)
+  x <- cast$x
 
   if(nrows<1){
     stop('nrows must be a positive number larger than 1. To use all rows, leave the argument empty')

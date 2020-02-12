@@ -1,5 +1,15 @@
 context("Test Check Args")
 
+test_that("Check Arg Distribution", {
+  x <- matrix(
+    c(1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1),
+    nrow = 5,
+    ncol = 4,
+    dimnames = list(NULL, c("wo", "mo", "bo", "so")))
+
+  expect_error(fnb.check.args.dist(x, -1))
+})
+
 test_that("Check Arg Model", {
 
   y <- as.factor(c("Ham", "Ham", "Spam", "Spam", "Spam"))
@@ -27,7 +37,7 @@ test_that("Check Arg Model", {
   expect_equal(fnb.check.args.model(x, as.character(y), priors = NULL, sparse = FALSE)$y, y)
 
   # Test y at least 2 or more levels
-  expect_error(fnb.check.args.model(x, y[1:2], priors = NULL, sparse = FALSE))
+  expect_error(fnb.check.args.model(x, as.factor(as.character(y[1:2])), priors = NULL, sparse = FALSE))
 
   # Test NA removal from Y
   nay <- y
@@ -63,6 +73,9 @@ test_that("Check Arg Predict", {
 
   # Test threshold
   expect_error(fnb.check.args.predict(object, newdata, "raw", FALSE, threshold=-1))
+
+  # Test threshold
+  expect_error(fnb.check.args.predict(object, matrix("", nrow=10, ncol=0), "raw", FALSE, threshold=0.1))
 
   # Test empty
   expect_error(fnb.check.args.predict(object, matrix("", nrow=10, ncol=0), "raw", FALSE, threshold=-1))
