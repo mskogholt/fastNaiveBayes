@@ -59,9 +59,9 @@ fnb.check.args.model <- function(x, y, priors, sparse){
     y <- as.factor(y)
   }
 
-  if(nlevels(y)<=1){
-    stop('y does not have enough levels to classify.')
-  }
+  # if(nlevels(y)<=1){
+  #   stop('y does not have enough levels to classify.')
+  # }
 
   if(any(is.na(y))){
     warning("y contains na's. These observations will be removed")

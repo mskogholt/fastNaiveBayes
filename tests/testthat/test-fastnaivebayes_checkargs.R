@@ -36,9 +36,6 @@ test_that("Check Arg Model", {
   # Test factor conversion
   expect_equal(fnb.check.args.model(x, as.character(y), priors = NULL, sparse = FALSE)$y, y)
 
-  # Test y at least 2 or more levels
-  expect_error(fnb.check.args.model(x, as.factor(as.character(y[1:2])), priors = NULL, sparse = FALSE))
-
   # Test NA removal from Y
   nay <- y
   nay[5] <- NA

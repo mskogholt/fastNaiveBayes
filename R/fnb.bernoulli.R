@@ -22,9 +22,9 @@ fnb.bernoulli.default <- function(x, y, priors = NULL, laplace = 0, sparse = FAL
     }
   }
 
-  n <- tabulate(y)
+  n <- tabulate(y, nbins = nlevels(y))
 
-  present <- fnb.bernoulli.calculate(x, y, sparse)
+  present <- fnb.utils.rowsum(x, y, sparse)
 
   structure(list(
     present = present,
@@ -54,20 +54,7 @@ predict.fnb.bernoulli <- function(object, newdata, type = c("class", "raw", "raw
     sparse <- args$sparse
     threshold <- args$threshold
 
-    if(length(object$names)!=length(colnames(newdata))){
-      other_names <- setdiff(object$names, colnames(newdata))
-      if(length(other_names)>0){
-        if (sparse) {
-          other_mat <- Matrix(0L, nrow = nrow(newdata), ncol = length(other_names), sparse = TRUE)
-        } else {
-          other_mat <- matrix(0L, nrow = nrow(newdata), ncol = length(other_names))
-        }
-        colnames(other_mat) <- other_names
-
-        newdata <- cbind(newdata, other_mat)
-      }
-      newdata <- newdata[, object$names, drop=FALSE]
-    }
+    newdata <- fnb.utils.pad_with_zeros(newdata, sparse, object$names)
   }
 
   present <- object$present + object$laplace
@@ -84,16 +71,16 @@ predict.fnb.bernoulli <- function(object, newdata, type = c("class", "raw", "raw
                              nrow = nrow(presence_prob),
                              ncol = ncol(presence_prob), byrow = TRUE) - newdata %*% t(nonpresent)
 
+  if (type == "rawprob") {
+    return(presence_prob + nonpresence_prob)
+  }
+  probs <- exp((presence_prob + nonpresence_prob))
+
   priors <- object$priors
   if(is.null(priors)){
     priors <- object$n / object$obs
   }
 
-  if (type == "rawprob") {
-    return(presence_prob + nonpresence_prob)
-  }
-
-  probs <- exp((presence_prob + nonpresence_prob))
   for(i in 1:length(priors)){
     probs[,i] <- probs[,i]*priors[i]
   }
@@ -108,16 +95,4 @@ predict.fnb.bernoulli <- function(object, newdata, type = c("class", "raw", "raw
     return(class)
   }
   return(probs)
-}
-
-fnb.bernoulli.calculate <- function(x, y, sparse){
-  if (sparse) {
-    present <- lapply(levels(y), function(level) {
-      Matrix::colSums(x[y == level, ,drop=FALSE])
-    })
-    present <- do.call(rbind, present)
-  } else {
-    present <- rowsum(x, y)
-  }
-  return(present)
 }
