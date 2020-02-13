@@ -16,7 +16,7 @@ fnb.update <- function(object, x, y, sparse = FALSE, check = TRUE){
 #' @import Matrix
 #' @rdname updateFNB
 fnb.update.default  <- function(object, x, y, sparse = FALSE, check = TRUE){
-  print('Not implemented for this class yet!')
+  stop('Not implemented for this class yet!')
 }
 
 #' @export

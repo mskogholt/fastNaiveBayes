@@ -1,5 +1,14 @@
 context("Test fnb.update")
 
+test_that("Not implemented error", {
+  data <- tweetsDTM[1:200]
+  y <- as.factor(data[,1])
+  x <- as.matrix(data[,2:ncol(data)])
+
+  mod <- fnb.multinomial(x, y, laplace = 1)
+  expect_error(fnb.update(mod, x, y))
+})
+
 test_that("Normal case", {
 
   test <- function(laplace, sparse){
