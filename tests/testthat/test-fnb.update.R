@@ -1,7 +1,7 @@
 context("Test fnb.update")
 
 test_that("Not implemented error", {
-  data <- tweetsDTM[1:200]
+  data <- tweetsDTM[1:10, 1:10]
   y <- as.factor(data[,1])
   x <- as.matrix(data[,2:ncol(data)])
 
@@ -12,7 +12,7 @@ test_that("Not implemented error", {
 test_that("Normal case", {
 
   test <- function(laplace, sparse){
-    data <- tweetsDTM[1:200]
+    data <- tweetsDTM[1:200,1:200]
     y <- as.factor(data[,1])
     x <- as.matrix(data[,2:ncol(data)])
 
@@ -27,11 +27,10 @@ test_that("Normal case", {
     expect_equal(sum(abs(round(mod_preds - alt_preds, digits = 8))), 0)
   }
 
-  test(0, FALSE)
+
   test(1, FALSE)
   test(2, FALSE)
 
-  test(0, TRUE)
   test(1, TRUE)
   test(2, TRUE)
 
@@ -41,10 +40,10 @@ test_that("Iteratively", {
 
   test <- function(laplace, sparse){
 
-    data <- tweetsDTM[1:200]
+    data <- tweetsDTM[1:25,1:200]
 
-    y <- as.factor(data[1:25,1])
-    x <- as.matrix(data[1:25,2:ncol(data)])
+    y <- as.factor(data[,1])
+    x <- as.matrix(data[,2:ncol(data)])
 
     # Bernoulli model test with laplace = 1
     mod <- fnb.bernoulli(x, y, laplace = laplace, sparse = sparse)
@@ -73,7 +72,7 @@ test_that("New classes", {
 
   test <- function(laplace, sparse){
 
-    data <- tweetsDTM[1:200]
+    data <- tweetsDTM[1:200,1:200]
     y <- as.factor(data[,1])
     x <- as.matrix(data[,2:ncol(data)])
 
@@ -92,11 +91,9 @@ test_that("New classes", {
 
   }
 
-  test(0, FALSE)
   test(1, FALSE)
   test(2, FALSE)
 
-  test(0, TRUE)
   test(1, TRUE)
   test(2, TRUE)
 })
@@ -105,7 +102,7 @@ test_that("fewer columns", {
 
   test <- function(laplace, sparse){
 
-    data <- tweetsDTM[1:200]
+    data <- tweetsDTM[1:200,1:200]
     y <- as.factor(data[,1])
     x <- as.matrix(data[,2:ncol(data)])
 
@@ -126,11 +123,10 @@ test_that("fewer columns", {
 
   }
 
-  test(0, FALSE)
+
   test(1, FALSE)
   test(2, FALSE)
 
-  test(0, TRUE)
   test(1, TRUE)
   test(2, TRUE)
 })
@@ -139,7 +135,7 @@ test_that("extra columns", {
 
   test <- function(laplace, sparse){
 
-    data <- tweetsDTM[1:200]
+    data <- tweetsDTM[1:200, 1:200]
     y <- as.factor(data[,1])
     x <- as.matrix(data[,2:ncol(data)])
 
@@ -160,11 +156,10 @@ test_that("extra columns", {
 
   }
 
-  test(0, FALSE)
+
   test(1, FALSE)
   test(2, FALSE)
 
-  test(0, TRUE)
   test(1, TRUE)
   test(2, TRUE)
 })
@@ -173,7 +168,7 @@ test_that("completely new block", {
 
   test <- function(laplace, sparse){
 
-    data <- tweetsDTM[1:200]
+    data <- tweetsDTM[1:200, 1:200]
     y <- as.factor(data[,1])
     x <- as.matrix(data[,2:ncol(data)])
 
@@ -199,11 +194,10 @@ test_that("completely new block", {
 
   }
 
-  test(0, FALSE)
+
   test(1, FALSE)
   test(2, FALSE)
 
-  test(0, TRUE)
   test(1, TRUE)
   test(2, TRUE)
 })
