@@ -130,17 +130,18 @@ fnb.train.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, 
     )
   })
 
-  if(is.null(priors)){
-    priors <- tabulate(y) / nrow(x)
-  }
-
   structure(
     list(
       models = models,
+      n = tabulate(y),
+      obs = nrow(x),
       priors = priors,
       names = colnames(x),
       distribution = distribution,
-      levels = levels(y)
+      levels = levels(y),
+      laplace = laplace,
+      x = x,
+      y = y
     ),
     class = "fastNaiveBayes"
   )
@@ -193,6 +194,10 @@ predict.fastNaiveBayes <- function(object, newdata, type = c("class", "raw"), sp
   probs <- exp(probs)
 
   priors <- object$priors
+  if(is.null(priors)){
+    priors <- object$n / object$obs
+  }
+
   for(i in 1:length(priors)){
     probs[,i] <- probs[,i]*priors[i]
   }

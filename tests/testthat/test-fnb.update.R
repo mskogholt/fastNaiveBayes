@@ -6,10 +6,44 @@ test_that("Not implemented error", {
   x <- as.matrix(data[,2:ncol(data)])
 
   mod <- fnb.train(x, y)
-  expect_error(fnb.update(mod, x, y))
+  expect_error(fnb.update("Hey", x, y))
 })
 
-test_that("", {
+test_that("fnb.train normal case", {
+
+  test <- function(priors, sparse){
+
+    y <- as.factor(c("Ham", "Ham", "Spam", "Spam", "Spam"))
+    x <- matrix(
+      c(2, 3, 2, 1, 2,
+        5, 3, 4, 2, 4,
+        0, 1, 3, 1, 0,
+        3, 4, 4, 3, 5),
+      nrow = 5,
+      ncol = 4,
+      dimnames = list(NULL, c("wo", "mo", "bo", "so")))
+
+    base <- fnb.train(x, y, priors=priors, sparse = sparse)
+    altmod <- fnb.update(base, x, y, sparse = sparse)
+
+    y <- factor(c(as.character(y), as.character(y)))
+    x <- rbind(x, x)
+
+    mod <- fnb.train(x, y, priors=priors, sparse=sparse)
+
+    mod_preds <- predict(mod, newdata = x, type = "raw")
+    alt_preds <- predict(altmod, newdata = x, type = "raw")
+
+    expect_equal(sum(abs(round(mod_preds - alt_preds, digits = 8))), 0)
+  }
+
+  test(NULL, FALSE)
+  test(NULL, TRUE)
+  test(c(0.5, 0.5), FALSE)
+  test(c(0.5, 0.5), TRUE)
+})
+
+test_that("Gaussian update", {
 
   test <- function(priors, sparse){
 
@@ -42,6 +76,7 @@ test_that("", {
   test(c(0.5, 0.5), FALSE)
   test(c(0.5, 0.5), TRUE)
 })
+
 test_that("Bernoulli Normal case", {
 
   test <- function(laplace, sparse){
