@@ -4,6 +4,7 @@
 \alias{fnb.update}
 \alias{fnb.update.default}
 \alias{fnb.update.fnb.bernoulli}
+\alias{fnb.update.fnb.multinomial}
 \title{Update function}
 \usage{
 fnb.update(object, x, y, sparse = FALSE, check = TRUE)
@@ -12,6 +13,9 @@ fnb.update(object, x, y, sparse = FALSE, check = TRUE)
   check = TRUE)
 
 \method{fnb.update}{fnb.bernoulli}(object, x, y, sparse = FALSE,
+  check = TRUE)
+
+\method{fnb.update}{fnb.multinomial}(object, x, y, sparse = FALSE,
   check = TRUE)
 }
 \arguments{

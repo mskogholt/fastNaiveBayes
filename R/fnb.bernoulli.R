@@ -74,6 +74,7 @@ predict.fnb.bernoulli <- function(object, newdata, type = c("class", "raw", "raw
   if (type == "rawprob") {
     return(presence_prob + nonpresence_prob)
   }
+
   probs <- exp((presence_prob + nonpresence_prob))
 
   priors <- object$priors

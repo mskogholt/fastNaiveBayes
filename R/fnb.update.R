@@ -68,3 +68,54 @@ fnb.update.fnb.bernoulli <- function(object, x, y, sparse = FALSE, check = TRUE)
     class = "fnb.bernoulli"
   )
 }
+
+#' @export
+#' @import Matrix
+#' @rdname updateFNB
+fnb.update.fnb.multinomial <- function(object, x, y, sparse = FALSE, check = TRUE){
+  if(check){
+    args <- fnb.check.args.model(x, y, priors=NULL, sparse)
+    x <- args$x
+    y <- args$y
+    sparse <- args$sparse
+  }
+
+  # Determine present
+  oldpresent <- object$present
+  newpresent <- fnb.utils.rowsum(x, y, sparse)
+
+  complete_names <- unique(c(colnames(oldpresent), colnames(newpresent)))
+
+  # rownames(oldpresent) <- object$levels
+  # rownames(newpresent) <- levels(y)
+
+  oldpresent <- fnb.utils.pad_with_zeros(oldpresent, sparse, complete_names)
+  newpresent <- fnb.utils.pad_with_zeros(newpresent, sparse, complete_names)
+
+  present <- rbind(oldpresent, newpresent)
+  present <- fnb.utils.rowsum(present, as.factor(rownames(present)), sparse)
+
+  # Determine obs
+  oldobs <- object$obs
+  newobs <- nrow(x)
+  obs <- oldobs+newobs
+
+  # Determine n (i.e. obs count per level)
+  oldn <- object$n
+  newn <- tabulate(y, nbins = nlevels(y))
+
+  n <- rowsum(c(oldn, newn), c(object$levels, levels(y)))[,1]
+
+  structure(list(
+    present = present,
+    laplace = object$laplace,
+    n = n,
+    obs = obs,
+    priors = object$priors,
+    names = colnames(present),
+    levels = names(n)),
+
+    class = "fnb.multinomial"
+  )
+}
+

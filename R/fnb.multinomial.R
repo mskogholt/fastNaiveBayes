@@ -22,15 +22,15 @@ fnb.multinomial.default <- function(x, y, priors = NULL, laplace = 0, sparse = F
     }
   }
 
-  present <- fnb.utils.rowsum(x, y, sparse)
+  n <- tabulate(y, nbins = nlevels(y))
 
-  if(is.null(priors)){
-    priors <- tabulate(y, nbins = nlevels(y)) / nrow(x)
-  }
+  present <- fnb.utils.rowsum(x, y, sparse)
 
   structure(list(
     present = present,
     laplace = laplace,
+    n = n,
+    obs = nrow(x),
     priors = priors,
     names = colnames(x),
     levels = levels(y)),
@@ -70,8 +70,14 @@ predict.fnb.multinomial <- function(object, newdata, type = c("class", "raw", "r
   if (type == "rawprob") {
     return(presence_prob)
   }
+
   probs <- exp(presence_prob)
+
   priors <- object$priors
+  if(is.null(priors)){
+    priors <- object$n / object$obs
+  }
+
   for(i in 1:length(priors)){
     probs[,i] <- probs[,i]*priors[i]
   }
