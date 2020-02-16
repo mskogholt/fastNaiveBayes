@@ -44,16 +44,17 @@ fnb.gaussian.default <- function(x, y, priors = NULL, sparse = FALSE, check = TR
     })
   }
 
-  if(is.null(priors)){
-    priors <- n / nrow(x)
-  }
-
-  structure(list(
-    probability_table = probability_table,
-    priors = priors,
-    names = colnames(x),
-    levels = levels(y)),
-
+  structure(
+    list(
+      probability_table = probability_table,
+      n = n,
+      obs = nrow(x),
+      priors = priors,
+      names = colnames(x),
+      levels = levels(y),
+      x = x,
+      y = y
+    ),
     class = "fnb.gaussian"
   )
 }
@@ -111,6 +112,10 @@ predict.fnb.gaussian <- function(object, newdata, type = c("class", "raw", "rawp
   }
 
   priors <- object$priors
+  if(is.null(priors)){
+    priors <- object$n / object$obs
+  }
+
   probs <- exp(probs)
   for(i in 1:length(priors)){
     probs[,i] <- probs[,i]*priors[i]

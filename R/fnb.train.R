@@ -134,13 +134,14 @@ fnb.train.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, 
     priors <- tabulate(y) / nrow(x)
   }
 
-  structure(list(
-    models = models,
-    priors = priors,
-    names = colnames(x),
-    distribution = distribution,
-    levels = levels(y)),
-
+  structure(
+    list(
+      models = models,
+      priors = priors,
+      names = colnames(x),
+      distribution = distribution,
+      levels = levels(y)
+    ),
     class = "fastNaiveBayes"
   )
 }

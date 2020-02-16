@@ -26,15 +26,16 @@ fnb.multinomial.default <- function(x, y, priors = NULL, laplace = 0, sparse = F
 
   present <- fnb.utils.rowsum(x, y, sparse)
 
-  structure(list(
-    present = present,
-    laplace = laplace,
-    n = n,
-    obs = nrow(x),
-    priors = priors,
-    names = colnames(x),
-    levels = levels(y)),
-
+  structure(
+    list(
+      present = present,
+      laplace = laplace,
+      n = n,
+      obs = nrow(x),
+      priors = priors,
+      names = colnames(x),
+      levels = levels(y)
+    ),
     class = "fnb.multinomial"
   )
 }

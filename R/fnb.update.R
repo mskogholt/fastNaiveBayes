@@ -119,3 +119,25 @@ fnb.update.fnb.multinomial <- function(object, x, y, sparse = FALSE, check = TRU
   )
 }
 
+#' @export
+#' @import Matrix
+#' @rdname updateFNB
+fnb.update.fnb.gaussian <- function(object, x, y, sparse = FALSE, check = TRUE){
+  if(check){
+    args <- fnb.check.args.model(x, y, priors=NULL, sparse)
+    x <- args$x
+    y <- args$y
+    sparse <- args$sparse
+  }
+
+  oldx <- object$x
+  x <- x[,colnames(x),drop=FALSE]
+  if(ncol(x)!=ncol(oldx)){
+    stop("x has different columns than original data used to build object")
+  }
+
+  newx <- rbind(object$x, x)
+  newy <- factor(c(as.character(object$y), as.character(y)))
+
+  return(fnb.gaussian(newx, newy, object$priors, sparse))
+}
