@@ -1,3 +1,14 @@
+## fastNaiveBayes 2.2.0
+
+### New Features
+- update functionality to iteratively train models
+- Poisson event model
+
+### Bug Fixes
+- Threshold parameter not working for gaussian
+
+### Other Changes
+
 ## fastNaiveBayes 2.1.1
 
 ### New Features

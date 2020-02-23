@@ -1,17 +1,14 @@
 comments
 --------
 
-This should fix the errors that are seen on win-builder. For some reason
-I do not get any results from win-builder to my email, so it is hard to
-debug from my side.
-
 ### New Features
 
--   load and save options
+-   update functionality to iteratively train models
+-   Poisson event model
 
 ### Bug Fixes
 
--   Argument errors
+-   Threshold parameter not working for gaussian
 
 ### Other Changes
 

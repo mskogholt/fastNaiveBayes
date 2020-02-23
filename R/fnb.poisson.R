@@ -1,24 +1,20 @@
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayesF
-fnb.gaussian <- function(x, y, priors = NULL, sparse = FALSE, check = TRUE) {
-  UseMethod("fnb.gaussian")
+fnb.poisson <- function(x, y, priors = NULL, sparse = FALSE, check = TRUE) {
+  UseMethod("fnb.poisson")
 }
 
 #' @export
 #' @import Matrix
 #' @rdname fastNaiveBayesF
-fnb.gaussian.default <- function(x, y, priors = NULL, sparse = FALSE, check = TRUE) {
+fnb.poisson.default <- function(x, y, priors = NULL, sparse = FALSE, check = TRUE) {
   if(check){
     args <- fnb.check.args.model(x, y, priors, sparse)
     x <- args$x
     y <- args$y
     priors <- args$priors
     sparse <- args$sparse
-
-    if(any(rowsum(rep(1,times = length(y)), y)<2)){
-      stop('Not enough rows. Should be at least 2 rows or more for each class')
-    }
   }
 
   n <- tabulate(y)
@@ -28,19 +24,14 @@ fnb.gaussian.default <- function(x, y, priors = NULL, sparse = FALSE, check = TR
       if (ncol(x) == 1) {
         x_level <- as.matrix(x_level)
       }
-
       means <- Matrix::colMeans(x_level, na.rm = TRUE)
-      mat_means <- matrix(means, nrow = nrow(x_level), ncol = ncol(x_level), byrow = TRUE)
-      stddev <- sqrt(Matrix::colSums((x_level - mat_means)^2) / (nrow(x_level) - 1))
-      return(list(level = level, means = means, stddev = stddev))
+      return(list(level = level, means = means))
     })
   }else{
     rs <- rowsum(x,y)
     means <- rs/n
-    stddev <- sqrt((rowsum(x^2,y)-2*means*rs+n*means^2)/(n-1))
     probability_table <- lapply(levels(y), function(level){
-      return(list(level = level, means = means[level,],
-                  stddev = stddev[level,]))
+      return(list(level = level, means = means[level,]))
     })
   }
 
@@ -55,14 +46,14 @@ fnb.gaussian.default <- function(x, y, priors = NULL, sparse = FALSE, check = TR
       x = x,
       y = y
     ),
-    class = "fnb.gaussian"
+    class = "fnb.poisson"
   )
 }
 
 #' @export
 #' @import Matrix
 #' @rdname predict.fastNaiveBayes
-predict.fnb.gaussian <- function(object, newdata, type = c("class", "raw", "rawprob"), sparse = FALSE,
+predict.fnb.poisson <- function(object, newdata, type = c("class", "raw", "rawprob"), sparse = FALSE,
                                  threshold = .Machine$double.eps, check = TRUE, ...) {
 
   type <- match.arg(type)
@@ -79,37 +70,30 @@ predict.fnb.gaussian <- function(object, newdata, type = c("class", "raw", "rawp
   probs <- NULL
 
   names <- colnames(newdata)
-  newdata <- t(newdata)
+  #newdata <- t(newdata)
   for (j in 1:length(data)) {
     level <- data[[j]]
     level_probs <- NULL
 
     if(!check){
       means <- level$means
-      stddevs <- level$stddev
     }else{
       if(length(level$means)==1 && length(names)==1){
         means <- level$means
-        stddevs <- level$stddev
       }else{
         means <- level$means[names]
-        stddevs <- level$stddev[names]
       }
     }
 
-    # level_probs <- colSums((newdata-means)^2/stddevs^2)
-    # level_probs <- sum(log(1/(sqrt(2*pi*stddevs^2))))-0.5*level_probs
+    means <- matrix(means, nrow=nrow(newdata), ncol=length(means), byrow=TRUE)
 
-    level_probs <- (newdata-means)^2/stddevs^2
-    level_probs <- log(1/(sqrt(2*pi*stddevs^2))) - 0.5*level_probs
-
+    level_probs <- log(((means^newdata)*exp(-means))/factorial(newdata))
     level_probs[is.infinite(level_probs)] <- max(-100000, log(threshold))
     level_probs[is.na(level_probs)] <- max(-100000, log(threshold))
 
-    level_probs <- colSums(level_probs)
+    level_probs <- rowSums(level_probs)
 
     probs <- cbind(probs, level_probs)
-
     colnames(probs)[j] <- level$level
   }
 

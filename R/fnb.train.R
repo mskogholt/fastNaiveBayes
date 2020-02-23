@@ -102,13 +102,13 @@ fnb.train.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, 
       }
 
       distribution <- distribution[lengths(distribution) != 0]
-      if(!any(c("bernoulli","multinomial","gaussian") %in% names(distribution))){
+      if(!any(c("bernoulli","multinomial","gaussian","poisson") %in% names(distribution))){
         stop('Not a single accepted distribution was specified or all were empty')
       }
 
-      if(any(!names(distribution) %in% c("bernoulli","multinomial","gaussian"))){
+      if(any(!names(distribution) %in% c("bernoulli","multinomial","gaussian","poisson"))){
         warning('Redundant distribution specified, will be removed')
-        distribution <- distribution[names(distribution) %in% c("bernoulli","multinomial","gaussian")]
+        distribution <- distribution[names(distribution) %in% c("bernoulli","multinomial","gaussian","poisson")]
       }
     }
   }
@@ -126,6 +126,10 @@ fnb.train.default <- function(x, y, priors = NULL, laplace = 0, sparse = FALSE, 
            gaussian = {
              newx <- x[, distribution[[dist]], drop=FALSE]
              fnb.gaussian(newx, y, priors, sparse)
+           },
+           poisson = {
+             newx <- x[, distribution[[dist]], drop=FALSE]
+             fnb.poisson(newx, y, priors, sparse)
            }
     )
   })

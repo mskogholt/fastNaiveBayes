@@ -5,6 +5,9 @@
 \alias{fnb.update.default}
 \alias{fnb.update.fnb.bernoulli}
 \alias{fnb.update.fnb.multinomial}
+\alias{fnb.update.fnb.gaussian}
+\alias{fnb.update.fnb.poisson}
+\alias{fnb.update.fastNaiveBayes}
 \title{Update function}
 \usage{
 fnb.update(object, x, y, sparse = FALSE, check = TRUE)
@@ -16,6 +19,15 @@ fnb.update(object, x, y, sparse = FALSE, check = TRUE)
   check = TRUE)
 
 \method{fnb.update}{fnb.multinomial}(object, x, y, sparse = FALSE,
+  check = TRUE)
+
+\method{fnb.update}{fnb.gaussian}(object, x, y, sparse = FALSE,
+  check = TRUE)
+
+\method{fnb.update}{fnb.poisson}(object, x, y, sparse = FALSE,
+  check = TRUE)
+
+\method{fnb.update}{fastNaiveBayes}(object, x, y, sparse = FALSE,
   check = TRUE)
 }
 \arguments{

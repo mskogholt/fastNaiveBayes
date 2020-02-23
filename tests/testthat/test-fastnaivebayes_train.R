@@ -111,4 +111,14 @@ test_that("", {
   single_predictions <- predict(single_mod, x[,3,drop=FALSE], type = "raw")
 
   expect_equal(sum(round(abs(predictions - single_predictions), digits = 12)), 0)
+
+  # Poisson
+  mixed <- fnb.train(x[,1,drop=FALSE], y, sparse = FALSE, distribution =
+                       list("poisson"=c("wo")))
+  single_mod <- fnb.poisson(x[,1,drop=FALSE], y, sparse = FALSE)
+
+  predictions <- predict(mixed, x[,1,drop=FALSE], type = "raw")
+  single_predictions <- predict(single_mod, x[,1,drop=FALSE], type = "raw")
+
+  expect_equal(sum(round(abs(predictions - single_predictions), digits = 12)), 0)
 })

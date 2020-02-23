@@ -1,7 +1,7 @@
 Package: fastNaiveBayes
 Type: Package
 Title: Extremely Fast Implementation of a Naive Bayes Classifier
-Version: 2.2.0
+Version: 2.3.0
 Author: Martin Skogholt
 Maintainer: Martin Skogholt <m.skogholt@gmail.com>
 Description: This is an extremely fast implementation of a Naive Bayes classifier. This 
