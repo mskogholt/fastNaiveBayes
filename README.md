@@ -15,6 +15,12 @@ Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/iss
 News
 ----
 
+### v2.2.0 (2020-02-23)
+
+-   Poisson event model! Use fnb.poisson to use it. Or specify it in train
+-   Update function. Allows to iteratively train models on new data
+-   Threshold parameter for Gaussian was fixed
+
 ### v2.1.1 (2020-02-09)
 
 -   Load and save option that enables storing model to file and loading it later
