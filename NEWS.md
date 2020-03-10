@@ -1,3 +1,8 @@
+## fastNaiveBayes 2.2.1
+
+### Bug Fixes
+- Class prediction mis-labelling issue fixed for multinomial
+
 ## fastNaiveBayes 2.2.0
 
 ### New Features

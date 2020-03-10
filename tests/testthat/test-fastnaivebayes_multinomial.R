@@ -210,5 +210,22 @@ test_that("Single row",{
   expect_equal(sum(round(abs(predictions-sparse_cast_predictions), digits = 12)), 0)
 })
 
+test_that("Class prediction matches probability", {
+  ## Example from 13.1 Manning, Christopher D et al. 2008. Introduction to
+  ## Information Retrieval. Cambridge University Press.
+  x <- structure(c(2, 2, 1, 1, 3, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+                   1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1), .Dim = 5:6,
+                 .Dimnames = list(
+                   docs = c("d1", "d2", "d3", "d4", "d5"),
+                   features = c("chinese",
+                                "beijing", "shanghai", "macao", "tokyo", "japan")))
+  y <- factor(c("Y", "Y", "Y", "N", NA), ordered = TRUE)
 
-
+  tmod_fnb <- fnb.multinomial(x[1:4, ], y[1:4], laplace = 1)
+  pred_probs <- predict(tmod_fnb, newdata = x, type = "raw")
+  pred_class <- predict(tmod_fnb, newdata = x, type = "class")
+  expect_identical(
+    as.character(pred_class),
+    colnames(pred_probs)[max.col(pred_probs)]
+  )
+})
