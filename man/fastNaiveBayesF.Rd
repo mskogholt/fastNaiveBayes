@@ -16,41 +16,61 @@
 \alias{fnb.train.default}
 \title{Fast Naive Bayes Classifier for different Distributions}
 \usage{
-fastNaiveBayes(x, y, priors = NULL, laplace = 0, sparse = FALSE,
-  check = TRUE, distribution = fnb.detect_distribution(x))
+fastNaiveBayes(
+  x,
+  y,
+  priors = NULL,
+  laplace = 0,
+  sparse = FALSE,
+  check = TRUE,
+  distribution = fnb.detect_distribution(x)
+)
 
-\method{fastNaiveBayes}{default}(x, y, priors = NULL, laplace = 0,
-  sparse = FALSE, check = TRUE,
-  distribution = fnb.detect_distribution(x))
+\method{fastNaiveBayes}{default}(
+  x,
+  y,
+  priors = NULL,
+  laplace = 0,
+  sparse = FALSE,
+  check = TRUE,
+  distribution = fnb.detect_distribution(x)
+)
 
-fnb.bernoulli(x, y, priors = NULL, laplace = 0, sparse = FALSE,
-  check = TRUE)
+fnb.bernoulli(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE)
 
-\method{fnb.bernoulli}{default}(x, y, priors = NULL, laplace = 0,
-  sparse = FALSE, check = TRUE)
+\method{fnb.bernoulli}{default}(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE)
 
 fnb.gaussian(x, y, priors = NULL, sparse = FALSE, check = TRUE)
 
-\method{fnb.gaussian}{default}(x, y, priors = NULL, sparse = FALSE,
-  check = TRUE)
+\method{fnb.gaussian}{default}(x, y, priors = NULL, sparse = FALSE, check = TRUE)
 
-fnb.multinomial(x, y, priors = NULL, laplace = 0, sparse = FALSE,
-  check = TRUE)
+fnb.multinomial(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE)
 
-\method{fnb.multinomial}{default}(x, y, priors = NULL, laplace = 0,
-  sparse = FALSE, check = TRUE)
+\method{fnb.multinomial}{default}(x, y, priors = NULL, laplace = 0, sparse = FALSE, check = TRUE)
 
 fnb.poisson(x, y, priors = NULL, sparse = FALSE, check = TRUE)
 
-\method{fnb.poisson}{default}(x, y, priors = NULL, sparse = FALSE,
-  check = TRUE)
+\method{fnb.poisson}{default}(x, y, priors = NULL, sparse = FALSE, check = TRUE)
 
-fnb.train(x, y, priors = NULL, laplace = 0, sparse = FALSE,
-  check = TRUE, distribution = fnb.detect_distribution(x))
+fnb.train(
+  x,
+  y,
+  priors = NULL,
+  laplace = 0,
+  sparse = FALSE,
+  check = TRUE,
+  distribution = fnb.detect_distribution(x)
+)
 
-\method{fnb.train}{default}(x, y, priors = NULL, laplace = 0,
-  sparse = FALSE, check = TRUE,
-  distribution = fnb.detect_distribution(x))
+\method{fnb.train}{default}(
+  x,
+  y,
+  priors = NULL,
+  laplace = 0,
+  sparse = FALSE,
+  check = TRUE,
+  distribution = fnb.detect_distribution(x)
+)
 }
 \arguments{
 \item{x}{a numeric matrix, or a dgcMatrix. For bernoulli should only contain 0's and 1's. For multinomial should only

@@ -132,8 +132,7 @@ predict.fnb.gaussian <- function(object, newdata, type = c("class", "raw", "rawp
   probs <- probs / denom
 
   if (type == "class") {
-    class <- as.factor(object$levels[max.col(probs, ties.method = "first")])
-    levels(class) <- object$levels
+    class <- factor(colnames(probs)[max.col(probs, ties.method = "first")], levels = object$levels)
     return(class)
   }
   return(probs)

@@ -208,6 +208,34 @@ test_that("Single row",{
 
   expect_equal(sum(round(abs(predictions-sparse_predictions), digits = 12)), 0)
   expect_equal(sum(round(abs(predictions-sparse_cast_predictions), digits = 12)), 0)
+
+
+  # Test issue #7: Bug in class prediction for multinomial
+  library(fastNaiveBayes)
+  x <- structure(c(
+    2, 2, 1, 1, 3, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+    1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1
+  ),
+  .Dim = 5:6,
+  .Dimnames = list(
+    docs = c("d1", "d2", "d3", "d4", "d5"),
+    features = c(
+      "chinese",
+      "beijing", "shanghai", "macao", "tokyo", "japan"
+    )
+  )
+  )
+  y <- factor(c("Y", "Y", "Y", "N", NA), ordered = TRUE)
+
+  tmod_fnb <- fnb.multinomial(x[1:4, ], y[1:4], laplace = 1)
+  ##
+  ## docs         N         Y
+  ##   d5 0.3102414 0.6897586
+  pred <- predict(tmod_fnb, newdata = x[5, , drop = FALSE], type = "class")
+  expect_equal(as.character(pred), "Y")
+  ## [1] N
+  ## Levels: N Y
+
 })
 
 

@@ -92,8 +92,7 @@ predict.fnb.bernoulli <- function(object, newdata, type = c("class", "raw", "raw
   probs <- probs / denom
 
   if (type == "class") {
-    class <- as.factor(object$levels[max.col(probs, ties.method = "first")])
-    levels(class) <- object$levels
+    class <- factor(colnames(probs)[max.col(probs, ties.method = "first")], levels = object$levels)
     return(class)
   }
   return(probs)

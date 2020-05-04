@@ -4,11 +4,13 @@
 \name{tweets}
 \alias{tweets}
 \title{This data originally came from Crowdflower's Data for Everyone library.}
-\format{A data frame with 14640 rows and 2 columns
+\format{
+A data frame with 14640 rows and 2 columns
 \describe{
    \item{airline_sentiment}{sentiment, as either 'negative','neutral','positive'}
    \item{text}{raw text, character}
-}}
+}
+}
 \source{
 \url{https://www.figure-eight.com/data-for-everyone/}
 }

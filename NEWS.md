@@ -1,3 +1,7 @@
+## fastNaiveBayes 2.2.1
+### Bug Fixes
+- Fix bug with class prediction of a single level
+
 ## fastNaiveBayes 2.2.0
 
 ### New Features

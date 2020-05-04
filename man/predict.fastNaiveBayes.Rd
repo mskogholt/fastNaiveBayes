@@ -9,25 +9,55 @@
 \alias{predict.fastNaiveBayes}
 \title{Predict Method for fastNaiveBayes fits}
 \usage{
-\method{predict}{fnb.bernoulli}(object, newdata, type = c("class", "raw",
-  "rawprob"), sparse = FALSE, threshold = .Machine$double.eps,
-  check = TRUE, ...)
+\method{predict}{fnb.bernoulli}(
+  object,
+  newdata,
+  type = c("class", "raw", "rawprob"),
+  sparse = FALSE,
+  threshold = .Machine$double.eps,
+  check = TRUE,
+  ...
+)
 
-\method{predict}{fnb.gaussian}(object, newdata, type = c("class", "raw",
-  "rawprob"), sparse = FALSE, threshold = .Machine$double.eps,
-  check = TRUE, ...)
+\method{predict}{fnb.gaussian}(
+  object,
+  newdata,
+  type = c("class", "raw", "rawprob"),
+  sparse = FALSE,
+  threshold = .Machine$double.eps,
+  check = TRUE,
+  ...
+)
 
-\method{predict}{fnb.multinomial}(object, newdata, type = c("class",
-  "raw", "rawprob"), sparse = FALSE, threshold = .Machine$double.eps,
-  check = TRUE, ...)
+\method{predict}{fnb.multinomial}(
+  object,
+  newdata,
+  type = c("class", "raw", "rawprob"),
+  sparse = FALSE,
+  threshold = .Machine$double.eps,
+  check = TRUE,
+  ...
+)
 
-\method{predict}{fnb.poisson}(object, newdata, type = c("class", "raw",
-  "rawprob"), sparse = FALSE, threshold = .Machine$double.eps,
-  check = TRUE, ...)
+\method{predict}{fnb.poisson}(
+  object,
+  newdata,
+  type = c("class", "raw", "rawprob"),
+  sparse = FALSE,
+  threshold = .Machine$double.eps,
+  check = TRUE,
+  ...
+)
 
-\method{predict}{fastNaiveBayes}(object, newdata, type = c("class",
-  "raw"), sparse = FALSE, threshold = .Machine$double.eps,
-  check = TRUE, ...)
+\method{predict}{fastNaiveBayes}(
+  object,
+  newdata,
+  type = c("class", "raw"),
+  sparse = FALSE,
+  threshold = .Machine$double.eps,
+  check = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted object of class "fnb.bernoulli", "fnb.gaussian", "fnb.multinomial" or "fastNaiveBayes".}

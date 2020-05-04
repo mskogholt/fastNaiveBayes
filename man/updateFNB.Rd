@@ -12,23 +12,17 @@
 \usage{
 fnb.update(object, x, y, sparse = FALSE, check = TRUE)
 
-\method{fnb.update}{default}(object, x, y, sparse = FALSE,
-  check = TRUE)
+\method{fnb.update}{default}(object, x, y, sparse = FALSE, check = TRUE)
 
-\method{fnb.update}{fnb.bernoulli}(object, x, y, sparse = FALSE,
-  check = TRUE)
+\method{fnb.update}{fnb.bernoulli}(object, x, y, sparse = FALSE, check = TRUE)
 
-\method{fnb.update}{fnb.multinomial}(object, x, y, sparse = FALSE,
-  check = TRUE)
+\method{fnb.update}{fnb.multinomial}(object, x, y, sparse = FALSE, check = TRUE)
 
-\method{fnb.update}{fnb.gaussian}(object, x, y, sparse = FALSE,
-  check = TRUE)
+\method{fnb.update}{fnb.gaussian}(object, x, y, sparse = FALSE, check = TRUE)
 
-\method{fnb.update}{fnb.poisson}(object, x, y, sparse = FALSE,
-  check = TRUE)
+\method{fnb.update}{fnb.poisson}(object, x, y, sparse = FALSE, check = TRUE)
 
-\method{fnb.update}{fastNaiveBayes}(object, x, y, sparse = FALSE,
-  check = TRUE)
+\method{fnb.update}{fastNaiveBayes}(object, x, y, sparse = FALSE, check = TRUE)
 }
 \arguments{
 \item{object}{fitted model}
