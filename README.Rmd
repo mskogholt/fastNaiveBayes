@@ -25,6 +25,9 @@ This implementation offers a huge performance gain compared to other implementat
 Any issues can be submitted to: <https://github.com/mskogholt/fastNaiveBayes/issues>.
 
 ## News
+### v2.2.1 (2020-05-04)
+* Bug fix class prediction
+
 ### v2.2.0 (2020-02-23)
 * Poisson event model! Use fnb.poisson to use it. Or specify it in train
 * Update function. Allows to iteratively train models on new data
